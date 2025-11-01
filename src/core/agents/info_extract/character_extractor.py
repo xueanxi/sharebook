@@ -3,7 +3,7 @@
 """
 
 from typing import Dict, Any
-from .base import BaseExtractor, ParallelExtractionState
+from .base import BaseExtractor, NovelExtractionState
 
 
 class CharacterExtractor(BaseExtractor):
@@ -34,7 +34,7 @@ class CharacterExtractor(BaseExtractor):
         # 创建处理链
         self.chain = self._create_chain(prompt_template)
     
-    def process(self, state: ParallelExtractionState) -> None:
+    def process(self, state: NovelExtractionState) -> None:
         """处理文本
         
         Args:

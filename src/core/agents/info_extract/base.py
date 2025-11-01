@@ -16,7 +16,7 @@ from config.llm_config import LLMConfig
 
 
 # 定义状态类型
-class ParallelExtractionState(TypedDict):
+class NovelExtractionState(TypedDict):
     """并行提取状态"""
     text: str
     preprocessed_text: str
@@ -106,7 +106,7 @@ class BaseExtractor(BaseAgent):
         """
         raise NotImplementedError("子类必须实现extract方法")
     
-    def process(self, state: ParallelExtractionState) -> None:
+    def process(self, state: NovelExtractionState) -> None:
         """处理状态的抽象方法，子类需要实现
         
         Args:

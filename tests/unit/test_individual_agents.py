@@ -17,7 +17,7 @@ from src.core.agents.info_extract.text_preprocessor import TextPreprocessor
 from src.core.agents.info_extract.character_extractor import CharacterExtractor
 from src.core.agents.info_extract.plot_analyzer import PlotAnalyzer
 from src.core.agents.info_extract.satisfaction_identifier import SatisfactionPointIdentifier
-from src.core.agents.info_extract.base import ParallelExtractionState
+from src.core.agents.info_extract.base import NovelExtractionState
 
 from tests.test_utils import (
     get_test_novel_content, 
@@ -37,7 +37,7 @@ class TestSingleAgent:
     @pytest.fixture
     def state(self, novel_content):
         """测试状态夹具"""
-        return ParallelExtractionState(
+        return NovelExtractionState(
             text=novel_content,
             preprocessed_text="",
             character_info={},

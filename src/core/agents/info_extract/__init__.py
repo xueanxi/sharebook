@@ -4,7 +4,7 @@
 """
 
 # 导入基础类
-from .base import BaseAgent, BaseExtractor, ParallelExtractionState
+from .base import BaseAgent, BaseExtractor, NovelExtractionState
 
 # 导入各个Agent类
 from .text_preprocessor import TextPreprocessor
@@ -18,7 +18,7 @@ __all__ = [
     # 基础类
     "BaseAgent",
     "BaseExtractor", 
-    "ParallelExtractionState",
+    "NovelExtractionState",
     
     # Agent类
     "TextPreprocessor",

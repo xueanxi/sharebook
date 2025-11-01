@@ -5,7 +5,7 @@
 from typing import Dict, Any
 from langgraph.graph import StateGraph, START, END
 
-from .base import ParallelExtractionState
+from .base import NovelExtractionState
 from .text_preprocessor import TextPreprocessor
 from .character_extractor import CharacterExtractor
 from .plot_analyzer import PlotAnalyzer
@@ -25,7 +25,7 @@ class NovelInformationExtractor:
         # 构建并行处理图
         self.parallel_app = self._build_parallel_graph()
     
-    def _preprocess_text(self, state: ParallelExtractionState) -> Dict[str, Any]:
+    def _preprocess_text(self, state: NovelExtractionState) -> Dict[str, Any]:
         """预处理文本节点"""
         # 调用文本预处理器
         preprocessed_text = ""
@@ -52,7 +52,7 @@ class NovelInformationExtractor:
             "preprocess_done": True
         }
     
-    def _extract_character_info(self, state: ParallelExtractionState) -> Dict[str, Any]:
+    def _extract_character_info(self, state: NovelExtractionState) -> Dict[str, Any]:
         """提取人物信息节点"""
         # 确保预处理已完成
         if not state.get("preprocess_done", False):
@@ -95,7 +95,7 @@ class NovelInformationExtractor:
             "character_done": True
         }
     
-    def _analyze_plot(self, state: ParallelExtractionState) -> Dict[str, Any]:
+    def _analyze_plot(self, state: NovelExtractionState) -> Dict[str, Any]:
         """分析剧情节点"""
         # 确保预处理已完成
         if not state.get("preprocess_done", False):
@@ -138,7 +138,7 @@ class NovelInformationExtractor:
             "plot_done": True
         }
     
-    def _identify_satisfaction_points(self, state: ParallelExtractionState) -> Dict[str, Any]:
+    def _identify_satisfaction_points(self, state: NovelExtractionState) -> Dict[str, Any]:
         """识别爽点节点"""
         # 确保预处理已完成
         if not state.get("preprocess_done", False):
@@ -181,7 +181,7 @@ class NovelInformationExtractor:
             "satisfaction_done": True
         }
     
-    def _merge_results(self, state: ParallelExtractionState) -> Dict[str, Any]:
+    def _merge_results(self, state: NovelExtractionState) -> Dict[str, Any]:
         """合并所有提取结果"""
         # 记录任务完成状态
         completed_tasks = ["结果合并"]
@@ -197,7 +197,7 @@ class NovelInformationExtractor:
             "completed_tasks": completed_tasks
         }
     
-    def _should_merge(self, state: ParallelExtractionState) -> str:
+    def _should_merge(self, state: NovelExtractionState) -> str:
         """判断是否所有并行任务都已完成，可以进行合并"""
         if (state.get("preprocess_done", False) and 
             state.get("character_done", False) and 
@@ -210,7 +210,7 @@ class NovelInformationExtractor:
     def _build_parallel_graph(self) -> StateGraph:
         """构建并行处理的状态图"""
         # 创建状态图
-        workflow = StateGraph(ParallelExtractionState)
+        workflow = StateGraph(NovelExtractionState)
         
         # 添加节点
         workflow.add_node("preprocess", self._preprocess_text)

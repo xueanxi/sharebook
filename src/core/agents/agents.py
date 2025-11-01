@@ -8,7 +8,7 @@ from .info_extract import (
     # 基础类
     BaseAgent,
     BaseExtractor,
-    ParallelExtractionState,
+    NovelExtractionState,
     
     # 信息提取Agent
     TextPreprocessor,
@@ -23,7 +23,7 @@ __all__ = [
     # 基础类
     "BaseAgent",
     "BaseExtractor",
-    "ParallelExtractionState",
+    "NovelExtractionState",
     
     # 信息提取Agent
     "TextPreprocessor",
