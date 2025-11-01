@@ -21,16 +21,13 @@ def extract_command(args):
         # 单文件提取
         result = extract_novel_information(
             args.file, 
-            args.output, 
-            parallel=args.parallel, 
-            parallel_method=args.parallel_method
+            args.output
         )
         if result.get("success", False):
             print("✅ 信息提取成功!")
             if "output_file" in result:
                 print(f"结果已保存到: {result['output_file']}")
-            if args.parallel:
-                print(f"使用 {args.parallel_method} 并行处理模式")
+            print("使用 langgraph 并行处理模式")
         else:
             print("❌ 信息提取失败:")
             print(result.get("error", "未知错误"))
@@ -42,19 +39,18 @@ def extract_command(args):
             print(f"在目录 {args.directory} 中没有找到.txt文件")
             return
         
-        result = batch_extract_novel_info(txt_files, args.output, args.parallel, args.parallel_method)
+        result = batch_extract_novel_info(txt_files, args.output)
         print(f"处理完成: {result['successful_extractions']}/{result['total_files']} 个文件成功")
         if result.get("failed_extractions", 0) > 0:
             print(f"有 {result['failed_extractions']} 个文件处理失败")
-        if args.parallel:
-            print(f"使用 {args.parallel_method} 并行处理模式")
+        print("使用 langgraph 并行处理模式")
     else:
         print("请指定要处理的文件或目录")
 
 
 def crawl_command(args):
     """处理爬虫命令"""
-    print("启动小说爬虫...")
+    print(f"启动小说爬虫，URL: {args.url}")
     try:
         get_clipboard_after_click()
         print("✅ 爬取完成!")
@@ -74,13 +70,11 @@ def main():
     extract_group.add_argument('-d', '--directory', help='包含小说文件的目录路径')
     extract_parser.add_argument('-o', '--output', help='输出目录', default='data/output')
     
-    # 并行处理选项
-    extract_parser.add_argument('--parallel', action='store_true', help='启用并行处理')
-    extract_parser.add_argument('--parallel-method', choices=['langgraph', 'threadpool'], 
-                               default='langgraph', help='并行处理方法 (默认: langgraph)')
-    
     # 爬虫命令
     crawl_parser = subparsers.add_parser('crawl', help='爬取小说内容')
+    crawl_parser.add_argument("url", help="小说的URL")
+    crawl_parser.add_argument('-o', '--output', help='输出目录', default='.')
+    crawl_parser.add_argument('-c', '--chapters', type=int, help='要爬取的章节数量')
     
     args = parser.parse_args()
     

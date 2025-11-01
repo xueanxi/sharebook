@@ -13,8 +13,13 @@ load_dotenv()
 class LLMConfig:
     """本地LLM配置类"""
 
-    # 基础API配置
-    API_BASE = "http://127.0.0.1:8000/v1"
+    # 本地vllm
+    # API_BASE = "http://127.0.0.1:8000/v1"
+    # MODEL_NAME = "local-llm"
+    # API_KEY = "123"
+
+    # 服务器vllm
+    API_BASE = "http://192.168.3.46:8000/v1"
     MODEL_NAME = "local-llm"
     API_KEY = "123"
     # API_BASE = "https://api-inference.modelscope.cn/v1"

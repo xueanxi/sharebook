@@ -26,15 +26,13 @@ def custom_json_serializer(obj):
         return str(obj)
 
 
-def extract_novel_information(file_path: str, output_dir: Optional[str] = None, parallel: bool = False, parallel_method: str = "langgraph") -> Dict[str, Any]:
+def extract_novel_information(file_path: str, output_dir: Optional[str] = None) -> Dict[str, Any]:
     """
     从小说文件中提取信息的便捷函数
     
     Args:
         file_path: 小说文件路径
         output_dir: 输出目录，如果提供，结果将保存为JSON文件
-        parallel: 是否使用并行处理
-        parallel_method: 并行处理方法，可选"langgraph"或"threadpool"
         
     Returns:
         包含提取信息的字典
@@ -58,20 +56,7 @@ def extract_novel_information(file_path: str, output_dir: Optional[str] = None, 
     
     # 创建主控Agent并执行信息提取
     main_agent = MainControlAgent()
-    
-    # 根据参数选择提取方法
-    if parallel:
-        if parallel_method == "langgraph":
-            result = main_agent.extract_novel_information_parallel(novel_text)
-        elif parallel_method == "threadpool":
-            result = main_agent.extract_novel_information_threadpool(novel_text)
-        else:
-            result = main_agent.extract_novel_information(novel_text)
-            result["parallel_execution"] = False
-            result["error"] = f"未知的并行方法: {parallel_method}，使用串行处理"
-    else:
-        result = main_agent.extract_novel_information(novel_text)
-        result["parallel_execution"] = False
+    result = main_agent.extract_novel_information(novel_text)
     
     # 添加文件路径和成功状态
     result["file_path"] = file_path
@@ -85,12 +70,8 @@ def extract_novel_information(file_path: str, output_dir: Optional[str] = None, 
         file_name = os.path.basename(file_path)
         base_name, _ = os.path.splitext(file_name)
         
-        # 根据处理方式添加不同的后缀
-        if result.get("parallel_execution", False):
-            parallel_suffix = f"_parallel_{parallel_method}"
-        else:
-            parallel_suffix = "_serial"
-            
+        # 所有处理都是并行的
+        parallel_suffix = "_parallel"
         output_file = os.path.join(output_dir, f"{base_name}_info{parallel_suffix}.json")
         
         # 保存结果
@@ -102,15 +83,13 @@ def extract_novel_information(file_path: str, output_dir: Optional[str] = None, 
     return result
 
 
-def batch_extract_novel_info(file_paths: list, output_dir: Optional[str] = None, parallel: bool = False, parallel_method: str = "langgraph") -> Dict[str, Any]:
+def batch_extract_novel_info(file_paths: list, output_dir: Optional[str] = None) -> Dict[str, Any]:
     """
     批量处理多个小说文件
     
     Args:
         file_paths: 小说文件路径列表
         output_dir: 输出目录，如果提供，结果将保存为JSON文件
-        parallel: 是否使用并行处理
-        parallel_method: 并行处理方法，可选"langgraph"或"threadpool"
         
     Returns:
         包含所有提取信息的字典
@@ -125,7 +104,7 @@ def batch_extract_novel_info(file_paths: list, output_dir: Optional[str] = None,
     
     for file_path in file_paths:
         print(f"处理文件: {file_path}")
-        result = extract_novel_information(file_path, output_dir, parallel, parallel_method)
+        result = extract_novel_information(file_path, output_dir)
         
         file_name = os.path.basename(file_path)
         results["results"][file_name] = result
@@ -141,8 +120,7 @@ def batch_extract_novel_info(file_paths: list, output_dir: Optional[str] = None,
         results["error"] = f"有{results['failed_extractions']}个文件提取失败"
     
     # 添加并行处理信息
-    results["parallel_execution"] = parallel
-    results["parallel_method"] = parallel_method if parallel else None
+    results["parallel_execution"] = True
     
     return results
 
