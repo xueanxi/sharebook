@@ -27,7 +27,7 @@ def extract_command(args):
             print("✅ 信息提取成功!")
             if "output_file" in result:
                 print(f"结果已保存到: {result['output_file']}")
-            print("使用 langgraph 并行处理模式")
+            print("使用langgraph处理模式")
         else:
             print("❌ 信息提取失败:")
             print(result.get("error", "未知错误"))
