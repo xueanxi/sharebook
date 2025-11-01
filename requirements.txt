@@ -1,0 +1,27 @@
+# ShareNovel项目依赖
+
+# 核心框架
+langchain>=0.1.0
+langchain-community>=0.0.10
+
+# LLM相关
+openai>=1.0.0
+
+# 网页爬取
+playwright>=1.40.0
+
+# 数据处理
+pandas>=2.0.0
+numpy>=1.24.0
+
+# 配置管理
+pydantic>=2.0.0
+
+# 测试框架
+pytest>=7.0.0
+pytest-asyncio>=0.21.0
+
+# 开发工具
+black>=23.0.0
+flake8>=6.0.0
+mypy>=1.0.0
