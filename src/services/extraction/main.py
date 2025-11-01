@@ -8,7 +8,7 @@ import json
 from typing import Dict, Any, Optional
 from langchain_core.messages import BaseMessage
 
-from src.core.agents.agents import MainControlAgent
+from src.core.agents.info_extract import NovelInformationExtractor
 
 
 def custom_json_serializer(obj):
@@ -55,8 +55,8 @@ def extract_novel_information(file_path: str, output_dir: Optional[str] = None) 
         }
     
     # 创建主控Agent并执行信息提取
-    main_agent = MainControlAgent()
-    result = main_agent.extract_novel_information(novel_text)
+    main_agent = NovelInformationExtractor()
+    result = main_agent.extract_novel_information_parallel(novel_text)
     
     # 添加文件路径和成功状态
     result["file_path"] = file_path
