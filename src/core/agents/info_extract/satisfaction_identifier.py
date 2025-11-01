@@ -3,7 +3,7 @@
 """
 
 from typing import Dict, Any
-from .base import BaseExtractor, NovelExtractionState
+from .base import BaseExtractor, NovelExtractionState, log_process
 
 
 class SatisfactionPointIdentifier(BaseExtractor):
@@ -35,6 +35,7 @@ class SatisfactionPointIdentifier(BaseExtractor):
         # 创建处理链
         self.chain = self._create_chain(prompt_template)
     
+    @log_process
     def process(self, state: NovelExtractionState) -> None:
         """处理文本
         

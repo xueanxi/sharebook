@@ -3,6 +3,9 @@
 """
 
 import re
+import logging
+import time
+import functools
 from typing import Dict, List, Any, Optional, TypedDict, Annotated
 from langchain_core.messages import SystemMessage, HumanMessage
 from langchain_core.prompts import ChatPromptTemplate
@@ -13,6 +16,32 @@ from langgraph.types import Send
 import operator
 
 from config.llm_config import LLMConfig
+
+# 配置日志
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+def log_process(func):
+    """装饰器，用于记录process方法的开始和结束"""
+    @functools.wraps(func)
+    def wrapper(self, state, *args, **kwargs):
+        class_name = self.__class__.__name__
+        logger.info(f"@{class_name}.{func.__name__} - 开始处理")
+        start_time = time.time()
+        
+        try:
+            result = func(self, state, *args, **kwargs)
+            end_time = time.time()
+            duration = end_time - start_time
+            logger.info(f"@{class_name}.{func.__name__} - 处理完成，耗时: {duration:.2f}秒")
+            return result
+        except Exception as e:
+            end_time = time.time()
+            duration = end_time - start_time
+            logger.error(f"@{class_name}.{func.__name__} - 处理失败，耗时: {duration:.2f}秒，错误: {str(e)}")
+            raise
+    
+    return wrapper
 
 
 # 定义状态类型
@@ -106,6 +135,7 @@ class BaseExtractor(BaseAgent):
         """
         raise NotImplementedError("子类必须实现extract方法")
     
+    @log_process
     def process(self, state: NovelExtractionState) -> None:
         """处理状态的抽象方法，子类需要实现
         

@@ -3,7 +3,7 @@
 """
 
 from typing import Dict, Any
-from .base import BaseAgent, NovelExtractionState
+from .base import BaseAgent, NovelExtractionState, log_process
 
 
 class TextPreprocessor(BaseAgent):
@@ -29,6 +29,7 @@ class TextPreprocessor(BaseAgent):
         # 创建处理链
         self.chain = self._create_chain(prompt_template)
     
+    @log_process
     def process(self, state: NovelExtractionState) -> None:
         """处理文本
         

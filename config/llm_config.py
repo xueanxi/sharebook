@@ -28,7 +28,7 @@ class LLMConfig:
     
     # 请求配置
     TIMEOUT = 30  # 请求超时时间（秒）
-    MAX_RETRIES = 3  # 最大重试次数
+    MAX_RETRIES = 8  # 最大重试次数
     TEMPERATURE = 0.4  # 默认温度参数
     
     # 模型参数
