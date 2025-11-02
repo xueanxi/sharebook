@@ -13,30 +13,39 @@ class SatisfactionPointIdentifier(BaseExtractor):
     
     def __init__(self, model_name=None, temperature=0.7):
         super().__init__(model_name, temperature)
-        self.logger = get_agent_logger(self.__class__.__module__ + "." + self.__class__.__name__)
+        self.logger = get_agent_logger(self.__class__.__name__)
         
         # 使用LCEL创建处理链
         prompt_template = """
-        你是一个专业的爽点识别助手，专门识别小说中的爽点情节。
-        你的主要任务是：
-        1. 识别小说中的爽点关键词和情节
-        2. 分析爽点的类型和分布
-        3. 评估爽点密度和效果
-        4. 提供爽点分析报告
-        
-        请直接使用你的语言理解能力来完成这些任务，并提供详细的爽点分析。分析时请考虑：
-        - 爽点的类型：打脸、逆袭、突破、升级、复仇、装逼等
-        - 爽点在故事中的位置和作用
-        - 爽点的强度和读者可能产生的情感反应
-        - 爽点之间的间隔和节奏
-        - 爽点与人物成长的关系
-        
-        小说文本：
-        {text}
+        作为爽点识别专家，识别小说中的爽点情节。
+
+        任务：
+        1. 识别爽点关键词和情节
+        2. 分类爽点类型
+        3. 评估爽点强度
+        4. 统计爽点分布
+
+        要求：
+        - 输出JSON格式
+        - 只标记明显的爽点(强度>5)
+        - 按出现顺序排列
+        - 总字数控制在500字内
+
+        输出格式：
+        {{
+            "satisfaction_points": [
+                {{"description": "爽点描述", "type": "打脸/逆袭/突破/升级/复仇/装逼", "intensity": 1-10, "location": "大致位置"}}
+            ],
+            "density": "高/中/低",
+            "main_types": ["类型1", "类型2"]
+        }}
+
+        文本：{text}
         """
         
-        # 创建处理链
-        self.chain = self._create_chain(prompt_template)
+        # 创建处理链，使用JSON输出解析器
+        from langchain_core.output_parsers import JsonOutputParser
+        self.chain = self._create_chain(prompt_template) | JsonOutputParser()
     
     def process(self, state: NovelExtractionState) -> None:
         """处理文本
@@ -47,23 +56,8 @@ class SatisfactionPointIdentifier(BaseExtractor):
         # 记录开始处理
         start_time = time.time()
         input_text_length = len(state.get("preprocessed_text", ""))
-        self.logger.info(f"@{self.__class__.__name__}.process - 开始处理，输入文本长度: {input_text_length} 字符")
-        
-        # 检查依赖关系
-        if not state.get("preprocess_done", False):
-            self.logger.warning(f"@{self.__class__.__name__}.process - 预处理未完成，跳过爽点识别")
-            # 确保errors键存在
-            if "errors" not in state:
-                state["errors"] = []
-            state["errors"].append("爽点识别: 预处理未完成")
-            state["completed_tasks"].append("爽点识别(失败)")
-            state["satisfaction_info"] = {
-                "success": False,
-                "error": "预处理未完成",
-                "agent": "爽点识别器"
-            }
-            return
-        
+        self.logger.info(f"process 开始处理，输入文本长度: {input_text_length} 字符")
+
         try:
             # 使用LCEL链处理文本
             result = self.chain.invoke({"text": state["preprocessed_text"]})
@@ -79,13 +73,13 @@ class SatisfactionPointIdentifier(BaseExtractor):
             # 记录处理完成
             end_time = time.time()
             duration = end_time - start_time
-            self.logger.info(f"@{self.__class__.__name__}.process - 处理完成，耗时: {duration:.2f}秒")
+            self.logger.info(f"process 处理完成，文本长度:{len(result)}，耗时: {duration:.2f}秒")
             
         except Exception as e:
             # 记录异常
             end_time = time.time()
             duration = end_time - start_time
-            self.logger.error(f"@{self.__class__.__name__}.process - 处理失败，耗时: {duration:.2f}秒，错误: {str(e)}")
+            self.logger.error(f"process 处理失败，耗时: {duration:.2f}秒，错误: {str(e)}")
             
             # 确保errors键存在
             if "errors" not in state:

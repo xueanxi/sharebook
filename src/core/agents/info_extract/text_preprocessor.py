@@ -13,20 +13,24 @@ class TextPreprocessor(BaseAgent):
     
     def __init__(self, model_name=None, temperature=0.7):
         super().__init__(model_name, temperature)
-        self.logger = get_agent_logger(self.__class__.__module__ + "." + self.__class__.__name__)
+        self.logger = get_agent_logger(self.__class__.__name__)
         
         # 使用LCEL创建处理链
         prompt_template = """
-        你是一个专业的文本预处理助手，专门处理小说文本。
-        你的主要任务是：
-        1. 清洗文本内容，去除无关字符和格式
-        2. 确保文本格式统一，便于后续处理
-        3. 提供文本统计信息
-        
-        请直接使用你的语言能力进行清洗，提供清晰的总结和清洗后的文本。
-        
-        原始文本：
-        {text}
+        作为文本预处理专家，清洗小说文本。
+
+        任务：
+        1. 去除无关字符和格式
+        2. 统一文本格式
+        3. 提供基本统计信息
+
+        要求：
+        - 保持原文内容和顺序
+        - 只做必要清洗，不改变语义
+        - 输出清洗后的文本，不要额外解释
+        - 最多返回原文本长度的95%
+
+        文本：{text}
         """
         
         # 创建处理链
@@ -41,7 +45,7 @@ class TextPreprocessor(BaseAgent):
         # 记录开始处理
         start_time = time.time()
         input_text_length = len(state.get("text", ""))
-        self.logger.info(f"@{self.__class__.__name__}.process - 开始处理，输入文本长度: {input_text_length} 字符")
+        self.logger.info(f"process 开始处理，输入文本长度: {input_text_length} 字符")
         
         try:
             # 使用LCEL链处理文本，添加回调处理器
@@ -55,13 +59,13 @@ class TextPreprocessor(BaseAgent):
             # 记录处理完成
             end_time = time.time()
             duration = end_time - start_time
-            self.logger.info(f"@{self.__class__.__name__}.process - 处理完成，耗时: {duration:.2f}秒")
+            self.logger.info(f"process 处理完成，文本长度:{len(result)}，耗时: {duration:.2f}秒")
             
         except Exception as e:
             # 记录异常
             end_time = time.time()
             duration = end_time - start_time
-            self.logger.error(f"@{self.__class__.__name__}.process - 处理失败，耗时: {duration:.2f}秒，错误: {str(e)}")
+            self.logger.error(f"process 处理失败，耗时: {duration:.2f}秒，错误: {str(e)}")
             
             # 如果LLM处理失败，使用简单的文本清洗作为备用方案
             cleaned_text = self._simple_text_cleaning(state["text"])

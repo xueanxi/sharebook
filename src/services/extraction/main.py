@@ -15,17 +15,21 @@ from src.core.agents.info_extract import NovelInformationExtractor
 
 def custom_json_serializer(obj):
     """自定义JSON序列化函数，处理不可序列化的对象"""
-    if isinstance(obj, BaseMessage):
-        return {
-            "type": obj.__class__.__name__,
-            "content": obj.content
-        }
-    elif hasattr(obj, 'dict'):
-        return obj.dict()
-    elif hasattr(obj, '__dict__'):
-        return obj.__dict__
-    else:
-        return str(obj)
+    try:
+        if isinstance(obj, BaseMessage):
+            return {
+                "type": obj.__class__.__name__,
+                "content": obj.content
+            }
+        elif hasattr(obj, 'dict'):
+            return obj.dict()
+        elif hasattr(obj, '__dict__'):
+            return obj.__dict__
+        else:
+            return str(obj)
+    except Exception as e:
+        # 如果序列化失败，返回错误信息
+        return f"<序列化失败: {str(e)}>"
 
 
 async def extract_novel_information(file_path: str, output_dir: Optional[str] = None) -> Dict[str, Any]:
@@ -71,7 +75,17 @@ async def extract_novel_information(file_path: str, output_dir: Optional[str] = 
     
     # 如果指定了输出目录，异步保存结果
     if output_dir:
-        os.makedirs(output_dir, exist_ok=True)
+        try:
+            os.makedirs(output_dir, exist_ok=True)
+            print(f"输出目录已创建: {output_dir}")  # 添加输出目录创建的日志
+            
+            # 检查目录是否可写
+            if not os.access(output_dir, os.W_OK):
+                raise PermissionError(f"输出目录 {output_dir} 不可写")
+        except Exception as e:
+            result["save_error"] = f"创建输出目录失败: {str(e)}"
+            print(f"创建输出目录失败: {str(e)}")
+            return result
         
         # 生成输出文件名
         file_name = os.path.basename(file_path)
@@ -80,6 +94,7 @@ async def extract_novel_information(file_path: str, output_dir: Optional[str] = 
         # 所有处理都是并行的
         parallel_suffix = "_async"
         output_file = os.path.join(output_dir, f"{base_name}_info{parallel_suffix}.json")
+        print(f"准备保存文件到: {output_file}")  # 添加文件保存路径的日志
         
         # 异步保存结果
         try:
@@ -87,8 +102,10 @@ async def extract_novel_information(file_path: str, output_dir: Optional[str] = 
                 content = json.dumps(result, ensure_ascii=False, indent=2, default=custom_json_serializer)
                 await f.write(content)
             result["output_file"] = output_file
+            print(f"文件已成功保存到: {output_file}")  # 添加保存成功的日志
         except Exception as e:
             result["save_error"] = f"保存文件失败: {str(e)}"
+            print(f"保存文件失败: {str(e)}")  # 添加保存失败的日志
     
     return result
 
@@ -162,34 +179,38 @@ async def batch_extract_novel_info(file_paths: list, output_dir: Optional[str] =
     # 创建信号量控制并发数量
     semaphore = asyncio.Semaphore(max_concurrent)
     
-    async def process_with_semaphore(file_path):
+    async def process_and_save_immediately(file_path):
+        """处理文件并立即保存结果"""
         async with semaphore:
-            return await process_single_file(file_path, output_dir)
+            # 处理单个文件
+            result = await process_single_file(file_path, output_dir)
+            
+            # 立即保存结果到汇总字典中
+            file_name = os.path.basename(file_path)
+            results["results"][file_name] = result
+            
+            # 更新统计信息
+            if result.get("success", False):
+                results["successful_extractions"] += 1
+                if "output_file" in result:
+                    print(f"文件 {file_name} 处理成功，结果已保存到: {result['output_file']}")
+                else:
+                    print(f"文件 {file_name} 处理成功，但未保存文件")
+            else:
+                results["failed_extractions"] += 1
+                error_msg = result.get("error", "未知错误")
+                save_error = result.get("save_error", None)
+                if save_error:
+                    error_msg += f", 保存错误: {save_error}"
+                print(f"文件 {file_name} 处理失败: {error_msg}")
+            
+            return result
     
     # 创建任务列表
-    tasks = [process_with_semaphore(file_path) for file_path in file_paths]
+    tasks = [process_and_save_immediately(file_path) for file_path in file_paths]
     
-    # 等待所有任务完成
-    file_results = await asyncio.gather(*tasks, return_exceptions=True)
-    
-    # 整理结果
-    for i, file_path in enumerate(file_paths):
-        result = file_results[i]
-        
-        # 处理异常情况
-        if isinstance(result, Exception):
-            result = {
-                "success": False,
-                "error": f"处理异常: {str(result)}"
-            }
-        
-        file_name = os.path.basename(file_path)
-        results["results"][file_name] = result
-        
-        if result.get("success", False):
-            results["successful_extractions"] += 1
-        else:
-            results["failed_extractions"] += 1
+    # 等待所有任务完成，但每个文件处理完成后会立即保存结果
+    await asyncio.gather(*tasks, return_exceptions=True)
     
     # 如果有失败的提取，将整体成功标志设为False
     if results["failed_extractions"] > 0:

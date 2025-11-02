@@ -13,29 +13,37 @@ class CharacterExtractor(BaseExtractor):
     
     def __init__(self, model_name=None, temperature=0.7):
         super().__init__(model_name, temperature)
-        self.logger = get_agent_logger(self.__class__.__module__ + "." + self.__class__.__name__)
+        self.logger = get_agent_logger(self.__class__.__name__)
         
         # 使用LCEL创建处理链
         prompt_template = """
-        你是一个专业的人物提取助手，专门分析小说文本中的人物。
-        你的主要任务是：
-        1. 从小说文本中识别人物名称
-        2. 统计每个人物的出现次数
-        3. 分析人物关系和重要性
-        4. 提供人物列表和相关信息
-        
-        请直接使用你的语言理解能力来完成这些任务，并提供详细的人物分析报告。分析时请考虑：
-        - 人物名称的上下文
-        - 人物在故事中的角色
-        - 人物之间的关系
-        - 人物出现的重要性排序
-        
-        小说文本：
-        {text}
+        作为人物提取专家，从小说中提取人物信息。
+
+        任务：
+        1. 识别人物名称
+        2. 统计出现次数
+        3. 标记主要角色(>5次出现)
+        4. 简述人物关系
+
+        要求：
+        - 输出JSON格式
+        - 只列出有名字的角色
+        - 按出现次数降序排列
+        - 总字数控制在500字内
+
+        输出格式：
+        {{
+            "characters": [
+                {{"name": "人物名", "count": 次数, "role": "主角/配角/次要", "relations": ["关系1", "关系2"]}}
+            ]
+        }}
+
+        文本：{text}
         """
         
-        # 创建处理链
-        self.chain = self._create_chain(prompt_template)
+        # 创建处理链，使用JSON输出解析器
+        from langchain_core.output_parsers import JsonOutputParser
+        self.chain = self._create_chain(prompt_template) | JsonOutputParser()
     
     def process(self, state: NovelExtractionState) -> None:
         """处理文本
@@ -46,22 +54,7 @@ class CharacterExtractor(BaseExtractor):
         # 记录开始处理
         start_time = time.time()
         input_text_length = len(state.get("preprocessed_text", ""))
-        self.logger.info(f"@{self.__class__.__name__}.process - 开始处理，输入文本长度: {input_text_length} 字符")
-        
-        # 检查依赖关系
-        if not state.get("preprocess_done", False):
-            self.logger.warning(f"@{self.__class__.__name__}.process - 预处理未完成，跳过人物提取")
-            # 确保errors键存在
-            if "errors" not in state:
-                state["errors"] = []
-            state["errors"].append("人物提取: 预处理未完成")
-            state["completed_tasks"].append("人物提取(失败)")
-            state["character_info"] = {
-                "success": False,
-                "error": "预处理未完成",
-                "agent": "人物提取器"
-            }
-            return
+        self.logger.info(f"process 开始处理，输入文本长度: {input_text_length} 字符")
         
         try:
             # 使用LCEL链处理文本，添加回调处理器
@@ -78,13 +71,13 @@ class CharacterExtractor(BaseExtractor):
             # 记录处理完成
             end_time = time.time()
             duration = end_time - start_time
-            self.logger.info(f"@{self.__class__.__name__}.process - 处理完成，耗时: {duration:.2f}秒")
+            self.logger.info(f"process 处理完成，文本长度:{len(result)} 耗时: {duration:.2f}秒")
             
         except Exception as e:
             # 记录异常
             end_time = time.time()
             duration = end_time - start_time
-            self.logger.error(f"@{self.__class__.__name__}.process - 处理失败，耗时: {duration:.2f}秒，错误: {str(e)}")
+            self.logger.error(f"process 处理失败，耗时: {duration:.2f}秒，错误: {str(e)}")
             
             # 确保errors键存在
             if "errors" not in state:
