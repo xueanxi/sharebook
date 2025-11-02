@@ -14,7 +14,9 @@
     },
     "agent": {
       "level": 10,
-      "format": "%(asctime)s - %(name)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s"
+      "format": "%(asctime)s - %(name)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s",
+      "console_level": 20,
+      "file_level": 10
     },
     "api": {
       "level": 20,

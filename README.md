@@ -1,1 +1,1 @@
-python -m src.services.extraction.main  data/raw --processes 1 --output data/output
+python -m src.services.extraction.main  data/raw --processes 2 --output data/output

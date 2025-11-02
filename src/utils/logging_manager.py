@@ -89,6 +89,29 @@ class LogManager:
             category_dir = self.log_dir / category.value
             category_dir.mkdir(exist_ok=True)
     
+    def _get_category_config(self, category: LogCategory) -> Dict[str, Any]:
+        """获取分类特定配置
+        
+        Args:
+            category: 日志分类
+            
+        Returns:
+            分类配置字典
+        """
+        # 默认使用全局配置
+        category_config = {
+            "level": self._config["level"],
+            "format": self._config["format"],
+            "date_format": self._config["date_format"]
+        }
+        
+        # 如果配置文件中有分类特定配置，则覆盖默认配置
+        if "categories" in self._config and category.value in self._config["categories"]:
+            cat_config = self._config["categories"][category.value]
+            category_config.update(cat_config)
+        
+        return category_config
+    
     def _get_log_file_path(self, category: LogCategory, name: str) -> str:
         """获取日志文件路径
         
@@ -104,35 +127,64 @@ class LogManager:
         file_name = f"{name}_{current_date}.log"
         return str(self.log_dir / category.value / file_name)
     
-    def _create_formatter(self) -> logging.Formatter:
-        """创建日志格式化器"""
-        return logging.Formatter(
-            self._config["format"],
-            datefmt=self._config["date_format"]
-        )
+    def _create_formatter(self, category_config: Optional[Dict[str, Any]] = None) -> logging.Formatter:
+        """创建日志格式化器
+        
+        Args:
+            category_config: 分类特定配置，如果为None则使用全局配置
+        """
+        if category_config is None:
+            format_str = self._config["format"]
+            date_format = self._config["date_format"]
+        else:
+            format_str = category_config.get("format", self._config["format"])
+            date_format = category_config.get("date_format", self._config["date_format"])
+            
+        return logging.Formatter(format_str, datefmt=date_format)
     
-    def _create_console_handler(self) -> logging.StreamHandler:
-        """创建控制台处理器"""
+    def _create_console_handler(self, category_config: Optional[Dict[str, Any]] = None) -> logging.StreamHandler:
+        """创建控制台处理器
+        
+        Args:
+            category_config: 分类特定配置，如果为None则使用全局配置
+        """
+        if category_config is None:
+            level = self._config["level"]
+        else:
+            # 优先使用分类特定的控制台级别，否则使用通用级别
+            level = category_config.get("console_level", category_config.get("level", self._config["level"]))
+            
         console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setLevel(self._config["level"])
-        console_handler.setFormatter(self._create_formatter())
+        console_handler.setLevel(level)
+        console_handler.setFormatter(self._create_formatter(category_config))
         return console_handler
     
-    def _create_file_handler(self, file_path: str) -> logging.Handler:
-        """创建文件处理器"""
+    def _create_file_handler(self, file_path: str, category_config: Optional[Dict[str, Any]] = None) -> logging.Handler:
+        """创建文件处理器
+        
+        Args:
+            file_path: 日志文件路径
+            category_config: 分类特定配置，如果为None则使用全局配置
+        """
         from logging.handlers import RotatingFileHandler
         
         # 确保日志目录存在
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
         
+        if category_config is None:
+            level = self._config["level"]
+        else:
+            # 优先使用分类特定的文件级别，否则使用通用级别
+            level = category_config.get("file_level", category_config.get("level", self._config["level"]))
+            
         file_handler = RotatingFileHandler(
             file_path,
             maxBytes=self._config["max_file_size"],
             backupCount=self._config["backup_count"],
             encoding=self._config["encoding"]
         )
-        file_handler.setLevel(self._config["level"])
-        file_handler.setFormatter(self._create_formatter())
+        file_handler.setLevel(level)
+        file_handler.setFormatter(self._create_formatter(category_config))
         return file_handler
     
     def get_logger(self, name: str, category: LogCategory = LogCategory.GENERAL) -> logging.Logger:
@@ -154,7 +206,10 @@ class LogManager:
         
         # 创建新的日志记录器
         logger = logging.getLogger(logger_id)
-        logger.setLevel(self._config["level"])
+        
+        # 获取分类特定配置
+        category_config = self._get_category_config(category)
+        logger.setLevel(category_config["level"])
         
         # 避免重复添加处理器
         if logger.handlers:
@@ -162,12 +217,14 @@ class LogManager:
         
         # 添加控制台处理器
         if self._config["console_output"]:
-            logger.addHandler(self._create_console_handler())
+            console_handler = self._create_console_handler(category_config)
+            logger.addHandler(console_handler)
         
         # 添加文件处理器
         if self._config["file_output"]:
             file_path = self._get_log_file_path(category, name)
-            logger.addHandler(self._create_file_handler(file_path))
+            file_handler = self._create_file_handler(file_path, category_config)
+            logger.addHandler(file_handler)
             logger.info(f"日志文件已创建: {file_path}")
         
         # 缓存日志记录器
@@ -249,6 +306,46 @@ def get_agent_logger(name: str) -> logging.Logger:
         配置好的Agent日志记录器
     """
     return get_logger(name, LogCategory.AGENT)
+
+
+def get_agent_file_logger(name: str) -> logging.Logger:
+    """获取仅写入文件的Agent日志记录器，用于记录详细输出（如LLM响应）
+    
+    Args:
+        name: 日志记录器名称
+        
+    Returns:
+        配置好的仅写入文件的Agent日志记录器
+    """
+    # 创建唯一标识符
+    logger_id = f"{LogCategory.AGENT.value}.file_only.{name}"
+    
+    # 如果已存在，直接返回
+    if logger_id in log_manager._loggers:
+        return log_manager._loggers[logger_id]
+    
+    # 创建新的日志记录器
+    logger = logging.getLogger(logger_id)
+    
+    # 获取分类特定配置
+    category_config = log_manager._get_category_config(LogCategory.AGENT)
+    logger.setLevel(category_config.get("file_level", category_config.get("level", log_manager._config["level"])))
+    
+    # 避免重复添加处理器
+    if logger.handlers:
+        return logger
+    
+    # 只添加文件处理器，不添加控制台处理器
+    if log_manager._config["file_output"]:
+        file_path = log_manager._get_log_file_path(LogCategory.AGENT, f"{name}_detailed")
+        file_handler = log_manager._create_file_handler(file_path, category_config)
+        logger.addHandler(file_handler)
+        logger.info(f"详细日志文件已创建: {file_path}")
+    
+    # 缓存日志记录器
+    log_manager._loggers[logger_id] = logger
+    
+    return logger
 
 
 def get_api_logger(name: str) -> logging.Logger:

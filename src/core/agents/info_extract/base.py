@@ -16,18 +16,12 @@ from langgraph.types import Send
 import operator
 
 from config.llm_config import LLMConfig
-from src.utils.logging_manager import get_agent_logger, log_agent_process
+from src.utils.logging_manager import get_agent_logger, get_agent_file_logger, log_agent_process
 
 # 初始化日志记录器
 logger = get_agent_logger(__name__)
-
-def log_process(func):
-    """装饰器，用于记录process方法的开始和结束，同时输出到控制台和日志文件
-    
-    注意：此函数已弃用，请使用log_agent_process装饰器替代
-    """
-    return log_agent_process(func)
-
+# 初始化文件专用日志记录器，用于记录LLM详细输出
+file_logger = get_agent_file_logger(__name__)
 
 # 定义状态类型
 class NovelExtractionState(TypedDict):
@@ -78,8 +72,38 @@ class BaseAgent:
         Returns:
             处理链
         """
+        from langchain_core.callbacks import BaseCallbackHandler
+        
+        class LLMCallbackHandler(BaseCallbackHandler):
+            """自定义回调处理器，用于记录LLM的详细输出"""
+            
+            def __init__(self, logger):
+                self.logger = logger
+            
+            def on_llm_start(self, serialized, prompts, **kwargs):
+                """LLM开始时的回调"""
+                self.logger.debug(f"LLM开始处理，提示: {prompts[0][:100]}...")
+            
+            def on_llm_end(self, response, **kwargs):
+                """LLM结束时的回调"""
+                if hasattr(response, 'generations') and response.generations:
+                    for gen_list in response.generations:
+                        for gen in gen_list:
+                            self.logger.info(f"LLM输出: {gen.text}")
+            
+            def on_llm_error(self, error, **kwargs):
+                """LLM出错时的回调"""
+                self.logger.error(f"LLM处理出错: {str(error)}")
+        
+        # 创建提示模板
         prompt = ChatPromptTemplate.from_template(prompt_template)
+        
+        # 创建处理链，不使用bind方式添加回调
         chain = prompt | self.llm | StrOutputParser()
+        
+        # 保存回调处理器供后续使用
+        self._llm_callback_handler = LLMCallbackHandler(file_logger)
+        
         return chain
     
     def _simple_text_cleaning(self, text: str) -> str:
@@ -120,7 +144,7 @@ class BaseExtractor(BaseAgent):
         """
         raise NotImplementedError("子类必须实现extract方法")
     
-    @log_process
+    @log_agent_process
     def process(self, state: NovelExtractionState) -> None:
         """处理状态的抽象方法，子类需要实现
         

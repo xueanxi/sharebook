@@ -27,158 +27,54 @@ class NovelInformationExtractor:
     
     def _preprocess_text(self, state: NovelExtractionState) -> Dict[str, Any]:
         """预处理文本节点"""
-        # 调用文本预处理器
-        preprocessed_text = ""
-        completed_tasks = []
-        errors = []
+        # 调用文本预处理器的process方法
+        self.text_preprocessor.process(state)
         
-        try:
-            # 使用LCEL链处理文本
-            result = self.text_preprocessor.chain.invoke({"text": state["text"]})
-            preprocessed_text = result
-            completed_tasks.append("文本预处理")
-        except Exception as e:
-            # 如果LLM处理失败，使用简单的文本清洗作为备用方案
-            cleaned_text = self.text_preprocessor._simple_text_cleaning(state["text"])
-            preprocessed_text = cleaned_text
-            errors.append(f"文本预处理异常: {str(e)}")
-            completed_tasks.append("文本预处理(失败)")
-        
-        # 返回状态更新
+        # 返回状态更新，确保包含所有必要的字段
         return {
-            "preprocessed_text": preprocessed_text,
-            "completed_tasks": completed_tasks,
-            "errors": errors,
-            "preprocess_done": True
+            "preprocess_done": True,
+            "preprocessed_text": state.get("preprocessed_text", ""),
+            "completed_tasks": state.get("completed_tasks", []),
+            "errors": state.get("errors", [])
         }
     
     def _extract_character_info(self, state: NovelExtractionState) -> Dict[str, Any]:
         """提取人物信息节点"""
-        # 确保预处理已完成
-        if not state.get("preprocess_done", False):
-            return {
-                "errors": ["人物提取: 预处理未完成"],
-                "completed_tasks": ["人物提取(失败)"],
-                "character_done": True
-            }
+        # 调用人物提取器的process方法
+        self.character_extractor.process(state)
         
-        # 调用人物提取器
-        character_info = {}
-        completed_tasks = []
-        errors = []
-        
-        try:
-            # 使用LCEL链处理文本
-            result = self.character_extractor.chain.invoke({"text": state["preprocessed_text"]})
-            
-            # 更新character_info
-            character_info = {
-                "success": True,
-                "result": result,
-                "agent": "人物提取器"
-            }
-            completed_tasks.append("人物提取")
-        except Exception as e:
-            character_info = {
-                "success": False,
-                "error": str(e),
-                "agent": "人物提取器"
-            }
-            errors.append(f"人物提取异常: {str(e)}")
-            completed_tasks.append("人物提取(失败)")
-        
-        # 返回状态更新
+        # 返回状态更新，确保包含所有必要的字段
         return {
-            "character_info": character_info,
-            "completed_tasks": completed_tasks,
-            "errors": errors,
-            "character_done": True
+            "character_done": True,
+            "character_info": state.get("character_info", {}),
+            "completed_tasks": state.get("completed_tasks", []),
+            "errors": state.get("errors", [])
         }
     
     def _analyze_plot(self, state: NovelExtractionState) -> Dict[str, Any]:
         """分析剧情节点"""
-        # 确保预处理已完成
-        if not state.get("preprocess_done", False):
-            return {
-                "errors": ["剧情分析: 预处理未完成"],
-                "completed_tasks": ["剧情分析(失败)"],
-                "plot_done": True
-            }
+        # 调用剧情分析器的process方法
+        self.plot_analyzer.process(state)
         
-        # 调用剧情分析器
-        plot_info = {}
-        completed_tasks = []
-        errors = []
-        
-        try:
-            # 使用LCEL链处理文本
-            result = self.plot_analyzer.chain.invoke({"text": state["preprocessed_text"]})
-            
-            # 更新plot_info
-            plot_info = {
-                "success": True,
-                "result": result,
-                "agent": "剧情分析器"
-            }
-            completed_tasks.append("剧情分析")
-        except Exception as e:
-            plot_info = {
-                "success": False,
-                "error": str(e),
-                "agent": "剧情分析器"
-            }
-            errors.append(f"剧情分析异常: {str(e)}")
-            completed_tasks.append("剧情分析(失败)")
-        
-        # 返回状态更新
+        # 返回状态更新，确保包含所有必要的字段
         return {
-            "plot_info": plot_info,
-            "completed_tasks": completed_tasks,
-            "errors": errors,
-            "plot_done": True
+            "plot_done": True,
+            "plot_info": state.get("plot_info", {}),
+            "completed_tasks": state.get("completed_tasks", []),
+            "errors": state.get("errors", [])
         }
     
     def _identify_satisfaction_points(self, state: NovelExtractionState) -> Dict[str, Any]:
         """识别爽点节点"""
-        # 确保预处理已完成
-        if not state.get("preprocess_done", False):
-            return {
-                "errors": ["爽点识别: 预处理未完成"],
-                "completed_tasks": ["爽点识别(失败)"],
-                "satisfaction_done": True
-            }
+        # 调用爽点识别器的process方法
+        self.satisfaction_identifier.process(state)
         
-        # 调用爽点识别器
-        satisfaction_info = {}
-        completed_tasks = []
-        errors = []
-        
-        try:
-            # 使用LCEL链处理文本
-            result = self.satisfaction_identifier.chain.invoke({"text": state["preprocessed_text"]})
-            
-            # 更新satisfaction_info
-            satisfaction_info = {
-                "success": True,
-                "result": result,
-                "agent": "爽点识别器"
-            }
-            completed_tasks.append("爽点识别")
-        except Exception as e:
-            satisfaction_info = {
-                "success": False,
-                "error": str(e),
-                "agent": "爽点识别器"
-            }
-            errors.append(f"爽点识别异常: {str(e)}")
-            completed_tasks.append("爽点识别(失败)")
-        
-        # 返回状态更新
+        # 返回状态更新，确保包含所有必要的字段
         return {
-            "satisfaction_info": satisfaction_info,
-            "completed_tasks": completed_tasks,
-            "errors": errors,
-            "satisfaction_done": True
+            "satisfaction_done": True,
+            "satisfaction_info": state.get("satisfaction_info", {}),
+            "completed_tasks": state.get("completed_tasks", []),
+            "errors": state.get("errors", [])
         }
     
     def _merge_results(self, state: NovelExtractionState) -> Dict[str, Any]:
