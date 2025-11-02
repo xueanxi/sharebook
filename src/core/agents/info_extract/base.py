@@ -16,29 +16,45 @@ from langgraph.types import Send
 import operator
 
 from config.llm_config import LLMConfig
+from config.logging_config import get_logger
 
-# 配置日志
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+# 初始化日志记录器
+logger = get_logger(__name__)
 
 def log_process(func):
-    """装饰器，用于记录process方法的开始和结束"""
+    """装饰器，用于记录process方法的开始和结束，同时输出到控制台和日志文件"""
     @functools.wraps(func)
     def wrapper(self, state, *args, **kwargs):
         class_name = self.__class__.__name__
-        logger.info(f"@{class_name}.{func.__name__} - 开始处理")
+        func_name = func.__name__
+        
+        # 获取输入文本信息（如果有）
+        input_info = ""
+        if isinstance(state, dict) and "text" in state:
+            text = state["text"]
+            if isinstance(text, str):
+                input_info = f"，输入文本长度: {len(text)} 字符"
+        
+        logger.info(f"@{class_name}.{func_name} - 开始处理:{input_info}")
         start_time = time.time()
         
         try:
             result = func(self, state, *args, **kwargs)
             end_time = time.time()
             duration = end_time - start_time
-            logger.info(f"@{class_name}.{func.__name__} - 处理完成，耗时: {duration:.2f}秒")
+            
+            # 获取输出信息（如果有）
+            output_info = ""
+            if isinstance(result, dict):
+                output_keys = list(result.keys())
+                output_info = f"，输出键: {output_keys}"
+            
+            logger.info(f"@{class_name}.{func_name} - 处理完成，耗时: {duration:.2f}秒{output_info}")
             return result
         except Exception as e:
             end_time = time.time()
             duration = end_time - start_time
-            logger.error(f"@{class_name}.{func.__name__} - 处理失败，耗时: {duration:.2f}秒，错误: {str(e)}")
+            logger.error(f"@{class_name}.{func_name} - 处理失败，耗时: {duration:.2f}秒，错误: {str(e)}", exc_info=True)
             raise
     
     return wrapper
