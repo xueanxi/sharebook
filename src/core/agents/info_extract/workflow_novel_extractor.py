@@ -15,7 +15,7 @@ from .satisfaction_identifier import SatisfactionPointIdentifier
 class NovelInformationExtractor:
     """小说信息提取器，使用LangGraph实现并行处理"""
     
-    def __init__(self, model_name=None, temperature=0.7):
+    def __init__(self, model_name=None, temperature=0.2):
         # 初始化各个处理器
         self.text_preprocessor = TextPreprocessor(model_name, temperature)
         self.character_extractor = CharacterExtractor(model_name, temperature)
@@ -157,11 +157,12 @@ class NovelInformationExtractor:
         # 编译并返回工作流
         return workflow.compile()
     
-    def extract_novel_information_parallel(self, novel_text: str) -> Dict[str, Any]:
+    def extract_novel_information_parallel(self, novel_text: str, novel_file_name: str) -> Dict[str, Any]:
         """提取小说的综合信息（并行化版本）
         
         Args:
             novel_text: 小说文本
+            novel_file_name: 小说文件名
             
         Returns:
             提取结果
@@ -169,6 +170,7 @@ class NovelInformationExtractor:
         # 初始状态
         initial_state = {
             "text": novel_text,
+            "novel_file_name": novel_file_name,
             "preprocessed_text": "",
             "character_info": {},
             "plot_info": {},

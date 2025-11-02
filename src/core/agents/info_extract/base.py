@@ -27,6 +27,7 @@ file_logger = get_agent_file_logger(__name__)
 class NovelExtractionState(TypedDict):
     """并行提取状态"""
     text: str
+    novel_file_name:str
     preprocessed_text: str
     character_info: Dict[str, Any]
     plot_info: Dict[str, Any]

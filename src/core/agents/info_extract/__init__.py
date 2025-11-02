@@ -11,7 +11,7 @@ from .text_preprocessor import TextPreprocessor
 from .character_extractor import CharacterExtractor
 from .plot_analyzer import PlotAnalyzer
 from .satisfaction_identifier import SatisfactionPointIdentifier
-from .novel_extractor import NovelInformationExtractor
+from .workflow_novel_extractor import NovelInformationExtractor
 
 # 定义__all__列表，明确导出的类
 __all__ = [

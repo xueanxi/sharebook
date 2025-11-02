@@ -12,7 +12,7 @@ from .base import BaseCharacterCardAgent, CharacterCardState
 from .character_grouping_agent import CharacterGroupingAgent
 from src.utils.logging_manager import get_agent_logger
 
-logger = get_agent_logger(__name__)
+logger = get_agent_logger(__class__.__name__)
 
 
 class CharacterExtractionAgent(BaseCharacterCardAgent):

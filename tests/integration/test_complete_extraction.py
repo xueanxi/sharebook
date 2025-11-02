@@ -15,7 +15,7 @@ from unittest.mock import patch, MagicMock
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from src.core.agents.info_extract.novel_extractor import NovelInformationExtractor
+from src.core.agents.info_extract.workflow_novel_extractor import NovelInformationExtractor
 from src.core.agents.info_extract.base import NovelExtractionState
 
 from tests.test_utils import (

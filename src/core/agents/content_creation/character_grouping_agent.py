@@ -10,7 +10,7 @@ from langchain_core.messages import HumanMessage
 from .base import BaseCharacterCardAgent, CharacterCardState
 from src.utils.logging_manager import get_agent_logger
 
-logger = get_agent_logger(__name__)
+logger = get_agent_logger(__class__.__name__)
 
 
 class CharacterGroupingAgent(BaseCharacterCardAgent):

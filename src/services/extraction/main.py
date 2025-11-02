@@ -9,7 +9,7 @@ import asyncio
 import aiofiles
 from typing import Dict, Any, Optional
 from langchain_core.messages import BaseMessage
-
+from pathlib import Path
 from src.core.agents.info_extract import NovelInformationExtractor
 
 
@@ -60,13 +60,18 @@ async def extract_novel_information(file_path: str, output_dir: Optional[str] = 
             "error": f"读取文件失败: {str(e)}"
         }
     
+    # 使用Path，提取文件名
+    file_name = Path(file_path).name
+    print(f'extract_novel_information# filename:{file_name}')
+    
     # 创建主控Agent并执行信息提取
     main_agent = NovelInformationExtractor()
     
     # 使用异步方式执行信息提取，避免阻塞
     result = await asyncio.to_thread(
         main_agent.extract_novel_information_parallel,
-        novel_text
+        novel_text,
+        file_name
     )
     
     # 添加文件路径和成功状态
@@ -203,6 +208,9 @@ async def batch_extract_novel_info(file_paths: list, output_dir: Optional[str] =
                 if save_error:
                     error_msg += f", 保存错误: {save_error}"
                 print(f"文件 {file_name} 处理失败: {error_msg}")
+                # 记录详细错误信息
+                if "errors" in result and result["errors"]:
+                    print(f"详细错误: {result['errors']}")
             
             return result
     

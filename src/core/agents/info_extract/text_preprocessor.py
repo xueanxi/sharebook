@@ -6,6 +6,7 @@ from typing import Dict, Any
 import time
 from .base import BaseAgent, NovelExtractionState
 from src.utils.logging_manager import get_agent_logger
+from pathlib import Path
 
 
 class TextPreprocessor(BaseAgent):
@@ -14,6 +15,8 @@ class TextPreprocessor(BaseAgent):
     def __init__(self, model_name=None, temperature=0.7):
         super().__init__(model_name, temperature)
         self.logger = get_agent_logger(self.__class__.__name__)
+        self.cleaned_novel_dir = Path('data/cleaned_novel')
+        self.cleaned_novel_dir.mkdir(parents=True, exist_ok=True)
         
         # 使用LCEL创建处理链
         prompt_template = """
@@ -46,6 +49,8 @@ class TextPreprocessor(BaseAgent):
         start_time = time.time()
         input_text_length = len(state.get("text", ""))
         self.logger.info(f"process 开始处理，输入文本长度: {input_text_length} 字符")
+        self.novel_file_name = state["novel_file_name"]
+        self.logger.info(f"process 开始处理，小说文件名: {self.novel_file_name} 文本长度: {input_text_length} 字符")
         
         try:
             # 使用LCEL链处理文本，添加回调处理器
@@ -55,6 +60,12 @@ class TextPreprocessor(BaseAgent):
             state["preprocessed_text"] = result
             state["completed_tasks"].append("文本预处理")
             state["preprocess_done"] = True  # 设置预处理完成标志
+
+            
+            cleaned_novel_file = self.cleaned_novel_dir / self.novel_file_name
+            with open(cleaned_novel_file, "w", encoding="utf-8") as f:
+                f.write(result)
+                self.logger.info(f"preprocess_text 清理小说完成，已保存到: {cleaned_novel_file}")
             
             # 记录处理完成
             end_time = time.time()
@@ -77,29 +88,3 @@ class TextPreprocessor(BaseAgent):
             state["errors"].append(f"文本预处理异常: {str(e)}")
             state["completed_tasks"].append("文本预处理(失败)")
     
-    def preprocess_text(self, text: str) -> Dict[str, Any]:
-        """预处理文本
-        
-        Args:
-            text: 原始文本
-            
-        Returns:
-            预处理结果
-        """
-        try:
-            # 使用LCEL链处理文本
-            result = self.chain.invoke({"text": text})
-            return {
-                "success": True,
-                "result": result,
-                "agent": "文本预处理器"
-            }
-        except Exception as e:
-            # 如果LLM处理失败，使用简单的文本清洗作为备用方案
-            cleaned_text = self._simple_text_cleaning(text)
-            return {
-                "success": False,
-                "result": cleaned_text,
-                "error": str(e),
-                "agent": "文本预处理器"
-            }
