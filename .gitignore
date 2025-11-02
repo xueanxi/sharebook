@@ -208,3 +208,5 @@ __marimo__/
 
 test_output/
 data/output/
+data/output_bak/
+data/raw_bak/

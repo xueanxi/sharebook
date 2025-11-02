@@ -58,7 +58,12 @@ async def extract_novel_information(file_path: str, output_dir: Optional[str] = 
     
     # 创建主控Agent并执行信息提取
     main_agent = NovelInformationExtractor()
-    result = main_agent.extract_novel_information_parallel(novel_text)
+    
+    # 使用异步方式执行信息提取，避免阻塞
+    result = await asyncio.to_thread(
+        main_agent.extract_novel_information_parallel,
+        novel_text
+    )
     
     # 添加文件路径和成功状态
     result["file_path"] = file_path
