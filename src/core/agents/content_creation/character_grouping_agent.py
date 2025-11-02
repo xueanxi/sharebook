@@ -10,7 +10,7 @@ from langchain_core.messages import HumanMessage
 from .base import BaseCharacterCardAgent, CharacterCardState
 from src.utils.logging_manager import get_agent_logger
 
-logger = get_agent_logger(__class__.__name__)
+
 
 
 class CharacterGroupingAgent(BaseCharacterCardAgent):
@@ -18,6 +18,7 @@ class CharacterGroupingAgent(BaseCharacterCardAgent):
     
     def __init__(self, model_name: str = None, temperature: float = 0.3):
         super().__init__(model_name, temperature)
+        self.logger = get_agent_logger(__class__.__name__)
     
     def extract(self, character_info: Dict[str, Any]) -> Dict[str, Any]:
         """根据角色重要性进行分组
@@ -79,7 +80,7 @@ class CharacterGroupingAgent(BaseCharacterCardAgent):
             }
             
         except Exception as e:
-            logger.error(f"角色分组失败: {str(e)}")
+            self.logger.error(f"角色分组失败: {str(e)}")
             return {
                 "success": False,
                 "error": str(e),
@@ -105,21 +106,21 @@ class CharacterGroupingAgent(BaseCharacterCardAgent):
                 state["grouping_done"] = True
                 state["completed_tasks"].append("角色分组")
                 
-                logger.info(f"角色分组完成: 主角{len(result['grouped_characters']['main'])}人, "
+                self.logger.info(f"角色分组完成: 主角{len(result['grouped_characters']['main'])}人, "
                            f"重要配角{len(result['grouped_characters']['support'])}人, "
                            f"普通配角{len(result['grouped_characters']['minor'])}人, "
                            f"龙套角色{len(result['grouped_characters']['extra'])}人")
             else:
                 # 记录错误
                 state["errors"].append(f"角色分组失败: {result['error']}")
-                logger.error(f"角色分组失败: {result['error']}")
+                self.logger.error(f"角色分组失败: {result['error']}")
             
             return state
             
         except Exception as e:
             error_msg = f"角色分组处理异常: {str(e)}"
             state["errors"].append(error_msg)
-            logger.error(error_msg)
+            self.logger.error(error_msg)
             return state
     
     def create_processing_groups(self, grouped_characters: Dict[str, List]) -> List[List[str]]:

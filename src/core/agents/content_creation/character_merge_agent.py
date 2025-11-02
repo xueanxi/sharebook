@@ -10,14 +10,12 @@ from langchain_core.messages import HumanMessage
 from .base import BaseCharacterCardAgent, CharacterCardState
 from src.utils.logging_manager import get_agent_logger
 
-logger = get_agent_logger(__class__.__name__)
-
-
 class CharacterMergeAgent(BaseCharacterCardAgent):
     """角色信息合并Agent，判断是否需要新增阶段"""
     
     def __init__(self, model_name: str = None, temperature: float = 0.3):
         super().__init__(model_name, temperature)
+        self.logger = get_agent_logger(__class__.__name__)
     
     def extract(self, temp_cards: Dict[str, Any], existing_cards: Dict[str, Any]) -> Dict[str, Any]:
         """合并角色信息，判断是否需要新增阶段
@@ -60,7 +58,7 @@ class CharacterMergeAgent(BaseCharacterCardAgent):
             }
             
         except Exception as e:
-            logger.error(f"角色信息合并失败: {str(e)}")
+            self.logger.error(f"角色信息合并失败: {str(e)}")
             return {
                 "success": False,
                 "error": str(e),
@@ -94,19 +92,19 @@ class CharacterMergeAgent(BaseCharacterCardAgent):
                 state["merging_done"] = True
                 state["completed_tasks"].append("角色信息合并")
                 
-                logger.info(f"角色信息合并完成: 新增角色 {len(result['new_characters'])} 个, "
+                self.logger.info(f"角色信息合并完成: 新增角色 {len(result['new_characters'])} 个, "
                            f"更新角色 {len(result['updated_characters'])} 个")
             else:
                 # 记录错误
                 state["errors"].append(f"角色信息合并失败: {result['error']}")
-                logger.error(f"角色信息合并失败: {result['error']}")
+                self.logger.error(f"角色信息合并失败: {result['error']}")
             
             return state
             
         except Exception as e:
             error_msg = f"角色信息合并处理异常: {str(e)}"
             state["errors"].append(error_msg)
-            logger.error(error_msg)
+            self.logger.error(error_msg)
             return state
     
     def _merge_character_info(self, character_name: str, temp_card: Dict[str, Any], 

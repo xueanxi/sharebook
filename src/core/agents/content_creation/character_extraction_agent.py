@@ -12,15 +12,17 @@ from .base import BaseCharacterCardAgent, CharacterCardState
 from .character_grouping_agent import CharacterGroupingAgent
 from src.utils.logging_manager import get_agent_logger
 
-logger = get_agent_logger(__class__.__name__)
 
 
 class CharacterExtractionAgent(BaseCharacterCardAgent):
     """角色卡片提取Agent，从原文中提取角色视觉信息"""
     
-    def __init__(self, model_name: str = None, temperature: float = 0.5):
+    def __init__(self, model_name: str = None   , temperature: float = 0.5):
         super().__init__(model_name, temperature)
-    
+        self.logger = get_agent_logger(__class__.__name__)
+
+
+
     def extract(self, character_names: List[str], original_text: str, character_info: Dict[str, Any]) -> Dict[str, Any]:
         """提取角色的视觉信息
         
@@ -75,24 +77,18 @@ class CharacterExtractionAgent(BaseCharacterCardAgent):
 """
             
             # 创建处理链
-            chain = self._create_chain(prompt_template)
+            chain = self._create_json_chain(prompt_template)
+
             
             # 执行提取
             result = chain.invoke({
                 "character_names": ", ".join(character_names),
                 "original_text": original_text
             })
+            self.logger.debug(f"提取角色卡片原始输出: {result[:200]}...")
             
             # 尝试解析JSON结果
             try:
-                # 处理可能的代码块标记
-                if result.startswith("```json"):
-                    result = result[7:]  # 去除```json
-                if result.startswith("```"):
-                    result = result[3:]   # 去除```
-                if result.endswith("```"):
-                    result = result[:-3]  # 去除结尾的```
-                
                 # 去除前后空白
                 result = result.strip()
                 
@@ -105,7 +101,7 @@ class CharacterExtractionAgent(BaseCharacterCardAgent):
                 }
             except json.JSONDecodeError:
                 # 如果JSON解析失败，尝试提取内容
-                logger.warning(f"JSON解析失败，原始输出: {result[:200]}...")
+                self.logger.warning(f"JSON解析失败，原始输出: {result[:200]}...")
                 # 这里可以添加更智能的解析逻辑
                 return {
                     "success": False,
@@ -115,7 +111,7 @@ class CharacterExtractionAgent(BaseCharacterCardAgent):
                 }
             
         except Exception as e:
-            logger.error(f"角色卡片提取失败: {str(e)}")
+            self.logger.error(f"角色卡片提取失败: {e}")
             return {
                 "success": False,
                 "error": str(e),
@@ -170,14 +166,14 @@ class CharacterExtractionAgent(BaseCharacterCardAgent):
             state["temp_cards"] = temp_cards
             state["extraction_done"] = True
             
-            logger.info(f"角色卡片提取完成，共处理 {len(temp_cards)} 个角色")
+            self.logger.info(f"角色卡片提取完成，共处理 {len(temp_cards)} 个角色")
             
             return state
             
         except Exception as e:
             error_msg = f"角色卡片提取处理异常: {str(e)}"
             state["errors"].append(error_msg)
-            logger.error(error_msg)
+            self.logger.error(error_msg)
             return state
     
     def identify_character_stage(self, character_name: str, character_info: Dict[str, Any], 

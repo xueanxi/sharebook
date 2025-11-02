@@ -10,13 +10,12 @@ from langchain_core.messages import HumanMessage
 from .base import BaseCharacterCardAgent, CharacterCardState
 from src.utils.logging_manager import get_agent_logger
 
-logger = get_agent_logger(__class__.__name__)
-
 class CharacterUpdateAgent(BaseCharacterCardAgent):
     """角色卡片更新Agent，确保时间线连贯性"""
     
     def __init__(self, model_name: str = None, temperature: float = 0.2):
         super().__init__(model_name, temperature)
+        self.logger = get_agent_logger(__class__.__name__)
     
     def extract(self, final_cards: Dict[str, Any]) -> Dict[str, Any]:
         """最终更新角色卡片，确保时间线连贯性
@@ -43,7 +42,7 @@ class CharacterUpdateAgent(BaseCharacterCardAgent):
             }
             
         except Exception as e:
-            logger.error(f"角色卡片更新失败: {str(e)}")
+            self.logger.error(f"角色卡片更新失败: {str(e)}")
             return {
                 "success": False,
                 "error": str(e),
@@ -76,18 +75,18 @@ class CharacterUpdateAgent(BaseCharacterCardAgent):
                 state["updating_done"] = True
                 state["completed_tasks"].append("角色卡片更新")
                 
-                logger.info(f"角色卡片更新完成，共更新 {result['total_characters']} 个角色")
+                self.logger.info(f"角色卡片更新完成，共更新 {result['total_characters']} 个角色")
             else:
                 # 记录错误
                 state["errors"].append(f"角色卡片更新失败: {result['error']}")
-                logger.error(f"角色卡片更新失败: {result['error']}")
+                self.logger.error(f"角色卡片更新失败: {result['error']}")
             
             return state
             
         except Exception as e:
             error_msg = f"角色卡片更新处理异常: {str(e)}"
             state["errors"].append(error_msg)
-            logger.error(error_msg)
+            self.logger.error(error_msg)
             return state
     
     def _update_character_card(self, character_name: str, card: Dict[str, Any]) -> Dict[str, Any]:

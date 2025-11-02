@@ -18,10 +18,6 @@ import operator
 from config.llm_config import LLMConfig
 from src.utils.logging_manager import get_agent_logger, get_agent_file_logger, log_agent_process
 
-# 初始化日志记录器
-logger = get_agent_logger(__name__)
-# 初始化文件专用日志记录器，用于记录LLM详细输出
-file_logger = get_agent_file_logger(__name__)
 
 # 定义角色卡状态类型
 class CharacterCardState(TypedDict):
@@ -78,19 +74,20 @@ class BaseContentAgent:
         class LLMCallbackHandler(BaseCallbackHandler):
             """自定义回调处理器，用于记录LLM的详细输出"""
             
-            def __init__(self, logger):
-                self.logger = logger
+            def __init__(self):
+                self.logger = get_agent_logger(__name__.__class__)
+                self.file_logger = get_agent_file_logger(__name__.__class__)
             
             def on_llm_start(self, serialized, prompts, **kwargs):
                 """LLM开始时的回调"""
-                self.logger.debug(f"LLM开始处理，提示: {prompts[0][:100]}...")
+                self.file_logger.debug(f"LLM开始处理，提示: {prompts[0][:100]}...")
             
             def on_llm_end(self, response, **kwargs):
                 """LLM结束时的回调"""
                 if hasattr(response, 'generations') and response.generations:
                     for gen_list in response.generations:
                         for gen in gen_list:
-                            self.logger.info(f"LLM输出: {gen.text}")
+                            self.file_logger.info(f"LLM输出: {gen.text}")
             
             def on_llm_error(self, error, **kwargs):
                 """LLM出错时的回调"""
@@ -103,7 +100,7 @@ class BaseContentAgent:
         chain = prompt | self.llm | StrOutputParser()
         
         # 保存回调处理器供后续使用
-        self._llm_callback_handler = LLMCallbackHandler(file_logger)
+        self._llm_callback_handler = LLMCallbackHandler()
         
         return chain
     
@@ -121,19 +118,20 @@ class BaseContentAgent:
         class LLMCallbackHandler(BaseCallbackHandler):
             """自定义回调处理器，用于记录LLM的详细输出"""
             
-            def __init__(self, logger):
-                self.logger = logger
+            def __init__(self):
+                self.logger = get_agent_logger(__name__.__class__)
+                self.file_logger = get_agent_file_logger(__name__.__class__)
             
             def on_llm_start(self, serialized, prompts, **kwargs):
                 """LLM开始时的回调"""
-                self.logger.debug(f"LLM开始处理，提示: {prompts[0][:100]}...")
+                self.file_logger.debug(f"LLM开始处理，提示: {prompts[0][:100]}...")
             
             def on_llm_end(self, response, **kwargs):
                 """LLM结束时的回调"""
                 if hasattr(response, 'generations') and response.generations:
                     for gen_list in response.generations:
                         for gen in gen_list:
-                            self.logger.info(f"LLM输出: {gen.text}")
+                            self.file_logger.info(f"LLM输出: {gen.text}")
             
             def on_llm_error(self, error, **kwargs):
                 """LLM出错时的回调"""
@@ -146,7 +144,7 @@ class BaseContentAgent:
         chain = prompt | self.llm | JsonOutputParser()
         
         # 保存回调处理器供后续使用
-        self._llm_callback_handler = LLMCallbackHandler(file_logger)
+        self._llm_callback_handler = LLMCallbackHandler()
         
         return chain
 

@@ -14,14 +14,13 @@ from .character_merge_agent import CharacterMergeAgent
 from .character_update_agent import CharacterUpdateAgent
 from src.utils.logging_manager import get_agent_logger
 
-logger = get_agent_logger(__name__)
-
 
 class CharacterCardGenerator(BaseContentAgent):
     """主控角色卡生成器，协调各个子Agent的工作"""
     
     def __init__(self, model_name: str = None, temperature: float = 0.5):
         super().__init__(model_name, temperature)
+        self.logger = get_agent_logger(__class__.__name__)
         
         # 初始化各个子Agent
         self.grouping_agent = CharacterGroupingAgent(model_name, temperature)
@@ -70,7 +69,7 @@ class CharacterCardGenerator(BaseContentAgent):
             }
             
         except Exception as e:
-            logger.error(f"角色卡生成失败: {str(e)}")
+            self.logger.error(f"角色卡生成失败: {str(e)}")
             return {
                 "success": False,
                 "error": str(e),
@@ -162,7 +161,7 @@ class CharacterCardGenerator(BaseContentAgent):
             
             # 处理每个章节
             for chapter_name, chapter_data in chapters_data.items():
-                logger.info(f"开始处理章节: {chapter_name}")
+                self.logger.info(f"开始处理章节: {chapter_name}")
                 
                 # 提取角色信息和原文
                 character_info = chapter_data.get("character_info", {})
@@ -179,12 +178,12 @@ class CharacterCardGenerator(BaseContentAgent):
                     # 更新已存在的卡片，供下一章节使用
                     existing_cards = result["final_cards"]
                     
-                    logger.info(f"章节 {chapter_name} 处理完成，生成 {len(result['final_cards'])} 个角色卡片")
+                    self.logger.info(f"章节 {chapter_name} 处理完成，生成 {len(result['final_cards'])} 个角色卡片")
                 else:
                     # 记录错误
                     error_msg = f"章节 {chapter_name} 处理失败: {result['error']}"
                     all_errors.append(error_msg)
-                    logger.error(error_msg)
+                    self.logger.error(error_msg)
             
             # 返回最终结果
             return {
@@ -198,7 +197,7 @@ class CharacterCardGenerator(BaseContentAgent):
             }
             
         except Exception as e:
-            logger.error(f"并行角色卡生成失败: {str(e)}")
+            self.logger.error(f"并行角色卡生成失败: {str(e)}")
             return {
                 "success": False,
                 "error": str(e),
@@ -241,7 +240,7 @@ class CharacterCardGenerator(BaseContentAgent):
             }
             
         except Exception as e:
-            logger.error(f"角色卡片验证失败: {str(e)}")
+            self.logger.error(f"角色卡片验证失败: {str(e)}")
             return {
                 "success": False,
                 "error": str(e),

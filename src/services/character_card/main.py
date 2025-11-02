@@ -99,8 +99,6 @@ async def extract_character_cards(character_info_file: str, text_file: str,
     # 添加文件路径和成功状态
     result["character_info_file"] = character_info_file
     result["text_file"] = text_file
-    if existing_cards_file:
-        result["existing_cards_file"] = existing_cards_file
     
     # 如果指定了输出目录，异步保存结果
     if output_dir:
