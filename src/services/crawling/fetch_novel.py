@@ -57,10 +57,12 @@ def get_content_and_save(page,title):
     if contet.is_visible():
         content = contet.inner_text()
         print(f"获取到内容：\n{content[:20]}...")  # 打印前100字
+        # 去除title中的空格
+        clean_title = title.replace(" ", "")
         # 保存内容到本地
-        with open(f"{save_novel_dir}/{title}.txt", "w", encoding="utf-8") as f:
+        with open(f"{save_novel_dir}/{clean_title}.txt", "w", encoding="utf-8") as f:
             f.write(content)
-        print(f"内容已保存到 {save_novel_dir}/{title}.txt")
+        print(f"内容已保存到 {save_novel_dir}/{clean_title}.txt")
         return content
     else:
         print("未找到内容")

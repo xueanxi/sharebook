@@ -92,8 +92,8 @@ async def extract_novel_information(file_path: str, output_dir: Optional[str] = 
         base_name, _ = os.path.splitext(file_name)
         
         # 所有处理都是并行的
-        parallel_suffix = "_async"
-        output_file = os.path.join(output_dir, f"{base_name}_info{parallel_suffix}.json")
+        output_file = os.path.join(output_dir, f"{base_name}_info.json")
+        output_file = output_file.replace(" ", "")
         print(f"准备保存文件到: {output_file}")  # 添加文件保存路径的日志
         
         # 异步保存结果
