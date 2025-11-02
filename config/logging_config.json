@@ -1,0 +1,44 @@
+{
+  "level": 20,
+  "format": "%(asctime)s - %(name)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s",
+  "date_format": "%Y-%m-%d %H:%M:%S",
+  "console_output": true,
+  "file_output": true,
+  "max_file_size": 10485760,
+  "backup_count": 5,
+  "encoding": "utf-8",
+  "categories": {
+    "general": {
+      "level": 20,
+      "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    },
+    "agent": {
+      "level": 10,
+      "format": "%(asctime)s - %(name)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s"
+    },
+    "api": {
+      "level": 20,
+      "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    },
+    "data": {
+      "level": 20,
+      "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    },
+    "system": {
+      "level": 20,
+      "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    },
+    "error": {
+      "level": 10,
+      "format": "%(asctime)s - %(name)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s"
+    },
+    "performance": {
+      "level": 20,
+      "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    },
+    "security": {
+      "level": 10,
+      "format": "%(asctime)s - %(name)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s"
+    }
+  }
+}
