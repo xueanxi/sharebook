@@ -1,9 +1,22 @@
 # 小说信息提取
-python -m src.services.extraction.main  data/raw --processes 2 --output data/output
 
-# 角色卡提取
-## 指定输出目录
-python -m src.services.character_card.main "第一章" --output custom_output
+## 基础信息提取
+```bash
+python -m src.services.extraction.main data/raw --processes 2 --output data/output
+```
 
-## 批量处理目录(处理目录需要加上--batch参数)
-python -m src.services.character_card.main data/raw --batch
+## 角色提取系统
+```bash
+# 查看角色提取进度
+python src/services/extraction_character/main.py --progress
+
+# 运行完整角色提取
+python src/services/extraction_character/main.py
+
+# 重置进度并重新开始
+python src/services/extraction_character/main.py --reset
+
+# 自定义路径
+python src/services/extraction_character/main.py --novel-path path/to/novels --csv-path path/to/output.csv
+```
+

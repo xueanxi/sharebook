@@ -15,10 +15,6 @@ extraction:
     csv_path: D:/work/code/python/sharebook/data/characters/characters.csv
     novel_path: D:/work/code/python/sharebook/data/cleaned_novel
   progress:
-    current_chapter: 第三十七章 口味很重啊你！.txt
-    last_update_time: '2025-11-15T00:35:48.444535'
-    processed_chapters:
-    - 第一章 遇强则强.txt
-    - 第七章 绝望的魔教教主.txt
-    - 第三十一章 不要吃鼠鼠！.txt
-    - 第三十七章 口味很重啊你！.txt
+    current_chapter: ''
+    last_update_time: ''
+    processed_chapters: []
