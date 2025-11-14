@@ -1,0 +1,30 @@
+# 角色提取配置文件
+extraction:
+  # 当前处理进度
+  progress:
+    current_chapter: ""  # 当前处理的章节文件名
+    processed_chapters: []  # 已处理的章节列表
+    last_update_time: ""  # 最后更新时间
+    
+  # 文件路径配置
+  paths:
+    novel_path: "data/cleaned_novel"  # 小说文件目录
+    csv_path: "data/characters/characters.csv"  # 输出CSV文件路径
+    config_path: "src/services/extraction_character/config.yaml"  # 配置文件路径
+    
+  # 并行处理配置
+  parallel:
+    max_analyzer_agents: 6  # 角色分析最大并行agent数
+    max_csv_agents: 6  # CSV更新最大并行agent数
+    
+  # LLM配置
+  llm:
+    config_path: "config/llm_config.py"  # LLM配置文件路径
+    temperature: 0.4  # LLM温度参数（与llm_config.py保持一致）
+    max_tokens: 2000  # 最大生成token数（与llm_config.py保持一致）
+    timeout: 30  # 请求超时时间（与llm_config.py保持一致）
+    
+  # 错误处理配置
+  error_handling:
+    retry_count: 3  # 失败重试次数
+    log_errors: true  # 是否记录错误日志
