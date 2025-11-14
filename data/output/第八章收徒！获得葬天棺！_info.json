@@ -1,0 +1,156 @@
+{
+  "characters": {
+    "success": true,
+    "result": {
+      "characters": [
+        {
+          "name": "叶君临",
+          "count": 12,
+          "role": "主角",
+          "relations": [
+            "收红千叶为徒",
+            "系统宿主",
+            "葬天棺持有者"
+          ]
+        },
+        {
+          "name": "红千叶",
+          "count": 10,
+          "role": "主角",
+          "relations": [
+            "被叶君临收为徒弟",
+            "原魔教教主",
+            "修炼三千炎焱经"
+          ]
+        },
+        {
+          "name": "乞丐老头",
+          "count": 3,
+          "role": "配角",
+          "relations": [
+            "误认叶君临为化神大能",
+            "被叶君临击伤"
+          ]
+        }
+      ]
+    },
+    "agent": "人物提取器"
+  },
+  "plot": {
+    "success": true,
+    "result": {
+      "plot_summary": "叶君临收红千叶为徒，获得系统奖励葬天棺与功法，完成关键任务并奠定实力崛起基础。",
+      "key_events": [
+        {
+          "event": "叶君临以化神威压震慑乞丐老头，展现强大实力",
+          "type": "开端",
+          "importance": 7
+        },
+        {
+          "event": "叶君临宣布收红千叶为徒，红千叶表面跪拜实则心存戒备",
+          "type": "发展",
+          "importance": 9
+        },
+        {
+          "event": "系统发布任务完成提示，奖励葬天棺、三千炎焱经与火源丹",
+          "type": "高潮",
+          "importance": 10
+        },
+        {
+          "event": "红千叶领悟三千炎焱经，震惊于其远超自身原功法的境界，心态彻底转变",
+          "type": "高潮",
+          "importance": 9
+        },
+        {
+          "event": "叶君临赐予火源丹，红千叶确认其为修复火系灵根的至宝，震惊不已",
+          "type": "结局",
+          "importance": 8
+        }
+      ],
+      "pacing": "快",
+      "main_conflicts": [
+        "叶君临与红千叶之间的信任与利用矛盾",
+        "红千叶对自身实力与未来命运的挣扎与期待"
+      ]
+    },
+    "agent": "剧情分析器"
+  },
+  "satisfaction_points": {
+    "success": true,
+    "result": {
+      "satisfaction_points": [
+        {
+          "description": "叶君临轻描淡写击溃化神强者乞丐老头，展现绝对压制力，对方跪地求饶、口吐鲜血，毫无反抗之力。",
+          "type": "打脸",
+          "intensity": 8,
+          "location": "第八章中段"
+        },
+        {
+          "description": "叶君临收魔道巨擎红千叶为徒，对方虽心怀不屑却不得不跪拜称师，形成身份反转的强烈爽感。",
+          "type": "逆袭",
+          "intensity": 9,
+          "location": "第八章中段"
+        },
+        {
+          "description": "系统奖励葬天棺，号称可葬天葬地，内含一百零八道禁制，品级为三品灵器，潜力无限，霸气外露。",
+          "type": "升级",
+          "intensity": 10,
+          "location": "第八章后段"
+        },
+        {
+          "description": "系统自动开启神通功法修炼模式，节省修炼时间，实现‘躺平式’飞升，极大提升主角效率与掌控感。",
+          "type": "升级",
+          "intensity": 8,
+          "location": "第八章后段"
+        },
+        {
+          "description": "红千叶原本轻蔑，却在获得三千炎焱经后瞬间震撼，认知崩塌，意识到自己所修功法为垃圾，形成强烈反差爽点。",
+          "type": "打脸",
+          "intensity": 9,
+          "location": "第八章末尾"
+        },
+        {
+          "description": "火源丹现身，直接击穿红千叶心理防线，其震惊程度达到尖叫级别，象征主角资源碾压对手。",
+          "type": "装逼",
+          "intensity": 8,
+          "location": "第八章末尾"
+        }
+      ],
+      "density": "高",
+      "main_types": [
+        "打脸",
+        "逆袭",
+        "升级"
+      ]
+    },
+    "agent": "爽点识别器"
+  },
+  "original_text_length": 2735,
+  "cleaned_text_length": 2669,
+  "errors": [],
+  "completed_tasks": [
+    "文本预处理",
+    "文本预处理",
+    "人物提取",
+    "剧情分析",
+    "爽点识别",
+    "文本预处理",
+    "文本预处理",
+    "人物提取",
+    "剧情分析",
+    "爽点识别",
+    "文本预处理",
+    "文本预处理",
+    "人物提取",
+    "剧情分析",
+    "爽点识别",
+    "文本预处理",
+    "文本预处理",
+    "人物提取",
+    "剧情分析",
+    "爽点识别"
+  ],
+  "parallel_execution": true,
+  "file_path": "data/raw\\第八章 收徒！获得葬天棺！.txt",
+  "success": true
+}

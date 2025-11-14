@@ -1,0 +1,199 @@
+{
+  "characters": {
+    "success": true,
+    "result": {
+      "characters": [
+        {
+          "name": "叶君临",
+          "count": 28,
+          "role": "主角",
+          "relations": [
+            "对抗六族族长",
+            "展现天帝法相",
+            "击败各族族长"
+          ]
+        },
+        {
+          "name": "兽族族长",
+          "count": 8,
+          "role": "配角",
+          "relations": [
+            "与叶君临激战",
+            "被天帝法相击杀"
+          ]
+        },
+        {
+          "name": "羽族族长",
+          "count": 6,
+          "role": "配角",
+          "relations": [
+            "与叶君临交手",
+            "被天帝法相击杀"
+          ]
+        },
+        {
+          "name": "石族族长",
+          "count": 5,
+          "role": "配角",
+          "relations": [
+            "与叶君临对抗",
+            "被截天指击碎"
+          ]
+        },
+        {
+          "name": "木族族长",
+          "count": 5,
+          "role": "配角",
+          "relations": [
+            "与叶君临交手",
+            "藤蔓被破",
+            "求饶后被杀"
+          ]
+        },
+        {
+          "name": "角族族长",
+          "count": 4,
+          "role": "配角",
+          "relations": [
+            "施展治愈光芒",
+            "求饶后被杀"
+          ]
+        },
+        {
+          "name": "鳞族族长",
+          "count": 3,
+          "role": "配角",
+          "relations": [
+            "与叶君临对抗",
+            "求饶后被杀"
+          ]
+        },
+        {
+          "name": "欧阳锋",
+          "count": 2,
+          "role": "次要",
+          "relations": [
+            "目睹天帝法相",
+            "震惊于其威能"
+          ]
+        },
+        {
+          "name": "红千叶",
+          "count": 2,
+          "role": "次要",
+          "relations": [
+            "目睹天帝法相",
+            "认出其手段"
+          ]
+        }
+      ]
+    },
+    "agent": "人物提取器"
+  },
+  "plot": {
+    "success": true,
+    "result": {
+      "plot_summary": "叶君临在六族族长围攻下展现天帝法相，逆转战局并全灭对手，最终发现白鼠逃逸。",
+      "key_events": [
+        {
+          "event": "叶君临以一拳击退兽族族长，展现惊人战力，引发六族族长联手围攻",
+          "type": "发展",
+          "importance": 8
+        },
+        {
+          "event": "六族族长合力施展血脉神通与回血术，形成密不透风的围攻之势",
+          "type": "发展",
+          "importance": 7
+        },
+        {
+          "event": "叶君临激活签到奖励，召唤天帝法相，气势威压全场，六族族长震惊臣服",
+          "type": "高潮",
+          "importance": 10
+        },
+        {
+          "event": "叶君临以天帝法相之力接连击毙羽族、兽族、石族等族长，其余族长求饶后被尽数击杀",
+          "type": "高潮",
+          "importance": 9
+        },
+        {
+          "event": "叶君临收起法相，发现白毛鼠失踪，留下悬念",
+          "type": "结局",
+          "importance": 6
+        }
+      ],
+      "pacing": "快",
+      "main_conflicts": [
+        "叶君临孤身对抗六族顶尖战力的围攻",
+        "天帝法相之力与六族联合战术的对抗"
+      ]
+    },
+    "agent": "剧情分析器"
+  },
+  "satisfaction_points": {
+    "success": true,
+    "result": {
+      "satisfaction_points": [
+        {
+          "description": "叶君临以一敌六，毫无惧色，面对六族族长围攻仍从容不迫，反手一拳击退兽族族长，展现绝对实力",
+          "type": "打脸",
+          "intensity": 8,
+          "location": "第三十章中段"
+        },
+        {
+          "description": "天帝法相骤然显现，浩瀚威压震慑天地，六族族长瞬间惊骇臣服，形成碾压式反杀开局",
+          "type": "逆袭",
+          "intensity": 10,
+          "location": "第三十章高潮"
+        },
+        {
+          "description": "叶君临以天帝法相之力，一指灭石族族长，截天指破灭虚空，碎其本源，展现不可逆的主宰之力",
+          "type": "复仇",
+          "intensity": 9,
+          "location": "第三十章后段"
+        },
+        {
+          "description": "六族族长求饶跪地，叶君临冷笑挥手，一巴掌一个尽数击杀，彻底终结敌对势力，爽感爆棚",
+          "type": "装逼",
+          "intensity": 9,
+          "location": "第三十章结尾"
+        }
+      ],
+      "density": "高",
+      "main_types": [
+        "逆袭",
+        "打脸",
+        "装逼",
+        "复仇"
+      ]
+    },
+    "agent": "爽点识别器"
+  },
+  "original_text_length": 2830,
+  "cleaned_text_length": 2751,
+  "errors": [],
+  "completed_tasks": [
+    "文本预处理",
+    "文本预处理",
+    "爽点识别",
+    "剧情分析",
+    "人物提取",
+    "文本预处理",
+    "文本预处理",
+    "爽点识别",
+    "剧情分析",
+    "人物提取",
+    "文本预处理",
+    "文本预处理",
+    "爽点识别",
+    "剧情分析",
+    "人物提取",
+    "文本预处理",
+    "文本预处理",
+    "爽点识别",
+    "剧情分析",
+    "人物提取"
+  ],
+  "parallel_execution": true,
+  "file_path": "data/raw\\第三十章 天帝法相显威！.txt",
+  "success": true
+}

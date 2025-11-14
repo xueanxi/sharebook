@@ -1,0 +1,170 @@
+{
+  "characters": {
+    "success": true,
+    "result": {
+      "characters": [
+        {
+          "name": "虚有年",
+          "count": 8,
+          "role": "主角",
+          "relations": [
+            "同门师兄弟",
+            "宗门弟子",
+            "对抗红千叶"
+          ]
+        },
+        {
+          "name": "红千叶",
+          "count": 7,
+          "role": "主角",
+          "relations": [
+            "叶君临弟子",
+            "背叛宗门",
+            "对抗叶君临"
+          ]
+        },
+        {
+          "name": "叶君临",
+          "count": 6,
+          "role": "主角",
+          "relations": [
+            "红千叶师尊",
+            "白小汐师尊",
+            "宗主"
+          ]
+        },
+        {
+          "name": "白小汐",
+          "count": 5,
+          "role": "配角",
+          "relations": [
+            "叶君临徒弟",
+            "红千叶同门",
+            "鼠头人形"
+          ]
+        }
+      ]
+    },
+    "agent": "人物提取器"
+  },
+  "plot": {
+    "success": true,
+    "result": {
+      "plot_summary": "虚有年与宗门众人面对红千叶的背叛与强夺日晷，最终叶君临以诡异造型的徒弟白小汐现身，揭穿红千叶的野心并扭转局势。",
+      "key_events": [
+        {
+          "event": "红千叶突然反水，欲强行夺取禁地日晷，展现恐怖修为压制众人",
+          "type": "发展",
+          "importance": 9
+        },
+        {
+          "event": "日晷无法被外力移动，红千叶震惊，暗示其非寻常之物",
+          "type": "发展",
+          "importance": 8
+        },
+        {
+          "event": "虚有年强行抵抗红千叶威压，展现不屈意志，但被一击重创",
+          "type": "发展",
+          "importance": 8
+        },
+        {
+          "event": "羽化门大军压境，宗门外传来攻杀声，局势骤然紧张",
+          "type": "高潮",
+          "importance": 10
+        },
+        {
+          "event": "叶君临懒散现身，以奶茶与摆烂姿态应对危机，反衬红千叶的狂妄",
+          "type": "高潮",
+          "importance": 9
+        },
+        {
+          "event": "白小汐以鼠头人身造型登场，引发红千叶惊骇与心理崩溃",
+          "type": "高潮",
+          "importance": 10
+        },
+        {
+          "event": "众人震惊于叶君临的奇特品味，红千叶内心崩溃，意识到自己被戏弄",
+          "type": "结局",
+          "importance": 9
+        }
+      ],
+      "pacing": "中",
+      "main_conflicts": [
+        "红千叶对宗门与师尊的背叛",
+        "叶君临与红千叶之间理念与权力的对抗"
+      ]
+    },
+    "agent": "剧情分析器"
+  },
+  "satisfaction_points": {
+    "success": true,
+    "result": {
+      "satisfaction_points": [
+        {
+          "description": "虚有年在红千叶恐怖威压下强行站起，雷芒迸发，展现不屈意志，虽败犹荣",
+          "type": "逆袭",
+          "intensity": 7,
+          "location": "禁地深处，红千叶欲夺日晷时"
+        },
+        {
+          "description": "红千叶无法夺取系统专属日晷，被无形力量阻隔，气势受挫，露出恼火神色",
+          "type": "打脸",
+          "intensity": 8,
+          "location": "日晷前，红千叶强行夺取失败"
+        },
+        {
+          "description": "叶君临懒散躺卧，奶茶在手，面对大军压境仍不慌不忙，反讽红千叶‘口味很重’",
+          "type": "装逼",
+          "intensity": 9,
+          "location": "缥缈峰，红千叶现身后"
+        },
+        {
+          "description": "白小汐以鼠头人身登场，穿着吊带裙端来鸡翅，造型诡异却萌态十足，反差拉满",
+          "type": "装逼",
+          "intensity": 10,
+          "location": "缥缈峰，白小汐突然出现"
+        },
+        {
+          "description": "众人震惊于白小汐造型，纷纷感慨叶君临‘品味雷人’‘会玩’，红千叶内心崩溃",
+          "type": "打脸",
+          "intensity": 8,
+          "location": "白小汐登场后，众人反应"
+        }
+      ],
+      "density": "高",
+      "main_types": [
+        "装逼",
+        "打脸"
+      ]
+    },
+    "agent": "爽点识别器"
+  },
+  "original_text_length": 2459,
+  "cleaned_text_length": 2377,
+  "errors": [],
+  "completed_tasks": [
+    "文本预处理",
+    "文本预处理",
+    "人物提取",
+    "爽点识别",
+    "剧情分析",
+    "文本预处理",
+    "文本预处理",
+    "人物提取",
+    "爽点识别",
+    "剧情分析",
+    "文本预处理",
+    "文本预处理",
+    "人物提取",
+    "爽点识别",
+    "剧情分析",
+    "文本预处理",
+    "文本预处理",
+    "人物提取",
+    "爽点识别",
+    "剧情分析"
+  ],
+  "parallel_execution": true,
+  "file_path": "data/raw\\第三十七章 口味很重啊你！.txt",
+  "success": true
+}
