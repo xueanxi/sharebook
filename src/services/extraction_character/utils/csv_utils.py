@@ -7,6 +7,9 @@ import csv
 from typing import List, Dict, Any, Tuple, Set
 from pathlib import Path
 
+# CSV列顺序常量
+COLUMNS_ORDER = ['姓名', '别名', '性别', '外貌特征', '服装特点', '角色类型']
+
 # 尝试导入pandas，如果没有则使用基础csv操作
 try:
     import pandas as pd
@@ -38,7 +41,7 @@ class CSVUtils:
             # 创建CSV文件并写入表头
             with open(self.csv_path, 'w', newline='', encoding='utf-8') as f:
                 writer = csv.writer(f)
-                writer.writerow(['姓名', '性别', '外貌特征', '服装特点', '角色类型', '别名'])
+                writer.writerow(COLUMNS_ORDER)
     
     def read_csv(self):
         """
@@ -50,12 +53,15 @@ class CSVUtils:
         try:
             if not os.path.exists(self.csv_path):
                 if HAS_PANDAS:
-                    return pd.DataFrame(columns=['姓名', '性别', '外貌特征', '服装特点', '角色类型', '别名'])
+                    return pd.DataFrame(columns=COLUMNS_ORDER)
                 else:
                     return []
             
             if HAS_PANDAS:
-                return pd.read_csv(self.csv_path, encoding='utf-8')
+                # 使用pandas
+                # 确保列顺序一致
+                columns_order = COLUMNS_ORDER
+                return pd.read_csv(self.csv_path, encoding='utf-8')[columns_order]
             else:
                 # 使用基础csv操作
                 with open(self.csv_path, 'r', encoding='utf-8') as f:
@@ -64,7 +70,7 @@ class CSVUtils:
         except Exception as e:
             print(f"读取CSV文件失败: {e}")
             if HAS_PANDAS:
-                return pd.DataFrame(columns=['姓名', '性别', '外貌特征', '服装特点', '角色类型', '别名'])
+                return pd.DataFrame(columns=COLUMNS_ORDER)
             else:
                 return []
     
@@ -84,17 +90,19 @@ class CSVUtils:
             
             if HAS_PANDAS and hasattr(data, 'to_csv'):
                 # 使用pandas写入
-                data.to_csv(self.csv_path, index=False, encoding='utf-8')
+                # 确保列顺序一致
+                columns_order = COLUMNS_ORDER
+                data.to_csv(self.csv_path, index=False, encoding='utf-8', columns=columns_order)
             else:
                 # 使用基础csv操作
                 with open(self.csv_path, 'w', newline='', encoding='utf-8') as f:
                     if data:
-                        writer = csv.DictWriter(f, fieldnames=['姓名', '性别', '外貌特征', '服装特点', '角色类型', '别名'])
+                        writer = csv.DictWriter(f, fieldnames=COLUMNS_ORDER)
                         writer.writeheader()
                         writer.writerows(data)
                     else:
                         writer = csv.writer(f)
-                        writer.writerow(['姓名', '性别', '外貌特征', '服装特点', '角色类型', '别名'])
+                        writer.writerow(COLUMNS_ORDER)
             
             return True
         except Exception as e:
@@ -118,7 +126,17 @@ class CSVUtils:
             if HAS_PANDAS:
                 # 使用pandas
                 new_df = pd.DataFrame(characters)
+                
+                # 确保列顺序一致
+                columns_order = COLUMNS_ORDER
                 combined_df = pd.concat([existing_data, new_df], ignore_index=True)
+                
+                # 确保列顺序一致
+                for col in columns_order:
+                    if col not in combined_df.columns:
+                        combined_df[col] = ''
+                combined_df = combined_df[columns_order]
+                
                 return self.write_csv(combined_df)
             else:
                 # 使用基础csv操作
@@ -146,6 +164,9 @@ class CSVUtils:
                 # 使用pandas
                 new_df = pd.DataFrame(characters)
                 
+                # 确保列顺序一致
+                columns_order = COLUMNS_ORDER
+                
                 if not existing_data.empty:
                     # 删除已存在的角色（基于姓名）
                     existing_names = set(existing_data['姓名'].tolist())
@@ -158,6 +179,12 @@ class CSVUtils:
                     combined_df = pd.concat([old_characters, new_df], ignore_index=True)
                 else:
                     combined_df = new_df
+                
+                # 确保列顺序一致
+                for col in columns_order:
+                    if col not in combined_df.columns:
+                        combined_df[col] = ''
+                combined_df = combined_df[columns_order]
                 
                 return self.write_csv(combined_df)
             else:

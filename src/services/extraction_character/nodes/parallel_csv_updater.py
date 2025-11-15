@@ -5,7 +5,7 @@
 import concurrent.futures
 from typing import Dict, Any, List, Tuple
 from state import CharacterExtractionState
-from utils.csv_utils import CSVUtils
+from utils.csv_utils import CSVUtils, COLUMNS_ORDER
 from utils.llm_utils import LLMUtils
 from utils.backup_utils import BackupUtils
 
@@ -169,14 +169,14 @@ class ParallelCSVUpdater:
             # 如果是pandas DataFrame，检查列
             if hasattr(data, 'columns'):
                 # 检查必要的列是否存在
-                required_columns = ['姓名', '性别', '外貌特征', '服装特点', '角色类型', '别名']
+                required_columns = COLUMNS_ORDER
                 for column in required_columns:
                     if column not in data.columns:
                         return False
             else:
                 # 如果是列表，检查第一个元素是否有必要的键
                 if data and isinstance(data[0], dict):
-                    required_keys = ['姓名', '性别', '外貌特征', '服装特点', '角色类型', '别名']
+                    required_keys = COLUMNS_ORDER
                     for key in required_keys:
                         if key not in data[0]:
                             return False
