@@ -30,4 +30,4 @@ RETRY_DELAY = 2  # 重试延迟(秒)
 
 # 并行处理配置
 ENABLE_PARALLEL_SCENE_SPLITTING = True  # 是否启用并行场景分割
-MAX_SCENE_SPLITTING_CONCURRENT = 5  # 场景分割最大并发数
+MAX_SCENE_SPLITTING_CONCURRENT = 8  # 场景分割最大并发数

@@ -1,6 +1,6 @@
 """
 固定节点的并行场景分割工作流
-创建5个固定的场景分割节点，将段落平均分配
+创建固定数量的场景分割节点，将段落平均分配
 """
 
 import uuid
@@ -14,6 +14,7 @@ from src.services.novel_to_comic.models.data_models import (
     TextSegment, Scene, ProcessingError
 )
 from src.services.novel_to_comic.utils.character_manager import CharacterManager
+from src.services.novel_to_comic.config.processing_config import MAX_SCENE_SPLITTING_CONCURRENT
 from src.utils.logging_manager import get_logger, LogCategory
 
 logger = get_logger(__name__, LogCategory.PERFORMANCE)
@@ -42,7 +43,7 @@ class FixedParallelState(TypedDict):
 class ParallelSceneSplitterWorkflow:
     """固定节点的并行场景分割工作流"""
     
-    def __init__(self, character_manager: CharacterManager, num_workers: int = 5):
+    def __init__(self, character_manager: CharacterManager, num_workers: int = MAX_SCENE_SPLITTING_CONCURRENT):
         self.character_manager = character_manager
         self.num_workers = num_workers
         self.scene_splitter = SceneSplitterAgent(character_manager)
@@ -55,7 +56,7 @@ class ParallelSceneSplitterWorkflow:
         分配段落给各个工作者
         """
         segments = state["segments"]
-        total_workers = state["total_workers"]
+        total_workers = self.num_workers  # 使用实例变量而不是状态中的值
         
         logger.info(f"开始分配 {len(segments)} 个段落给 {total_workers} 个工作者")
         
@@ -183,7 +184,7 @@ class ParallelSceneSplitterWorkflow:
         检查所有工作者是否都已完成
         """
         completed_workers = state.get("completed_workers", [])
-        total_workers = state.get("total_workers", 5)
+        total_workers = self.num_workers  # 使用实例变量而不是状态中的值
         
         if len(completed_workers) >= total_workers:
             logger.info(f"所有 {total_workers} 个工作者都已完成")
@@ -245,7 +246,7 @@ class ParallelSceneSplitterWorkflow:
             "all_scenes": [],
             "errors": [],
             "completed_workers": [],
-            "total_workers": self.num_workers
+            "total_workers": self.num_workers  # 确保状态中也有正确的值
         }
         
         # 执行工作流

@@ -1,6 +1,6 @@
 """
 固定节点的并行视觉生成工作流
-创建5个固定的视觉生成节点，将场景平均分配
+创建固定数量的视觉生成节点，将场景平均分配
 """
 
 import uuid
@@ -14,6 +14,7 @@ from src.services.novel_to_comic.models.data_models import (
     Scene, VisualNarrative, ProcessingError
 )
 from src.services.novel_to_comic.utils.character_manager import CharacterManager
+from src.services.novel_to_comic.config.processing_config import MAX_SCENE_SPLITTING_CONCURRENT
 from src.utils.logging_manager import get_logger, LogCategory
 
 logger = get_logger(__name__, LogCategory.PERFORMANCE)
@@ -42,7 +43,7 @@ class FixedParallelVisualState(TypedDict):
 class ParallelVisualNarrativeWorkflow:
     """固定节点的并行视觉生成工作流"""
     
-    def __init__(self, character_manager: CharacterManager, num_workers: int = 5):
+    def __init__(self, character_manager: CharacterManager, num_workers: int = MAX_SCENE_SPLITTING_CONCURRENT):
         self.character_manager = character_manager
         self.num_workers = num_workers
         self.visual_narrative = VisualNarrativeAgent(character_manager)
