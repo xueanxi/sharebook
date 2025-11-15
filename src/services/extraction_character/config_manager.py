@@ -57,8 +57,8 @@ class ConfigManager:
                     'last_update_time': ''
                 },
                 'paths': {
-                    'novel_path': 'D:/work/code/python/sharebook/data/cleaned_novel',
-                    'csv_path': 'D:/work/code/python/sharebook/data/characters/characters.csv',
+                    'novel_path': 'D:/work/code/python/sharebook2/data/cleaned_novel',
+                    'csv_path': 'D:/work/code/python/sharebook2/data/characters/characters.csv',
                     'config_path': self.config_path
                 },
                 'parallel': {
@@ -66,7 +66,7 @@ class ConfigManager:
                     'max_csv_agents': 6
                 },
                 'llm': {
-                    'config_path': 'D:/work/code/python/sharebook/config/llm_config.py',
+                    'config_path': 'D:/work/code/python/sharebook2/config/llm_config.py',
                     'temperature': 0.4,
                     'max_tokens': 2000,
                     'timeout': 30

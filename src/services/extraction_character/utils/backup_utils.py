@@ -34,14 +34,20 @@ class BackupUtils:
             dir_name = os.path.dirname(csv_path)
             base_name = os.path.basename(csv_path)
             name, ext = os.path.splitext(base_name)
+            
+            # 创建history子目录路径
+            history_dir = os.path.join(dir_name, "history")
+            os.makedirs(history_dir, exist_ok=True)
+            
+            # 备份文件保存到history子目录
             backup_filename = f"{name}_backup_{timestamp}{ext}"
-            backup_path = os.path.join(dir_name, backup_filename)
+            backup_path = os.path.join(history_dir, backup_filename)
             
             # 创建备份
             shutil.copy2(csv_path, backup_path)
             
             # 清理旧备份（保留最近5个）
-            BackupUtils._cleanup_old_backups(dir_name, name, ext, 5)
+            BackupUtils._cleanup_old_backups(history_dir, name, ext, 5)
             
             return backup_path
         except Exception as e:
@@ -70,14 +76,20 @@ class BackupUtils:
             dir_name = os.path.dirname(config_path)
             base_name = os.path.basename(config_path)
             name, ext = os.path.splitext(base_name)
+            
+            # 创建history子目录路径
+            history_dir = os.path.join(dir_name, "history")
+            os.makedirs(history_dir, exist_ok=True)
+            
+            # 备份文件保存到history子目录
             backup_filename = f"{name}_backup_{timestamp}{ext}"
-            backup_path = os.path.join(dir_name, backup_filename)
+            backup_path = os.path.join(history_dir, backup_filename)
             
             # 创建备份
             shutil.copy2(config_path, backup_path)
             
             # 清理旧备份（保留最近5个）
-            BackupUtils._cleanup_old_backups(dir_name, name, ext, 5)
+            BackupUtils._cleanup_old_backups(history_dir, name, ext, 5)
             
             return backup_path
         except Exception as e:
@@ -158,11 +170,16 @@ class BackupUtils:
             备份文件路径列表
         """
         try:
+            # 检查history子目录是否存在
+            history_dir = os.path.join(directory, "history")
+            if not os.path.exists(history_dir):
+                return []
+                
             backup_files = []
             
-            for file_name in os.listdir(directory):
+            for file_name in os.listdir(history_dir):
                 if file_name.startswith(f"{base_name}_backup_") and file_name.endswith(extension):
-                    file_path = os.path.join(directory, file_name)
+                    file_path = os.path.join(history_dir, file_name)
                     backup_files.append(file_path)
             
             # 按修改时间排序（最新的在前）
