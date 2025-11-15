@@ -15,6 +15,7 @@ class ParallelCSVUpdater:
     
     def __init__(self, csv_path: str, llm_config_path: str = "config/llm_config.py", max_workers: int = 6):
         """
+        
         初始化并行CSV更新节点
         
         Args:
@@ -159,8 +160,14 @@ class ParallelCSVUpdater:
             data = self.csv_utils.read_csv()
             
             # 检查是否有数据
-            if not data:
-                return False
+            if hasattr(data, 'empty'):
+                # pandas DataFrame
+                if data.empty:
+                    return False
+            else:
+                # 列表或其他类型
+                if not data:
+                    return False
             
             # 检查数据长度
             if len(data) == 0:

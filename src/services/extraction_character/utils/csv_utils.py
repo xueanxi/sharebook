@@ -219,8 +219,12 @@ class CSVUtils:
             # 读取现有数据
             existing_data = self.read_csv()
             
-            if not existing_data:
-                return characters, []
+            if HAS_PANDAS:
+                if existing_data.empty:
+                    return characters, []
+            else:
+                if not existing_data:
+                    return characters, []
             
             # 创建角色名称和别名的集合
             existing_names = set()
@@ -279,8 +283,12 @@ class CSVUtils:
         try:
             existing_data = self.read_csv()
             
-            if not existing_data:
-                return {}
+            if HAS_PANDAS:
+                if existing_data.empty:
+                    return {}
+            else:
+                if not existing_data:
+                    return {}
             
             if HAS_PANDAS:
                 # 使用pandas
@@ -321,8 +329,12 @@ class CSVUtils:
         try:
             existing_data = self.read_csv()
             
-            if not existing_data:
-                return set()
+            if HAS_PANDAS:
+                if existing_data.empty:
+                    return set()
+            else:
+                if not existing_data:
+                    return set()
             
             all_names = set()
             

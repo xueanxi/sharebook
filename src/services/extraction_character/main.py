@@ -17,9 +17,9 @@ current_dir = Path(__file__).parent
 if str(current_dir) not in sys.path:
     sys.path.append(str(current_dir))
 
-# 尝试导入LangGraph版本，如果失败则使用简化版
-
-from workflow import CharacterExtractionWorkflow
+# 导入工作流组件
+from workflow_orchestrator import CharacterExtractionOrchestrator
+from single_chapter_workflow import SingleChapterWorkflow
 USE_LANGGRAPH = True
 
 
@@ -63,7 +63,7 @@ def main():
             print("将创建默认配置文件...")
         
         # 创建工作流实例
-        workflow = CharacterExtractionWorkflow(args.config)
+        workflow = CharacterExtractionOrchestrator(args.config)
         
         # 如果需要覆盖配置
         if args.novel_path or args.csv_path:
