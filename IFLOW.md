@@ -2,6 +2,9 @@
 
 ShareNovel 是一个基于 Python 的小说信息提取和处理系统，使用 LangChain 框架和大型语言模型（LLM）来分析小说内容、提取关键信息和角色数据。
 
+## 开发环境
+使用conda activate langchain激活，不需要额外安装依赖。
+
 ## 项目架构
 
 - **技术栈**: Python 3+, LangChain, OpenAI API, Playwright
