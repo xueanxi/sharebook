@@ -1,221 +1,164 @@
-# ShareBook 项目说明
+# ShareNovel 项目概览
 
-## 项目概述
+ShareNovel 是一个基于 Python 的小说信息提取和处理系统，使用 LangChain 框架和大型语言模型（LLM）来分析小说内容、提取关键信息和角色数据。
 
-ShareBook 是一个基于 Python 的小说处理和分析工具，主要功能是从小说文本中提取关键信息，包括人物信息、剧情分析和爽点识别。项目使用 LangChain 和 LangGraph 框架实现并行处理，支持单文件和批量文件处理。
+## 项目架构
 
-## 核心技术栈
-
-- **Python 3.x**: 主要编程语言
-- **LangChain**: LLM 应用框架
-- **LangGraph**: 用于构建并行处理工作流
-- **OpenAI API**: 语言模型接口（兼容本地部署模型）
-- **Playwright**: 网页爬虫工具
-- **Pandas/NumPy**: 数据处理
-- **Pydantic**: 数据验证和配置管理
+- **技术栈**: Python 3+, LangChain, OpenAI API, Playwright
+- **核心功能**: 小说信息提取、角色识别、网络爬虫
+- **处理模式**: 支持单文件和批量异步处理
+- **输出格式**: JSON 格式的结构化数据
 
 ## 项目结构
 
 ```
-sharebook/
-├── main.py                    # 项目入口脚本
-├── src/                       # 源代码目录
-│   ├── api/                   # API 接口
-│   │   └── cli/               # 命令行接口
-│   ├── core/                  # 核心功能
-│   │   └── agents/            # 智能代理
-│   │       └── info_extract/  # 信息提取模块
-│   └── services/              # 服务层
-│       ├── crawling/          # 爬虫服务
-│       └── extraction/        # 提取服务
-├── config/                    # 配置文件
-│   ├── llm_config.py          # LLM 配置
-│   ├── embeddings_config.py   # 嵌入配置
-│   └── logging_config.py      # 日志配置
-├── data/                      # 数据目录
-│   ├── raw/                   # 原始数据
-│   ├── processed/             # 处理后数据
-│   └── output/                # 输出结果
-└── tests/                     # 测试代码
+sharebook2/
+├── main.py                 # 项目入口脚本
+├── src/                    # 源代码目录
+│   ├── api/               # API 接口层
+│   │   └── cli/           # 命令行接口
+│   ├── core/              # 核心功能模块
+│   │   └── agents/        # AI 代理实现
+│   ├── services/          # 业务服务层
+│   │   ├── extraction/    # 信息提取服务
+│   │   ├── extraction_character/  # 角色提取服务
+│   │   └── crawling/      # 网络爬虫服务
+│   └── utils/             # 工具函数
+├── config/                # 配置文件
+├── data/                  # 数据目录
+│   ├── raw/              # 原始小说文件
+│   ├── cleaned_novel/    # 清理后的小说
+│   ├── output/           # 提取结果输出
+│   └── characters/       # 角色数据
+├── docs/                  # 文档
+├── tests/                 # 测试文件
+└── requirements.txt       # 项目依赖
 ```
 
-## 安装和配置
+## 主要功能模块
 
-### 1. 安装依赖
+### 1. 小说信息提取 (`src/services/extraction/`)
+- 从小说文本中提取关键信息（情节、人物、场景等）
+- 支持单文件和批量处理
+- 使用异步IO提高处理效率
+- 输出结构化的JSON数据
 
-```bash
-pip install -r requirements.txt
-```
+### 2. 角色提取系统 (`src/services/extraction_character/`)
+- 专门用于提取和识别小说中的角色信息
+- 支持进度跟踪和断点续传
+- 输出CSV格式的角色数据表
 
-### 2. 配置 LLM
+### 3. 网络爬虫 (`src/services/crawling/`)
+- 使用 Playwright 进行网页爬取
+- 支持从网站获取小说内容
+- 自动处理分页和内容提取
 
-编辑 `config/llm_config.py` 文件，配置您的 LLM 服务：
+## 安装和设置
 
-```python
-# 本地vllm示例
-API_BASE = "http://127.0.0.1:8000/v1"
-MODEL_NAME = "local-llm"
-API_KEY = "123"
+1. **安装依赖**:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-# 或者使用远程服务
-API_BASE = "http://192.168.3.46:8000/v1"
-MODEL_NAME = "local-llm"
-API_KEY = "123"
-```
+2. **配置LLM**:
+   - 编辑 `config/llm_config.py` 文件
+   - 设置API_BASE、MODEL_NAME和API_KEY
+   - 支持本地部署的LLM服务和云端API
 
 ## 使用方法
 
-### 命令行接口
+### 基础信息提取
 
-#### 提取小说信息
-
-**单文件处理:**
 ```bash
-python main.py extract -f data/raw/小说文件.txt -o data/output
-```
+# 单文件提取
+python main.py extract -f path/to/novel.txt -o data/output
 
-**批量处理:**
-```bash
+# 批量提取目录中的所有小说
 python main.py extract -d data/raw -o data/output
+
+# 直接使用模块
+python -m src.services.extraction.main data/raw --processes 2 --output data/output
 ```
 
-**使用模块直接调用:**
-```bash
-python -m src.services.extraction.main data/raw --processes 1 --output data/output
-```
-
-#### 爬取小说内容
+### 角色提取系统
 
 ```bash
-python main.py crawl https://小说网站URL -o data_crawl_novel
+# 查看角色提取进度
+python src/services/extraction_character/main.py --progress
+
+# 运行完整角色提取
+python src/services/extraction_character/main.py
+
+# 重置进度并重新开始
+python src/services/extraction_character/main.py --reset
+
+# 自定义路径
+python src/services/extraction_character/main.py --novel-path path/to/novels --csv-path path/to/output.csv
 ```
 
-### 编程接口
-
-#### 单文件信息提取
-
-```python
-from src.services.extraction.main import extract_novel_information
-
-result = extract_novel_information("data/raw/小说文件.txt", "data/output")
-```
-
-#### 批量处理
-
-```python
-from src.services.extraction.main import batch_extract_novel_info
-
-file_paths = ["file1.txt", "file2.txt", "file3.txt"]
-result = batch_extract_novel_info(file_paths, "data/output", num_processes=4)
-```
-
-## 核心功能
-
-### 1. 信息提取
-
-项目使用多个专门的 Agent 并行处理小说文本：
-
-- **文本预处理器** (TextPreprocessor): 清洗和预处理文本
-- **人物提取器** (CharacterExtractor): 识别人物信息
-- **剧情分析器** (PlotAnalyzer): 分析剧情发展
-- **爽点识别器** (SatisfactionPointIdentifier): 识别读者爽点
-
-### 2. 并行处理架构
-
-使用 LangGraph 实现并行处理工作流，提高处理效率：
-
-1. 文本预处理完成后，并行启动人物提取、剧情分析和爽点识别
-2. 所有任务完成后合并结果
-3. 支持多进程批量处理多个文件
-
-### 3. 爬虫功能
-
-集成 Playwright 爬虫，可以从网站自动抓取小说内容。
-
-## 输出格式
-
-提取结果以 JSON 格式保存，包含以下信息：
-
-```json
-{
-  "characters": {
-    "success": true,
-    "result": "人物信息",
-    "agent": "人物提取器"
-  },
-  "plot": {
-    "success": true,
-    "result": "剧情分析",
-    "agent": "剧情分析器"
-  },
-  "satisfaction_points": {
-    "success": true,
-    "result": "爽点识别",
-    "agent": "爽点识别器"
-  },
-  "original_text_length": 字符数,
-  "cleaned_text_length": 清洗后字符数,
-  "errors": [],
-  "completed_tasks": ["任务列表"],
-  "parallel_execution": true
-}
-```
-
-## 开发和测试
-
-### 运行测试
+### 网络爬虫
 
 ```bash
-pytest tests/
+# 爬取小说内容
+python main.py crawl https://example.com/novel -o data/raw
 ```
 
-### 代码格式化
+## 开发指南
 
+### 代码规范
+- 使用 Black 进行代码格式化
+- 使用 Flake8 进行代码检查
+- 使用 MyPy 进行类型检查
+
+### 测试
 ```bash
-black src/
+# 运行测试
+pytest
+
+# 运行特定测试
+pytest tests/unit/
 ```
 
-### 类型检查
-
-```bash
-mypy src/
-```
+### 日志系统
+- 日志文件位于 `logs/` 目录
+- 按模块分类：agent、api、data、error、general、performance、security、system
+- 配置文件：`config/logging_config.py` 和 `config/logging_config.json`
 
 ## 配置说明
 
-### LLM 配置
+### LLM配置 (`config/llm_config.py`)
+- 支持本地和云端LLM服务
+- 可配置超时时间、重试次数、温度参数等
+- 默认使用本地部署的vLLM服务
 
-在 `config/llm_config.py` 中配置：
+### 日志配置 (`config/logging_config.py`)
+- 支持多级别日志记录
+- 可配置输出格式和存储位置
+- 按模块和日期自动分割日志文件
 
-- `API_BASE`: LLM 服务的 API 地址
-- `MODEL_NAME`: 使用的模型名称
-- `API_KEY`: API 密钥
-- `TIMEOUT`: 请求超时时间
-- `MAX_RETRIES`: 最大重试次数
-- `TEMPERATURE`: 温度参数
+## 性能优化
 
-### 日志配置
+1. **异步处理**: 使用异步IO和信号量控制并发数量
+2. **批量处理**: 支持多文件并行处理
+3. **断点续传**: 角色提取支持进度跟踪和恢复
+4. **资源控制**: 通过信号量限制最大并发数，避免资源耗尽
 
-在 `config/logging_config.py` 中配置日志级别和输出格式。
+## 故障排除
 
-## 常见问题
-
-1. **LLM 连接失败**: 检查 `config/llm_config.py` 中的 API 配置是否正确
-2. **内存不足**: 减少并行处理的进程数或处理较小的文件
-3. **编码问题**: 确保小说文件使用 UTF-8 编码
+1. **文件路径问题**: 确保使用绝对路径或正确的相对路径
+2. **权限问题**: 检查输出目录的读写权限
+3. **API连接问题**: 验证LLM服务的连接状态和配置
+4. **内存问题**: 调整并发处理数量，避免内存溢出
 
 ## 扩展开发
 
-### 添加新的提取器
+- 新增提取功能：在 `src/services/extraction/` 下创建新模块
+- 新增Agent：在 `src/core/agents/` 下实现新的代理
+- 新增CLI命令：在 `src/api/cli/main.py` 中添加新的子命令
 
-1. 继承 `BaseExtractor` 类
-2. 实现 `extract` 和 `process` 方法
-3. 在 `NovelInformationExtractor` 中集成新的提取器
+## 注意事项
 
-### 修改处理流程
-
-编辑 `src/core/agents/info_extract/novel_extractor.py` 中的工作流图。
-
-## 许可证
-
-本项目采用 MIT 许可证。
+- 确保有足够的磁盘空间存储输出文件
+- 大文件处理时注意内存使用情况
+- 定期清理日志文件避免占用过多空间
+- 使用本地LLM服务时确保硬件配置满足要求
