@@ -22,18 +22,28 @@ python src/services/extraction_character/main.py --novel-path path/to/novels --c
 
 ## 小说转漫画故事板生成
 ```bash
+# 自动模式：批量处理data/cleaned_novel目录中的所有章节（推荐）
+python -m src.services.novel_to_comic.main --auto
+
 # 处理单个章节
 python -m src.services.novel_to_comic.main -f "data/cleaned_novel/章节文件.txt" -t "章节标题" -n "玄幻"
 
-# 处理整个目录
+# 批量处理指定目录
 python -m src.services.novel_to_comic.main -d "data/cleaned_novel" -n "玄幻"
 
 # 参数说明
+# --auto: 自动模式，处理data/cleaned_novel目录中的所有章节
 # -f, --file: 单个章节文件路径
 # -d, --directory: 章节目录路径
 # -t, --title: 章节标题（仅在使用-f时有效）
 # -n, --novel-type: 小说类型（默认：玄幻）
 ```
+
+### 批量处理特点
+- **智能排序**：自动按章节顺序排序（支持"第X章"、"chapterX"等格式）
+- **进度显示**：实时显示处理进度和每个文件的结果
+- **错误容错**：单个文件失败不影响其他文件处理
+- **详细统计**：完成后显示总体处理统计信息
 
 ### 输出文件
 - 位置：`data/output/storyboards/`

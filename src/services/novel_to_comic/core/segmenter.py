@@ -152,11 +152,25 @@ class IntelligentSegmenter:
         if combined_length > SEGMENT_MAX_LENGTH:
             return True
         
-        # 如果当前段落已经达到最小长度且新段落类型不同，考虑分割
-        if len(current_text) >= SEGMENT_MIN_LENGTH:
+        # 如果当前段落还没达到最小长度，优先合并
+        if len(current_text) < SEGMENT_MIN_LENGTH:
+            return False
+        
+        # 如果当前段落已经达到合理长度，检查是否需要分割
+        if len(current_text) >= SEGMENT_MIN_LENGTH * 1.5:  # 超过最小长度1.5倍
             current_type = self._get_dominant_type(current_metadata)
+            
+            # 只有在内容类型发生显著变化时才分割
             if current_type != paragraph_type:
-                return True
+                # 对话段落比较特殊，如果是连续对话，倾向于合并
+                if current_type == "dialogue" and paragraph_type == "dialogue":
+                    return False
+                # 如果是环境描述转动作，可以合并
+                elif current_type == "environment" and paragraph_type == "action":
+                    return False
+                # 其他类型变化考虑分割
+                else:
+                    return True
         
         return False
     

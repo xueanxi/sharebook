@@ -3,8 +3,8 @@
 """
 
 # 文本分割参数
-SEGMENT_MAX_LENGTH = 500  # 每个段落最大长度
-SEGMENT_MIN_LENGTH = 50   # 每个段落最小长度
+SEGMENT_MAX_LENGTH = 800  # 每个段落最大长度
+SEGMENT_MIN_LENGTH = 200  # 每个段落最小长度
 
 # 场景分割参数
 SCENE_MIN_LENGTH = 100    # 每个场景最小长度
@@ -22,7 +22,7 @@ VISUAL_GENERATOR_CONFIG = {
 }
 
 # 输出配置
-OUTPUT_DIR = "data/output/storyboards"  # 故事板输出目录
+OUTPUT_DIR = "data/storyboards"  # 故事板输出目录
 
 # 错误处理配置
 MAX_RETRIES = 3  # 最大重试次数
