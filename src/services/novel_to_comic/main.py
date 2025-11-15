@@ -14,7 +14,10 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(
 from src.services.novel_to_comic.core.workflow import NovelToComicWorkflow
 from src.services.novel_to_comic.models.data_models import ProcessingResult, ProcessingSummary
 from src.services.novel_to_comic.utils.file_handler import FileHandler
-from src.services.novel_to_comic.config.processing_config import OUTPUT_DIR
+from src.services.novel_to_comic.config.processing_config import (
+    OUTPUT_DIR, ENABLE_PARALLEL_SCENE_SPLITTING, 
+    MAX_SCENE_SPLITTING_CONCURRENT
+)
 from src.utils.logging_manager import get_logger, LogCategory
 
 logger = get_logger(__name__, LogCategory.GENERAL)
@@ -23,10 +26,20 @@ logger = get_logger(__name__, LogCategory.GENERAL)
 class NovelToComicProcessor:
     """小说转漫画处理器"""
     
-    def __init__(self):
+    def __init__(self, enable_parallel: Optional[bool] = None):
         self.logger = logger
-        self.workflow = NovelToComicWorkflow()
+        self.workflow = NovelToComicWorkflow(enable_parallel)
         self.file_handler = FileHandler()
+        
+        # 记录并行处理状态
+        if enable_parallel is None:
+            parallel_status = "启用" if ENABLE_PARALLEL_SCENE_SPLITTING else "禁用"
+        else:
+            parallel_status = "启用" if enable_parallel else "禁用"
+        
+        self.logger.info(f"并行场景分割: {parallel_status}")
+        if self.workflow.enable_parallel:
+            self.logger.info(f"最大并发数: {MAX_SCENE_SPLITTING_CONCURRENT}")
     
     def process_chapter(
         self, 
@@ -312,11 +325,23 @@ def main():
     parser.add_argument("-t", "--title", help="章节标题（仅在使用-f时有效）")
     parser.add_argument("-n", "--novel-type", default="玄幻", help="小说类型（默认：玄幻）")
     parser.add_argument("--auto", action="store_true", help="自动模式：处理data/cleaned_novel目录中的所有章节")
+    parser.add_argument("--parallel", action="store_true", help="启用并行场景分割")
+    parser.add_argument("--no-parallel", action="store_true", help="禁用并行场景分割")
     
     args = parser.parse_args()
     
+    # 确定是否启用并行处理
+    enable_parallel = None
+    if args.parallel and args.no_parallel:
+        print("错误：不能同时指定 --parallel 和 --no-parallel")
+        return
+    elif args.parallel:
+        enable_parallel = True
+    elif args.no_parallel:
+        enable_parallel = False
+    
     # 创建处理器
-    processor = NovelToComicProcessor()
+    processor = NovelToComicProcessor(enable_parallel)
     
     # 确保输出目录存在
     processor.file_handler.ensure_directory_exists(OUTPUT_DIR)
@@ -340,6 +365,9 @@ def main():
         print("   python -m src.services.novel_to_comic.main -d <章节目录路径>")
         print("3. 自动模式（处理data/cleaned_novel目录）:")
         print("   python -m src.services.novel_to_comic.main --auto")
+        print("\n并行处理选项:")
+        print("  --parallel     启用并行场景分割（最多5个并发）")
+        print("  --no-parallel  禁用并行场景分割")
         print("\n使用 -h 查看更多参数信息")
         return
     
