@@ -15,8 +15,8 @@ extraction:
     csv_path: D:/work/code/python/sharebook2/data/characters/characters.csv
     novel_path: D:/work/code/python/sharebook2/data/cleaned_novel
   progress:
-    current_chapter: 第三十六章 红千叶要反了？.txt
-    last_update_time: '2025-11-15T12:33:59.522624'
+    current_chapter: 第五十章 刀魔，厉无劫！.txt
+    last_update_time: '2025-11-15T12:34:57.291563'
     processed_chapters:
     - 第一章 遇强则强.txt
     - 第二章 震惊全宗！.txt
@@ -54,3 +54,17 @@ extraction:
     - 第三十四章 名声大噪！.txt
     - 第三十五章 白小汐的人类形态？辣眼睛！.txt
     - 第三十六章 红千叶要反了？.txt
+    - 第三十七章 口味很重啊你！.txt
+    - 第三十八章 本座可保你一命！.txt
+    - 第三十九章 魔教教主之威！.txt
+    - 第四十章 叶君临，你就在这等死吧！.txt
+    - 第四十一章 你到底藏了多少啊？！.txt
+    - 第四十二章 无敌碾压！.txt
+    - 第四十三章 一招入魂！.txt
+    - 第四十四章 签到，吊炸天坐骑！.txt
+    - 第四十五章 上古神兽认主！.txt
+    - 第四十六章 前往灵州！.txt
+    - 第四十七章 尴尬！.txt
+    - 第四十八章 好戏要上演了！.txt
+    - 第四十九章 神秘的刺客！.txt
+    - 第五十章 刀魔，厉无劫！.txt
