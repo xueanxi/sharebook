@@ -1,0 +1,29 @@
+"""
+处理参数配置
+"""
+
+# 文本分割参数
+SEGMENT_MAX_LENGTH = 500  # 每个段落最大长度
+SEGMENT_MIN_LENGTH = 50   # 每个段落最小长度
+
+# 场景分割参数
+SCENE_MIN_LENGTH = 100    # 每个场景最小长度
+SCENE_MAX_LENGTH = 300    # 每个场景最大长度
+
+# Agent配置
+SCENE_SPLITTER_CONFIG = {
+    "temperature": 0.3,  # 较低温度，确保场景分割的一致性
+    "max_tokens": 2000,
+}
+
+VISUAL_GENERATOR_CONFIG = {
+    "temperature": 0.5,  # 中等温度，平衡创造性和一致性
+    "max_tokens": 3000,
+}
+
+# 输出配置
+OUTPUT_DIR = "data/output/storyboards"  # 故事板输出目录
+
+# 错误处理配置
+MAX_RETRIES = 3  # 最大重试次数
+RETRY_DELAY = 2  # 重试延迟(秒)
