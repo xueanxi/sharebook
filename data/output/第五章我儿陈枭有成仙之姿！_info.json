@@ -1,0 +1,183 @@
+{
+  "characters": {
+    "success": true,
+    "result": {
+      "characters": [
+        {
+          "name": "叶君临",
+          "count": 12,
+          "role": "主角",
+          "relations": [
+            "与陈云海敌对",
+            "与虚有年同门",
+            "与羽化门有冲突"
+          ]
+        },
+        {
+          "name": "陈云海",
+          "count": 6,
+          "role": "配角",
+          "relations": [
+            "与叶君临敌对",
+            "是陈枭之父",
+            "风雷宗宗主"
+          ]
+        },
+        {
+          "name": "陈枭",
+          "count": 4,
+          "role": "配角",
+          "relations": [
+            "是陈云海之子",
+            "被羽化门尊者收为亲传"
+          ]
+        },
+        {
+          "name": "虚有年",
+          "count": 4,
+          "role": "配角",
+          "relations": [
+            "玄天宗宗主",
+            "与叶君临同门",
+            "获得羽化门令牌"
+          ]
+        },
+        {
+          "name": "藏剑峰峰主",
+          "count": 2,
+          "role": "次要",
+          "relations": [
+            "玄天宗峰主",
+            "发现羽化门令牌"
+          ]
+        },
+        {
+          "name": "天香峰峰主",
+          "count": 1,
+          "role": "次要",
+          "relations": [
+            "玄天宗峰主",
+            "对令牌来源提出疑问"
+          ]
+        }
+      ]
+    },
+    "agent": "人物提取器"
+  },
+  "plot": {
+    "success": true,
+    "result": {
+      "plot_summary": "叶君临以压倒性实力击溃风雷宗，揭露其与羽化门的隐秘关联，最终斩杀宗主并夺取关键令牌，引发对东域顶级势力的潜在冲突。",
+      "key_events": [
+        {
+          "event": "叶君临施展人王印，瞬间击溃化神境木老，将其碾为飞灰。",
+          "type": "高潮",
+          "importance": 10
+        },
+        {
+          "event": "陈云海以儿子陈枭的成仙之姿威胁叶君临，试图求生。",
+          "type": "发展",
+          "importance": 8
+        },
+        {
+          "event": "叶君临无视威胁，当场击杀陈云海，震慑全场。",
+          "type": "高潮",
+          "importance": 9
+        },
+        {
+          "event": "玄天宗大军抵达，攻陷风雷宗，宗门被连根拔起。",
+          "type": "发展",
+          "importance": 7
+        },
+        {
+          "event": "藏剑峰峰主发现羽化门令牌，引发众人震惊与猜测。",
+          "type": "转折",
+          "importance": 10
+        },
+        {
+          "event": "叶君临坦言已杀尽令牌持有者，暗示与羽化门的深层矛盾。",
+          "type": "高潮",
+          "importance": 10
+        }
+      ],
+      "pacing": "快",
+      "main_conflicts": [
+        "叶君临与风雷宗的生死对抗",
+        "叶君临与羽化门潜在的势力冲突"
+      ]
+    },
+    "agent": "剧情分析器"
+  },
+  "satisfaction_points": {
+    "success": true,
+    "result": {
+      "satisfaction_points": [
+        {
+          "description": "叶君临以化神之威镇压并击杀化神境木老，人王印碾碎敌人，展现绝对压制力",
+          "type": "打脸",
+          "intensity": 9,
+          "location": "风雷宗主殿"
+        },
+        {
+          "description": "陈云海以‘我儿有成仙之姿’威胁，叶君临冷笑反杀，彻底碾压对方心理防线",
+          "type": "打脸",
+          "intensity": 8,
+          "location": "风雷宗主殿"
+        },
+        {
+          "description": "叶君临无视宗主威胁，一指击杀陈云海，展现无惧任何势力的狂傲气魄",
+          "type": "装逼",
+          "intensity": 9,
+          "location": "风雷宗主殿"
+        },
+        {
+          "description": "玄天宗大军压境，风雷宗瞬间覆灭，尸横遍野，反派彻底崩盘",
+          "type": "逆袭",
+          "intensity": 8,
+          "location": "风雷宗外围"
+        },
+        {
+          "description": "叶君临揭露羽化门令牌归属，实为亲手所杀之人所有，反讽‘前辈现身’的荒谬",
+          "type": "装逼",
+          "intensity": 10,
+          "location": "风雷宗废墟"
+        }
+      ],
+      "density": "高",
+      "main_types": [
+        "打脸",
+        "装逼",
+        "逆袭"
+      ]
+    },
+    "agent": "爽点识别器"
+  },
+  "original_text_length": 2228,
+  "cleaned_text_length": 2142,
+  "errors": [],
+  "completed_tasks": [
+    "文本预处理",
+    "文本预处理",
+    "人物提取",
+    "爽点识别",
+    "剧情分析",
+    "文本预处理",
+    "文本预处理",
+    "人物提取",
+    "爽点识别",
+    "剧情分析",
+    "文本预处理",
+    "文本预处理",
+    "人物提取",
+    "爽点识别",
+    "剧情分析",
+    "文本预处理",
+    "文本预处理",
+    "人物提取",
+    "爽点识别",
+    "剧情分析"
+  ],
+  "parallel_execution": true,
+  "file_path": "data/raw\\第五章我儿陈枭有成仙之姿！.txt",
+  "success": true
+}

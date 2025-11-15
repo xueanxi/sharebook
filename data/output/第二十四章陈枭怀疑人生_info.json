@@ -1,0 +1,189 @@
+{
+  "characters": {
+    "success": true,
+    "result": {
+      "characters": [
+        {
+          "name": "叶君临",
+          "count": 12,
+          "role": "主角",
+          "relations": [
+            "师尊",
+            "玄天宗宗主",
+            "赵灵儿的师父"
+          ]
+        },
+        {
+          "name": "红千叶",
+          "count": 10,
+          "role": "主角",
+          "relations": [
+            "师尊",
+            "叶君临的徒弟",
+            "玄天宗强者"
+          ]
+        },
+        {
+          "name": "陈枭",
+          "count": 8,
+          "role": "主角",
+          "relations": [
+            "羽化门圣子",
+            "对手",
+            "红千叶的敌人"
+          ]
+        },
+        {
+          "name": "虚有年",
+          "count": 3,
+          "role": "配角",
+          "relations": [
+            "玄天宗长老",
+            "叶君临的同门"
+          ]
+        },
+        {
+          "name": "欧阳锋",
+          "count": 3,
+          "role": "配角",
+          "relations": [
+            "荒州修士",
+            "玄天宗的对手",
+            "赵灵儿的见证者"
+          ]
+        },
+        {
+          "name": "赵灵儿",
+          "count": 3,
+          "role": "配角",
+          "relations": [
+            "魏帝之女",
+            "天香峰弟子",
+            "叶君临的徒弟"
+          ]
+        },
+        {
+          "name": "严长老",
+          "count": 2,
+          "role": "配角",
+          "relations": [
+            "羽化门长老",
+            "陈枭的上级"
+          ]
+        }
+      ]
+    },
+    "agent": "人物提取器"
+  },
+  "plot": {
+    "success": true,
+    "result": {
+      "plot_summary": "叶君临在众目睽睽之下展现惊人实力，其弟子红千叶秒杀镇南王，随后面对羽化门圣子陈枭的挑衅，以压倒性实力击溃对方，彻底扭转局势。",
+      "key_events": [
+        {
+          "event": "红千叶出手击杀镇南王，展现化神实力，震惊全场",
+          "type": "发展",
+          "importance": 9
+        },
+        {
+          "event": "红千叶自称叶君临弟子，揭示玄天宗隐藏强大力量",
+          "type": "发展",
+          "importance": 8
+        },
+        {
+          "event": "陈枭现身，以圣子身份威压叶君临，宣战",
+          "type": "高潮",
+          "importance": 10
+        },
+        {
+          "event": "红千叶以火莲神通轻松化解陈枭的太阳神拳，展现同境无敌之姿",
+          "type": "高潮",
+          "importance": 10
+        },
+        {
+          "event": "红千叶以心理碾压方式彻底摧毁陈枭的自信与尊严",
+          "type": "结局",
+          "importance": 9
+        }
+      ],
+      "pacing": "快",
+      "main_conflicts": [
+        "叶君临与羽化门圣子陈枭的正面冲突",
+        "玄天宗隐实力暴露后与外界强权的对抗"
+      ]
+    },
+    "agent": "剧情分析器"
+  },
+  "satisfaction_points": {
+    "success": true,
+    "result": {
+      "satisfaction_points": [
+        {
+          "description": "红千叶一招秒杀化神境镇南王，火焰焚尽其身躯，连残渣都不剩，展现绝对压制力",
+          "type": "打脸",
+          "intensity": 9,
+          "location": "镇南王被杀处"
+        },
+        {
+          "description": "红千叶身份揭晓为叶君临徒弟，且是化神强者，震惊全场，颠覆众人对玄天宗的认知",
+          "type": "逆袭",
+          "intensity": 8,
+          "location": "红千叶自称师尊弟子"
+        },
+        {
+          "description": "叶君临收魏帝之女赵灵儿为徒，展现宗主威仪与势力扩张，获得众峰主祝贺",
+          "type": "升级",
+          "intensity": 7,
+          "location": "赵灵儿拜师天香峰"
+        },
+        {
+          "description": "陈枭现身欲复仇，却被红千叶轻描淡写破其天阶顶级招式太阳神拳，反被五彩火焰莲花镇压",
+          "type": "打脸",
+          "intensity": 9,
+          "location": "陈枭被火焰莲花困住"
+        },
+        {
+          "description": "红千叶以绝对实力嘲讽陈枭‘你爹是煞笔，你也是煞笔’，彻底摧毁其尊严与心理防线",
+          "type": "装逼",
+          "intensity": 10,
+          "location": "红千叶嘲讽陈枭"
+        }
+      ],
+      "density": "高",
+      "main_types": [
+        "打脸",
+        "逆袭",
+        "装逼"
+      ]
+    },
+    "agent": "爽点识别器"
+  },
+  "original_text_length": 2949,
+  "cleaned_text_length": 2939,
+  "errors": [],
+  "completed_tasks": [
+    "文本预处理",
+    "文本预处理",
+    "剧情分析",
+    "人物提取",
+    "爽点识别",
+    "文本预处理",
+    "文本预处理",
+    "剧情分析",
+    "人物提取",
+    "爽点识别",
+    "文本预处理",
+    "文本预处理",
+    "剧情分析",
+    "人物提取",
+    "爽点识别",
+    "文本预处理",
+    "文本预处理",
+    "剧情分析",
+    "人物提取",
+    "爽点识别"
+  ],
+  "parallel_execution": true,
+  "file_path": "data/raw\\第二十四章 陈枭怀疑人生.txt",
+  "success": true
+}

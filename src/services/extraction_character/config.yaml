@@ -1,0 +1,24 @@
+extraction:
+  error_handling:
+    log_errors: true
+    retry_count: 3
+  llm:
+    config_path: D:/work/code/python/sharebook/config/llm_config.py
+    max_tokens: 2000
+    temperature: 0.4
+    timeout: 30
+  parallel:
+    max_analyzer_agents: 6
+    max_csv_agents: 6
+  paths:
+    config_path: src/services/extraction_character/config.yaml
+    csv_path: D:/work/code/python/sharebook/data/characters/characters.csv
+    novel_path: D:/work/code/python/sharebook/data/cleaned_novel
+  progress:
+    current_chapter: 第三十七章 口味很重啊你！.txt
+    last_update_time: '2025-11-15T00:35:48.444535'
+    processed_chapters:
+    - 第一章 遇强则强.txt
+    - 第七章 绝望的魔教教主.txt
+    - 第三十一章 不要吃鼠鼠！.txt
+    - 第三十七章 口味很重啊你！.txt
