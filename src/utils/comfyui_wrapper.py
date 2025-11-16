@@ -222,6 +222,20 @@ class ComfyUIWrapper:
             workflow[node_id]["inputs"]["text"] = text
         else:
             raise ValueError(f"无法找到节点 {node_id} 或其文本输入参数")
+
+    def update_workflow_seed(self, workflow: Dict[str, Any], node_id: str, seed: int) -> None:
+        """
+        更新工作流中的种子参数
+        
+        Args:
+            workflow: 工作流数据
+            node_id: 节点ID
+            seed: 新的种子值
+        """
+        if node_id in workflow and "inputs" in workflow[node_id] and "seed" in workflow[node_id]["inputs"]:
+            workflow[node_id]["inputs"]["seed"] = seed
+        else:
+            raise ValueError(f"无法找到节点 {node_id} 或其种子输入参数")
             
     def update_workflow_batch_size(self, workflow: Dict[str, Any], node_id: str, batch_size: int) -> None:
         """

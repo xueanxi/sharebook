@@ -68,6 +68,9 @@ class ComfyUIInterface:
             
             # 设置批处理大小
             self.wrapper.update_workflow_batch_size(workflow, "9", batch_size)
+
+            # 设置随机种子
+            self.wrapper.update_workflow_seed(workflow, "5", int(time.time()))
             
             # 确保保存目录存在
             os.makedirs(save_dir, exist_ok=True)
