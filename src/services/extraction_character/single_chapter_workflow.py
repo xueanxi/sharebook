@@ -31,14 +31,19 @@ class SingleChapterWorkflow:
         
         # 初始化各个节点
         self.file_reader = FileReader(self.config_manager.get_novel_path())
-        self.character_extractor = CharacterExtractor(self.config_manager.get_llm_config()['config_path'])
+        self.character_extractor = CharacterExtractor(
+            self.config_manager.get_llm_config()['config_path'],
+            self.config_manager.config_path
+        )
         self.parallel_analyzer = ParallelCharacterAnalyzer(
             self.config_manager.get_llm_config()['config_path'],
+            self.config_manager.config_path,
             self.config_manager.get_max_analyzer_agents()
         )
         self.parallel_csv_updater = ParallelCSVUpdater(
             self.config_manager.get_csv_path(),
             self.config_manager.get_llm_config()['config_path'],
+            self.config_manager.config_path,
             self.config_manager.get_max_csv_agents()
         )
         

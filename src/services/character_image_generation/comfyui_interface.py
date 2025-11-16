@@ -6,6 +6,7 @@ ComfyUI接口模块
 
 import os
 import json
+import time
 from typing import List, Dict, Optional
 from src.utils.comfyui_wrapper import ComfyUIWrapper
 from config.logging_config import get_logger
@@ -71,9 +72,16 @@ class ComfyUIInterface:
             # 确保保存目录存在
             os.makedirs(save_dir, exist_ok=True)
             
-            # 生成图片
-            with self.wrapper:
+            # 生成图片 - 不使用上下文管理器，手动管理连接
+            try:
+                if not self.wrapper.ws:
+                    self.wrapper.connect()
+                    
                 output_images = self.wrapper.generate_images(workflow, save_dir)
+            finally:
+                # 确保在生成完成后断开连接
+                if self.wrapper and self.wrapper.ws:
+                    self.wrapper.disconnect()
             
             image_paths = list(output_images.values())
             logger.info(f"成功生成 {len(image_paths)} 张图片到目录: {save_dir}")
@@ -81,6 +89,12 @@ class ComfyUIInterface:
             
         except Exception as e:
             logger.error(f"生成图片时出错: {str(e)}")
+            # 确保在出错时也断开连接
+            if self.wrapper and self.wrapper.ws:
+                try:
+                    self.wrapper.disconnect()
+                except:
+                    pass
             raise
     
     def generate_multiple_images(

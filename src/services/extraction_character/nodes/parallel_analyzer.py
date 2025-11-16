@@ -11,15 +11,16 @@ from utils.llm_utils import LLMUtils
 class ParallelCharacterAnalyzer:
     """并行角色分析节点"""
     
-    def __init__(self, llm_config_path: str = "config/llm_config.py", max_workers: int = 6):
+    def __init__(self, llm_config_path: str = "config/llm_config.py", extraction_config_path: str = "src/services/extraction_character/config.yaml", max_workers: int = 6):
         """
         初始化并行角色分析节点
         
         Args:
             llm_config_path: LLM配置文件路径
+            extraction_config_path: 角色提取配置文件路径
             max_workers: 最大并行worker数
         """
-        self.llm_utils = LLMUtils(llm_config_path)
+        self.llm_utils = LLMUtils(llm_config_path, extraction_config_path)
         self.max_workers = max_workers
     
     def analyze_characters_parallel(self, state: CharacterExtractionState) -> CharacterExtractionState:

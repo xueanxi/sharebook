@@ -6,6 +6,7 @@ import json
 import importlib
 import sys
 import importlib.util
+import yaml
 from typing import Dict, Any, List, Optional
 from pathlib import Path
 
@@ -13,15 +14,17 @@ from pathlib import Path
 class LLMUtils:
     """LLM调用工具类"""
     
-    def __init__(self, llm_config_path: str = "config/llm_config.py"):
+    def __init__(self, llm_config_path: str = "config/llm_config.py", extraction_config_path: str = "src/services/extraction_character/config.yaml"):
         """
         初始化LLM工具
         
         Args:
             llm_config_path: LLM配置文件路径
+            extraction_config_path: 角色提取配置文件路径
         """
         self.llm_config = self._load_llm_config(llm_config_path)
         self.llm = self._initialize_llm()
+        self.novel_type = self._load_novel_type(extraction_config_path)
     
     def _load_llm_config(self, config_path: str) -> Dict[str, Any]:
         """
@@ -81,6 +84,34 @@ class LLMUtils:
                 'temperature': 0.4,
                 'max_tokens': 2000
             }
+    
+    def _load_novel_type(self, config_path: str) -> str:
+        """
+        加载小说类型
+        
+        Args:
+            config_path: 配置文件路径
+            
+        Returns:
+            小说类型字符串
+        """
+        try:
+            # 添加项目根目录到Python路径
+            project_root = Path(__file__).parent.parent.parent.parent.parent
+            if str(project_root) not in sys.path:
+                sys.path.append(str(project_root))
+            
+            # 读取YAML配置文件
+            with open(config_path, 'r', encoding='utf-8') as f:
+                config = yaml.safe_load(f)
+            
+            # 获取小说类型
+            novel_type = config.get('extraction', {}).get('novel_type', '玄幻修真')
+            return novel_type
+        except Exception as e:
+            print(f"加载小说类型失败: {e}")
+            # 返回默认小说类型
+            return "玄幻修真"
     
     def _initialize_llm(self):
         """
@@ -179,6 +210,7 @@ class LLMUtils:
 角色信息：
 - 姓名：{character_name}
 - 别名：{aliases_str}
+- 小说类型：{self.novel_type}
 
 任务要求：
 1. 判断角色性别（男/女/未知）
@@ -186,7 +218,7 @@ class LLMUtils:
 3. 提取服装特点（衣着风格、特殊装饰等，50字以内）
 4. 判断角色类型（主角/配角/反派/其他）
 5. 整合和补充别名信息（如果有，不要把一些通用的，没有区分辨识度的称呼作为别名，比如"他"、"她"、"姑娘"、"先生"、"爹"等）
-6. 生成英文的动漫风格容貌提示词，用于文生图生成角色上半身脸部特写，要求符合小说描述，可以适当发挥以避免千篇一律
+6. 生成英文的动漫风格容貌提示词，用于文生图生成角色上半身脸部特写，要求符合小说描述和{self.novel_type}类型风格，可以适当发挥以避免千篇一律
 
 输出格式（JSON）：
 {{
@@ -195,14 +227,15 @@ class LLMUtils:
   "服装特点": "服装描述（50字以内）",
   "角色类型": "主角/配角/反派/其他",
   "别名": ["别名1", "别名2", ...],  // 如果没有别名则为空列表
-  "容貌提示词": "英文的动漫风格容貌提示词，用于文生图，包含面部特征、发型、表情等细节，例如：anime style, upper body, close-up portrait, young girl with long silver hair and blue eyes, gentle smile"
+  "容貌提示词": "英文的动漫风格容貌提示词，用于文生图，包含面部特征、发型、表情等细节，符合{self.novel_type}类型风格，例如：anime style, upper body, close-up portrait, young girl with long silver hair and blue eyes, gentle smile"
 }}
 
 注意：
 1. 如果某项信息不明确，请填写"未知"
   2. 保持描述简洁准确（除容貌提示词外）
   3. 容貌提示词必须是英文的，应详细描述角色的面部特征、表情、气质等，适合生成动漫风格的图像
-  4. 容貌提示词格式为"anime style, upper body, close-up portrait, [详细容貌描述]"，要符合小说中的角色设定，可以适当发挥以增加独特性
+  4. 容貌提示词格式为"anime style, upper body, close-up portrait, [详细容貌描述]"，要符合小说中的角色设定和{self.novel_type}类型风格，可以适当发挥以增加独特性
+  5. 确保容貌提示词符合{self.novel_type}小说类型的风格特点，避免生成与小说类型不符的图像
 """
         
         try:
@@ -230,7 +263,7 @@ class LLMUtils:
                 "服装特点": "未知",
                 "角色类型": "其他",
                 "别名": character_aliases or [],
-                "容貌提示词": "anime style, upper body, close-up portrait, ordinary character appearance"
+                "容貌提示词": f"anime style, upper body, close-up portrait, {self.novel_type} style character appearance"
             }
     
     def merge_character_info(self, existing_info: Dict[str, Any], new_info: Dict[str, Any]) -> Dict[str, Any]:
@@ -264,6 +297,8 @@ class LLMUtils:
 新角色信息：
 {json.dumps(new_info, ensure_ascii=False, indent=2)}
 
+小说类型：{self.novel_type}
+
 任务要求：
 1. 智能合并新旧信息：
    - 优先保留更详细、更准确的描述
@@ -272,7 +307,7 @@ class LLMUtils:
    - 保持描述简洁（每项不超过50字，容貌提示词除外）
 2. 确保合并后的信息逻辑一致
 3. 合并别名信息，去除重复，保持唯一性，不要把一些通用的，没有区分辨识度的称呼作为别名（比如"他"、"她"、"姑娘"、"先生"、"爹"等）
-4. 智能合并容貌提示词，生成英文的动漫风格容貌提示词，用于文生图生成角色上半身脸部特写，要求符合小说描述，可以适当发挥以避免千篇一律
+4. 智能合并容貌提示词，生成英文的动漫风格容貌提示词，用于文生图生成角色上半身脸部特写，要求符合小说描述和{self.novel_type}类型风格，可以适当发挥以避免千篇一律
 
 输出格式（JSON）：
 {{
@@ -282,14 +317,15 @@ class LLMUtils:
   "服装特点": "服装描述（50字以内）",
   "角色类型": "主角/配角/反派/其他",
   "别名": ["别名1", "别名2", ...],  // 如果没有别名则为空列表
-  "容貌提示词": "英文的动漫风格容貌提示词，用于文生图，包含面部特征、发型、表情等细节，例如：anime style, upper body, close-up portrait, young girl with long silver hair and blue eyes, gentle smile"
+  "容貌提示词": "英文的动漫风格容貌提示词，用于文生图，包含面部特征、发型、表情等细节，符合{self.novel_type}类型风格，例如：anime style, upper body, close-up portrait, young girl with long silver hair and blue eyes, gentle smile"
 }}
 
 注意：
 1. 如果某项信息不明确，请填写"未知"
 2. 保持描述简洁准确（除容貌提示词外）
 3. 容貌提示词必须是英文的，应详细描述角色的面部特征、表情、气质等，适合生成动漫风格的图像
-4. 容貌提示词格式为"anime style, upper body, close-up portrait, [详细容貌描述]"，要符合小说中的角色设定，可以适当发挥以增加独特性
+4. 容貌提示词格式为"anime style, upper body, close-up portrait, [详细容貌描述]"，要符合小说中的角色设定和{self.novel_type}类型风格，可以适当发挥以增加独特性
+5. 确保容貌提示词符合{self.novel_type}小说类型的风格特点，避免生成与小说类型不符的图像
 """
         
         try:
@@ -314,5 +350,5 @@ class LLMUtils:
                 "服装特点": new_info.get("服装特点", existing_info.get("服装特点", "未知")),
                 "角色类型": new_info.get("角色类型", existing_info.get("角色类型", "其他")),
                 "别名": list(set(existing_info.get("别名", []) + new_info.get("别名", []))),
-                "容貌提示词": new_info.get("容貌提示词", existing_info.get("容貌提示词", "anime style, upper body, close-up portrait, ordinary character appearance"))
+                "容貌提示词": new_info.get("容貌提示词", existing_info.get("容貌提示词", f"anime style, upper body, close-up portrait, {self.novel_type} style character appearance"))
             }
