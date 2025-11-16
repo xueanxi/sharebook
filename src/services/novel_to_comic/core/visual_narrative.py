@@ -240,15 +240,6 @@ class VisualNarrativeAgent:
             transition_text=narration_data.get("transition_text", "")
         )
         
-        # 转换分镜建议
-        storyboard_data = visual_data.get("storyboard_suggestions", {})
-        storyboard_suggestions = StoryboardSuggestions(
-            panel_type=storyboard_data.get("panel_type", "单格"),
-            dialogue_position=storyboard_data.get("dialogue_position", "上方"),
-            effects=storyboard_data.get("effects", "无特效"),
-            page_layout=storyboard_data.get("page_layout", "标准布局")
-        )
-        
         # 创建VisualNarrative对象
         visual_narrative = VisualNarrative(
             visual_description=visual_data.get("visual_description", "视觉描述"),
@@ -257,7 +248,6 @@ class VisualNarrativeAgent:
             environment=environment,
             style=style,
             narration=narration,
-            storyboard_suggestions=storyboard_suggestions,
             scene_id=scene.scene_id
         )
         

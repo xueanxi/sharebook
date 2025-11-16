@@ -137,7 +137,6 @@ class VisualNarrative:
     environment: Environment
     style: Style
     narration: Narration
-    storyboard_suggestions: StoryboardSuggestions
     scene_id: str
 
 
