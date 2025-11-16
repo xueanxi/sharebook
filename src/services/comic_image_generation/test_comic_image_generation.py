@@ -42,7 +42,7 @@ def test_comic_image_generation():
             prompt=prompt,
             save_dir=save_dir,
             reference_image=reference_image,
-            batch_size=4,
+            batch_size=1,
         )
         
         logger.info(f"图片生成完成，保存路径: {image_paths}")
