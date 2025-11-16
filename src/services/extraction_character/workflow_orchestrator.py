@@ -53,22 +53,14 @@ class CharacterExtractionOrchestrator:
             
             # 外部大循环遍历章节
             for i, chapter in enumerate(all_chapters, 1):
-                # 检查是否已处理
-                if chapter in state.get("processed_chapters", []):
-                    print(f"章节 {chapter} 已处理，跳过")
-                    continue
-                
                 print(f"处理章节 {i}/{total_chapters}: {chapter}")
                 
                 # 创建单章节工作流并运行
                 chapter_result = self._process_single_chapter(chapter)
                 
                 if chapter_result["success"]:
-                    # 更新已处理章节
-                    state["processed_chapters"].append(chapter)
-                    
                     # 保存进度
-                    self.config_manager.update_progress(chapter, state["processed_chapters"])
+                    self.config_manager.update_progress(chapter)
                     
                     print(f"章节 {chapter} 处理完成")
                 else:
@@ -78,12 +70,10 @@ class CharacterExtractionOrchestrator:
                     continue
             
             # 输出结果
-            processed_count = len(state.get("processed_chapters", []))
-            print(f"角色提取完成，共处理 {processed_count} 个章节")
+            print(f"角色提取完成，共处理 {total_chapters} 个章节")
             
             return {
                 "success": True,
-                "processed_chapters": state.get("processed_chapters", []),
                 "csv_path": self.config_manager.get_csv_path()
             }
             
@@ -129,17 +119,12 @@ class CharacterExtractionOrchestrator:
         if reset_progress:
             # 重置进度
             self.config_manager.reset_progress()
-            processed_chapters = []
-        else:
-            # 从配置文件读取进度
-            processed_chapters = self.config_manager.get_processed_chapters()
         
         return {
             "current_chapter": "",
             "chapter_content": "",
             "extracted_characters": [],
             "all_characters": {},
-            "processed_chapters": processed_chapters,
             "csv_path": self.config_manager.get_csv_path(),
             "error": None,
             "config_path": self.config_manager.config_path,

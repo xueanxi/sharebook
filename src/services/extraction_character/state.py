@@ -11,7 +11,6 @@ class CharacterExtractionState(TypedDict):
     chapter_content: str  # 章节内容
     extracted_characters: List[Dict]  # 当前章节提取的角色
     all_characters: Dict[str, Dict]  # 所有角色信息（以姓名为键）
-    processed_chapters: List[str]  # 已处理的章节列表
     csv_path: str  # CSV文件路径
     error: Optional[str]  # 错误信息
     config_path: str  # 配置文件路径

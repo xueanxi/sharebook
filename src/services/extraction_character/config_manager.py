@@ -53,7 +53,6 @@ class ConfigManager:
             'extraction': {
                 'progress': {
                     'current_chapter': '',
-                    'processed_chapters': [],
                     'last_update_time': ''
                 },
                 'paths': {
@@ -137,27 +136,21 @@ class ConfigManager:
         """获取重试次数"""
         return self.config['extraction']['error_handling']['retry_count']
     
-    def get_processed_chapters(self) -> List[str]:
-        """获取已处理章节列表"""
-        return self.config['extraction']['progress']['processed_chapters']
-    
     def get_current_chapter(self) -> str:
         """获取当前处理章节"""
         return self.config['extraction']['progress']['current_chapter']
     
-    def update_progress(self, current_chapter: str, processed_chapters: List[str]) -> bool:
+    def update_progress(self, current_chapter: str) -> bool:
         """
         更新进度信息
         
         Args:
             current_chapter: 当前章节
-            processed_chapters: 已处理章节列表
             
         Returns:
             是否更新成功
         """
         self.config['extraction']['progress']['current_chapter'] = current_chapter
-        self.config['extraction']['progress']['processed_chapters'] = processed_chapters
         self.config['extraction']['progress']['last_update_time'] = datetime.now().isoformat()
         
         return self._save_config(self.config)
@@ -170,7 +163,6 @@ class ConfigManager:
             是否重置成功
         """
         self.config['extraction']['progress']['current_chapter'] = ''
-        self.config['extraction']['progress']['processed_chapters'] = []
         self.config['extraction']['progress']['last_update_time'] = ''
         
         return self._save_config(self.config)

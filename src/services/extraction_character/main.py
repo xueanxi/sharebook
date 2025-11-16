@@ -90,7 +90,6 @@ def main():
         
         if result["success"]:
             print("角色提取完成!")
-            print(f"处理的章节: {len(result['processed_chapters'])}")
             print(f"输出文件: {result['csv_path']}")
         else:
             print(f"角色提取失败: {result['error']}")

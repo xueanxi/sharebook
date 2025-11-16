@@ -37,29 +37,9 @@ class ProgressChecker:
                 state["is_completed"] = True
                 return state
             
-            # 获取已处理的章节
-            processed_chapters = state.get("processed_chapters", [])
-            
-            # 检查是否所有章节都已处理
-            unprocessed_chapters = [
-                chapter for chapter in all_chapters 
-                if chapter not in processed_chapters
-            ]
-            
-            if not unprocessed_chapters:
-                # 所有章节都已处理
-                state["is_completed"] = True
-                state["current_chapter"] = ""
-            else:
-                # 还有未处理的章节
-                state["is_completed"] = False
-            
-            # 更新处理进度
+            # 更新状态
             total_chapters = len(all_chapters)
-            processed_count = len(processed_chapters)
-            progress_percentage = (processed_count / total_chapters) * 100 if total_chapters > 0 else 0
-            
-            print(f"处理进度: {processed_count}/{total_chapters} ({progress_percentage:.1f}%)")
+            state["total_chapters"] = total_chapters
             
             # 清除错误信息
             state["error"] = None
@@ -124,7 +104,7 @@ class ProgressChecker:
     
     def update_processed_chapters(self, state: CharacterExtractionState) -> CharacterExtractionState:
         """
-        更新已处理章节列表
+        更新已处理的章节
         
         Args:
             state: 当前状态
@@ -134,13 +114,10 @@ class ProgressChecker:
         """
         try:
             current_chapter = state.get("current_chapter", "")
-            processed_chapters = state.get("processed_chapters", [])
             
-            # 如果当前章节不在已处理列表中，添加它
-            if current_chapter and current_chapter not in processed_chapters:
-                processed_chapters.append(current_chapter)
-                state["processed_chapters"] = processed_chapters
-                print(f"章节处理完成: {current_chapter}")
+            # 保存进度到配置文件
+            if current_chapter:
+                self.config_manager.update_progress(current_chapter)
             
             return state
         except Exception as e:

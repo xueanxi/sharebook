@@ -39,24 +39,9 @@ class ChapterSelector:
                 state["is_completed"] = True
                 return state
             
-            # 获取已处理的章节
-            processed_chapters = state.get("processed_chapters", [])
-            
-            # 找出未处理的章节
-            unprocessed_chapters = [
-                chapter for chapter in all_chapters 
-                if chapter not in processed_chapters
-            ]
-            
-            if not unprocessed_chapters:
-                # 所有章节都已处理
-                state["is_completed"] = True
-                state["current_chapter"] = ""
-            else:
-                # 选择下一个章节（按章节号排序）
-                next_chapter = sorted(unprocessed_chapters, key=self._extract_chapter_number)[0]
-                state["current_chapter"] = next_chapter
-                state["is_completed"] = False
+            # 直接返回第一个章节
+            state["current_chapter"] = all_chapters[0]
+            state["is_completed"] = False
             
             # 清除错误信息
             state["error"] = None
