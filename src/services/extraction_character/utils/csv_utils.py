@@ -8,7 +8,7 @@ from typing import List, Dict, Any, Tuple, Set
 from pathlib import Path
 
 # CSV列顺序常量
-COLUMNS_ORDER = ['姓名', '别名', '性别', '外貌特征', '服装特点', '角色类型']
+COLUMNS_ORDER = ['姓名', '别名', '性别', '外貌特征', '服装特点', '角色类型', '容貌提示词']
 
 # 尝试导入pandas，如果没有则使用基础csv操作
 try:
