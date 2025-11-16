@@ -28,6 +28,7 @@ class ComicImageGeneration:
         self.config = self._load_config(config_path)
         self.workflow_template = self.config.get("comic_image_generation", {}).get("paths", {}).get("workflow_template", "comfyui/novel_t2I_flux_pulid.json")
         self.comfyui_input_dir = self.config.get("comic_image_generation", {}).get("paths", {}).get("comfyui_input_dir", "ComfyUI/input")
+        self.output_root_dir = self.config.get("comic_image_generation", {}).get("paths", {}).get("output_root_dir", "custom_output/")
         self.wrapper = None
         self.workflow = None
         
@@ -87,7 +88,7 @@ class ComicImageGeneration:
     def generate_image(
         self, 
         prompt: str, 
-        save_dir: str, 
+        save_dir: Optional[str] = None, 
         reference_image: Optional[str] = None,
         batch_size: Optional[int] = None,
         seed: Optional[int] = None
@@ -97,7 +98,7 @@ class ComicImageGeneration:
         
         Args:
             prompt: 提示词
-            save_dir: 保存目录
+            save_dir: 保存目录，相对于output_root_dir的相对路径，如果为None则直接使用output_root_dir
             reference_image: 参考图片路径
             batch_size: 批处理大小，如果为None则使用配置文件中的默认值
             seed: 随机种子，如果为None则自动生成
@@ -111,6 +112,14 @@ class ComicImageGeneration:
             default_batch_size = generation_config.get("default_batch_size", 1)
             # 使用传入参数或默认值
             batch_size = batch_size if batch_size is not None else default_batch_size
+            
+            # 构建完整的保存路径
+            if save_dir is None:
+                full_save_dir = self.output_root_dir
+            else:
+                # 确保路径格式正确
+                save_dir = save_dir.replace('\\', '/').strip('/')
+                full_save_dir = os.path.join(self.output_root_dir, save_dir)
 
         
             workflow = self.setup_workflow()
@@ -143,21 +152,21 @@ class ComicImageGeneration:
                 logger.warning("未提供参考图片，将使用工作流中的默认参考图片")
             
             # 确保保存目录存在
-            os.makedirs(save_dir, exist_ok=True)
+            os.makedirs(full_save_dir, exist_ok=True)
             
             # 生成图片 - 不使用上下文管理器，手动管理连接
             try:
                 if not self.wrapper.ws:
                     self.wrapper.connect()
                     
-                output_images = self.wrapper.generate_images(workflow, save_dir)
+                output_images = self.wrapper.generate_images(workflow, full_save_dir)
             finally:
                 # 确保在生成完成后断开连接
                 if self.wrapper and self.wrapper.ws:
                     self.wrapper.disconnect()
             
             image_paths = list(output_images.values())
-            logger.info(f"成功生成 {len(image_paths)} 张图片到目录: {save_dir}")
+            logger.info(f"成功生成 {len(image_paths)} 张图片到目录: {full_save_dir}")
             return image_paths
             
         except Exception as e:
@@ -173,105 +182,64 @@ class ComicImageGeneration:
     def generate_multiple_images(
         self, 
         prompts: List[str], 
-        save_dir: str, 
+        save_dir: Optional[str] = None, 
         reference_image: Optional[str] = None,
         batch_size: Optional[int] = None,
-        weight: Optional[float] = None,
-        steps: Optional[int] = None,
-        cfg: Optional[float] = None
-    ) -> Dict[str, List[str]]:
+        seed: Optional[int] = None
+    ) -> List[str]:
         """
-        生成多张图片
+        批量生成多张图片
         
         Args:
             prompts: 提示词列表
-            save_dir: 保存目录
+            save_dir: 保存目录，相对于output_root_dir的相对路径，如果为None则直接使用output_root_dir
             reference_image: 参考图片路径
-            batch_size: 批处理大小，如果为None则使用配置文件中的默认值
-            weight: PuLID权重，控制参考图片的影响程度，如果为None则使用配置文件中的默认值
-            steps: 采样步数，如果为None则使用配置文件中的默认值
-            cfg: CFG scale，如果为None则使用配置文件中的默认值
+            batch_size: 每批处理的图片数量，如果为None则使用配置文件中的默认值
+            seed: 随机种子，如果为None则自动生成
             
         Returns:
-            提示词和图片路径的映射字典
+            生成的所有图片路径列表
         """
-        results = {}
+        # 构建完整的保存路径
+        if save_dir is None:
+            full_save_dir = self.output_root_dir
+        else:
+            # 确保路径格式正确
+            save_dir = save_dir.replace('\\', '/').strip('/')
+            full_save_dir = os.path.join(self.output_root_dir, save_dir)
         
-        for i, prompt in enumerate(prompts):
-            try:
-                # 为每个提示词创建子目录
-                prompt_dir = os.path.join(save_dir, f"prompt_{i+1}")
-                image_paths = self.generate_image(
-                    prompt=prompt,
-                    save_dir=prompt_dir,
-                    reference_image=reference_image,
-                    batch_size=batch_size,
-                    weight=weight,
-                    steps=steps,
-                    cfg=cfg
-                )
-                results[prompt] = image_paths
-                logger.info(f"提示词 '{prompt[:30]}...' 的图片生成完成")
-            except Exception as e:
-                logger.error(f"处理提示词 '{prompt[:30]}...' 时出错: {str(e)}")
-                results[prompt] = []
+        all_image_paths = []
         
-        return results
+        # 从配置文件获取默认参数
+        generation_config = self.config.get("comic_image_generation", {}).get("generation", {})
+        default_batch_size = generation_config.get("default_batch_size", 1)
+        # 使用传入参数或默认值
+        batch_size = batch_size if batch_size is not None else default_batch_size
+        
+        # 分批处理提示词
+        for i in range(0, len(prompts), batch_size):
+            batch_prompts = prompts[i:i + batch_size]
+            
+            # 为每批提示词生成图片
+            for prompt in batch_prompts:
+                try:
+                    image_paths = self.generate_image(
+                        prompt=prompt,
+                        save_dir=full_save_dir,
+                        reference_image=reference_image,
+                        batch_size=1,
+                        seed=seed
+                    )
+                    all_image_paths.extend(image_paths)
+                except Exception as e:
+                    logger.error(f"生成图片时出错 (提示词: {prompt[:50]}...): {str(e)}")
+                    # 继续处理其他提示词
+                    continue
+        
+        logger.info(f"批量生成完成，共生成 {len(all_image_paths)} 张图片")
+        return all_image_paths
     
-    def generate_character_variations(
-        self,
-        base_prompt: str,
-        variations: List[str],
-        reference_image: str,
-        save_dir: str,
-        batch_size: int = 1,
-        weight: float = 0.8,
-        steps: int = 15,
-        cfg: float = 1.0
-    ) -> Dict[str, List[str]]:
-        """
-        生成角色变体图片
-        
-        Args:
-            base_prompt: 基础提示词
-            variations: 变体描述列表，例如["微笑的表情", "愤怒的表情", "悲伤的表情"]
-            reference_image: 角色参考图片路径
-            save_dir: 保存目录
-            batch_size: 批处理大小
-            weight: PuLID权重，控制参考图片的影响程度
-            steps: 采样步数
-            cfg: CFG scale
-            
-        Returns:
-            变体描述和图片路径的映射字典
-        """
-        results = {}
-        
-        for variation in variations:
-            try:
-                # 组合基础提示词和变体描述
-                prompt = f"{base_prompt}, {variation}"
-                
-                # 为每个变体创建子目录
-                safe_variation = "".join(c for c in variation if c.isalnum() or c in (' ', '-', '_')).rstrip()
-                variation_dir = os.path.join(save_dir, safe_variation)
-                
-                image_paths = self.generate_image(
-                    prompt=prompt,
-                    save_dir=variation_dir,
-                    reference_image=reference_image,
-                    batch_size=batch_size,
-                    weight=weight,
-                    steps=steps,
-                    cfg=cfg
-                )
-                results[variation] = image_paths
-                logger.info(f"变体 '{variation}' 的图片生成完成")
-            except Exception as e:
-                logger.error(f"处理变体 '{variation}' 时出错: {str(e)}")
-                results[variation] = []
-        
-        return results
+
     
     def _copy_reference_image(self, reference_image_path: str) -> None:
         """
