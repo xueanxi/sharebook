@@ -76,6 +76,26 @@ class NovelToComicProcessor:
             # 保存结果
             output_path = self.workflow.save_result(result)
             
+            # 生成提示词和旁白
+            prompts = []
+            prompts_output_path = None
+            try:
+                # 使用已保存的故事板文件生成提示词和旁白
+                prompts = self.workflow.generate_prompts_for_chapter(output_path)
+                self.logger.info(f"成功生成 {len(prompts)} 个场景的提示词和旁白")
+                
+                # 保存提示词和旁白
+                if prompts:
+                    prompts_output_path = self.workflow.save_prompts(prompts, chapter_title)
+            except Exception as e:
+                self.logger.error(f"生成提示词和旁白失败: {e}")
+                error = ProcessingError(
+                    error_type="提示词生成错误",
+                    error_message=str(e),
+                    timestamp=datetime.now().isoformat()
+                )
+                result.errors.append(error)
+            
             # 创建处理摘要
             summary = ProcessingSummary(
                 success=len(result.errors) == 0,
@@ -89,6 +109,7 @@ class NovelToComicProcessor:
             return ProcessingResult(
                 success=True,
                 output_path=output_path,
+                prompts_output_path=prompts_output_path,
                 processing_summary=summary,
                 errors=[error.error_message for error in result.errors]
             )
@@ -163,6 +184,8 @@ class NovelToComicProcessor:
                         total_errors.extend(result.errors)
                     
                     print(f"✓ 处理成功: {result.output_path}")
+                    if result.prompts_output_path:
+                        print(f"  提示词文件: {result.prompts_output_path}")
                     if result.processing_summary:
                         summary = result.processing_summary
                         print(f"  - 段落数: {summary.total_segments}")
@@ -276,6 +299,9 @@ def main():
         if not args.auto and not args.directory:  # 单文件处理
             print("处理成功!")
             print(f"输出路径: {result.output_path}")
+            
+            if result.prompts_output_path:
+                print(f"提示词文件: {result.prompts_output_path}")
             
             if result.processing_summary:
                 summary = result.processing_summary

@@ -189,6 +189,7 @@ class ChapterResult:
     basic_stats: BasicStats
     segments: List[TextSegment]
     errors: List[ProcessingError] = field(default_factory=list)
+    prompts: List[Dict[str, str]] = field(default_factory=list)  # 存储生成的提示词和旁白
     
     def to_json(self) -> str:
         """转换为JSON字符串"""
@@ -205,5 +206,6 @@ class ProcessingResult:
     """处理结果"""
     success: bool
     output_path: Optional[str] = None
+    prompts_output_path: Optional[str] = None  # 提示词文件路径
     errors: List[str] = field(default_factory=list)
     processing_summary: Optional[ProcessingSummary] = None

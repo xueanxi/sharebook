@@ -11,6 +11,7 @@ from src.services.novel_to_comic.core.scene_splitter import SceneSplitterAgent
 from src.services.novel_to_comic.core.visual_narrative import VisualNarrativeAgent
 from src.services.novel_to_comic.core.parallel_scene_splitter import ParallelSceneSplitterWorkflow
 from src.services.novel_to_comic.core.parallel_visual_narrative import ParallelVisualNarrativeWorkflow
+from src.services.novel_to_comic.prompt_generator import PromptGenerator
 from src.services.novel_to_comic.models.data_models import (
     TextSegment, Scene, VisualNarrative, ChapterResult, 
     ChapterInfo, BasicStats, ProcessingSummary, ProcessingError
@@ -44,6 +45,7 @@ class NovelToComicWorkflow:
         self.segmenter = IntelligentSegmenter(self.character_manager)
         self.scene_splitter = SceneSplitterAgent(self.character_manager)
         self.visual_narrative = VisualNarrativeAgent(self.character_manager)
+        self.prompt_generator = PromptGenerator()
         
         # 如果启用并行处理，初始化并行工作流
         if self.enable_parallel:
@@ -254,6 +256,31 @@ class NovelToComicWorkflow:
         self.logger.info(f"结果已保存到: {output_path}")
         return output_path
     
+    def save_prompts(self, prompts: List[Dict[str, str]], chapter_title: str) -> str:
+        """
+        保存提示词和旁白
+        
+        Args:
+            prompts: 提示词列表
+            chapter_title: 章节标题
+            
+        Returns:
+            保存的文件路径
+        """
+        # 生成输出文件名
+        file_name = f"{chapter_title}_prompts.json"
+        output_path = f"{OUTPUT_DIR}/{file_name}"
+        
+        # 确保输出目录存在
+        self.file_handler.ensure_directory_exists(OUTPUT_DIR)
+        
+        # 保存提示词
+        with open(output_path, 'w', encoding='utf-8') as f:
+            json.dump(prompts, f, ensure_ascii=False, indent=2)
+        
+        self.logger.info(f"提示词已保存到: {output_path}")
+        return output_path
+    
     def _process_segments_sequentially(
         self, 
         segments: List[TextSegment], 
@@ -338,3 +365,30 @@ class NovelToComicWorkflow:
                 self.logger.error(f"场景 {scene.scene_id} 视觉叙述生成失败: {e}")
         
         return storyboards
+    
+    def generate_prompts_for_chapter(self, chapter_file: str) -> List[Dict[str, str]]:
+        """
+        为已生成的章节故事板文件生成提示词和旁白
+        
+        Args:
+            chapter_file: 章节故事板JSON文件名
+            
+        Returns:
+            生成的提示词列表
+        """
+        self.logger.info(f"开始为章节 {chapter_file} 生成提示词")
+        
+        try:
+            # 使用提示词生成器处理章节
+            chapter_prompts = self.prompt_generator.process_chapter(chapter_file)
+            
+            # 获取生成的提示词文件路径
+            chapter_number = self.prompt_generator.extract_chapter_number(chapter_file)
+            output_file = f"{self.prompt_generator.output_dir}/第{chapter_number}章_prompts.json"
+            
+            self.logger.info(f"提示词生成完成，保存到: {output_file}")
+            return chapter_prompts
+            
+        except Exception as e:
+            self.logger.error(f"为章节 {chapter_file} 生成提示词时出错: {e}")
+            raise
