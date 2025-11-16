@@ -3,9 +3,13 @@
 """
 
 import os
-import re
+import sys
 from typing import Dict, Any, List
 from state import CharacterExtractionState
+
+# 添加项目根目录到路径
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))))
+from src.utils.text_processing import ChapterSorter
 
 
 class ChapterSelector:
@@ -71,85 +75,12 @@ class ChapterSelector:
                     chapters.append(file_name)
             
             # 按章节号排序
-            chapters.sort(key=self._extract_chapter_number)
+            chapters = ChapterSorter.sort_chapter_files(chapters)
             
             return chapters
         except Exception as e:
             print(f"获取章节列表失败: {e}")
             return []
-    
-    def _extract_chapter_number(self, filename: str) -> int:
-        """
-        从文件名中提取章节号
-        
-        Args:
-            filename: 文件名
-            
-        Returns:
-            章节号，如果无法提取则返回一个大数字
-        """
-        try:
-            # 使用正则表达式匹配章节号
-            # 匹配模式：第X章、第X章、第X章等
-            match = re.search(r'第([一二三四五六七八九十百千万\d]+)章', filename)
-            if match:
-                chapter_str = match.group(1)
-                # 将中文数字转换为阿拉伯数字
-                return self._chinese_number_to_int(chapter_str)
-            else:
-                # 如果没有匹配到章节号，尝试匹配纯数字
-                match = re.search(r'(\d+)', filename)
-                if match:
-                    return int(match.group(1))
-                else:
-                    # 如果都匹配不到，返回一个大数字，确保这些文件排在最后
-                    return 999999
-        except Exception:
-            # 出错时返回大数字
-            return 999999
-    
-    def _chinese_number_to_int(self, chinese_num: str) -> int:
-        """
-        将中文数字转换为阿拉伯数字
-        
-        Args:
-            chinese_num: 中文数字字符串
-            
-        Returns:
-            对应的阿拉伯数字
-        """
-        # 中文数字到阿拉伯数字的映射
-        chinese_digits = {
-            '零': 0, '一': 1, '二': 2, '三': 3, '四': 4, '五': 5,
-            '六': 6, '七': 7, '八': 8, '九': 9, '十': 10,
-            '百': 100, '千': 1000, '万': 10000
-        }
-        
-        # 如果是纯数字，直接返回
-        if chinese_num.isdigit():
-            return int(chinese_num)
-        
-        # 处理特殊情况
-        if chinese_num == '十':
-            return 10
-        
-        # 处理中文数字
-        result = 0
-        temp = 0
-        
-        for char in chinese_num:
-            if char in chinese_digits:
-                digit = chinese_digits[char]
-                if digit < 10:  # 个位数
-                    temp = temp * 10 + digit
-                else:  # 十、百、千、万等
-                    if temp == 0:
-                        temp = 1
-                    result += temp * digit
-                    temp = 0
-        
-        result += temp
-        return result
     
     def reset_progress(self, state: CharacterExtractionState) -> CharacterExtractionState:
         """
