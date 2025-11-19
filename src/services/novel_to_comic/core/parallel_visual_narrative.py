@@ -89,26 +89,6 @@ class ParallelVisualNarrativeWorkflow:
             "worker_scenes": worker_scenes
         }
     
-    def _visual_worker_0(self, state: FixedParallelVisualState) -> Dict[str, Any]:
-        """视觉工作者0"""
-        return self._process_worker_scenes(state, "visual_worker_0")
-    
-    def _visual_worker_1(self, state: FixedParallelVisualState) -> Dict[str, Any]:
-        """视觉工作者1"""
-        return self._process_worker_scenes(state, "visual_worker_1")
-    
-    def _visual_worker_2(self, state: FixedParallelVisualState) -> Dict[str, Any]:
-        """视觉工作者2"""
-        return self._process_worker_scenes(state, "visual_worker_2")
-    
-    def _visual_worker_3(self, state: FixedParallelVisualState) -> Dict[str, Any]:
-        """视觉工作者3"""
-        return self._process_worker_scenes(state, "visual_worker_3")
-    
-    def _visual_worker_4(self, state: FixedParallelVisualState) -> Dict[str, Any]:
-        """视觉工作者4"""
-        return self._process_worker_scenes(state, "visual_worker_4")
-    
     def _process_worker_scenes(self, state: FixedParallelVisualState, worker_id: str) -> Dict[str, Any]:
         """
         处理分配给特定工作者的场景
@@ -188,28 +168,25 @@ class ParallelVisualNarrativeWorkflow:
         
         # 添加节点
         workflow.add_node("distribute_scenes", self._distribute_scenes)
-        workflow.add_node("visual_worker_0", self._visual_worker_0)
-        workflow.add_node("visual_worker_1", self._visual_worker_1)
-        workflow.add_node("visual_worker_2", self._visual_worker_2)
-        workflow.add_node("visual_worker_3", self._visual_worker_3)
-        workflow.add_node("visual_worker_4", self._visual_worker_4)
+        
+        # 动态添加视觉工作者节点
+        for i in range(self.num_workers):
+            worker_id = f"visual_worker_{i}"
+            # 使用lambda函数绑定_process_worker_scenes方法和worker_id参数
+            workflow.add_node(worker_id, lambda state, worker_id=worker_id: self._process_worker_scenes(state, worker_id))
         
         # 设置入口点
         workflow.set_entry_point("distribute_scenes")
         
         # 添加边：分配完成后，所有工作者并行开始
-        workflow.add_edge("distribute_scenes", "visual_worker_0")
-        workflow.add_edge("distribute_scenes", "visual_worker_1")
-        workflow.add_edge("distribute_scenes", "visual_worker_2")
-        workflow.add_edge("distribute_scenes", "visual_worker_3")
-        workflow.add_edge("distribute_scenes", "visual_worker_4")
+        for i in range(self.num_workers):
+            worker_id = f"visual_worker_{i}"
+            workflow.add_edge("distribute_scenes", worker_id)
         
         # 添加边：所有工作者完成后直接结束
-        workflow.add_edge("visual_worker_0", END)
-        workflow.add_edge("visual_worker_1", END)
-        workflow.add_edge("visual_worker_2", END)
-        workflow.add_edge("visual_worker_3", END)
-        workflow.add_edge("visual_worker_4", END)
+        for i in range(self.num_workers):
+            worker_id = f"visual_worker_{i}"
+            workflow.add_edge(worker_id, END)
         
         # 编译工作流
         return workflow.compile()

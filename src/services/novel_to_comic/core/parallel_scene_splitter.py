@@ -89,26 +89,6 @@ class ParallelSceneSplitterWorkflow:
             "worker_segments": worker_segments
         }
     
-    def _worker_0(self, state: FixedParallelState) -> Dict[str, Any]:
-        """工作者0"""
-        return self._process_worker_segments(state, "worker_0")
-    
-    def _worker_1(self, state: FixedParallelState) -> Dict[str, Any]:
-        """工作者1"""
-        return self._process_worker_segments(state, "worker_1")
-    
-    def _worker_2(self, state: FixedParallelState) -> Dict[str, Any]:
-        """工作者2"""
-        return self._process_worker_segments(state, "worker_2")
-    
-    def _worker_3(self, state: FixedParallelState) -> Dict[str, Any]:
-        """工作者3"""
-        return self._process_worker_segments(state, "worker_3")
-    
-    def _worker_4(self, state: FixedParallelState) -> Dict[str, Any]:
-        """工作者4"""
-        return self._process_worker_segments(state, "worker_4")
-    
     def _process_worker_segments(self, state: FixedParallelState, worker_id: str) -> Dict[str, Any]:
         """
         处理分配给特定工作者的段落
@@ -202,28 +182,26 @@ class ParallelSceneSplitterWorkflow:
         
         # 添加节点
         workflow.add_node("distribute_segments", self._distribute_segments)
-        workflow.add_node("worker_0", self._worker_0)
-        workflow.add_node("worker_1", self._worker_1)
-        workflow.add_node("worker_2", self._worker_2)
-        workflow.add_node("worker_3", self._worker_3)
-        workflow.add_node("worker_4", self._worker_4)
+        
+        # 动态添加工作者节点
+        for i in range(self.num_workers):
+            worker_id = f"worker_{i}"
+            # 使用 lambda 创建工作者函数，捕获当前 worker_id
+            worker_func = lambda state, worker_id=worker_id: self._process_worker_segments(state, worker_id)
+            workflow.add_node(worker_id, worker_func)
         
         # 设置入口点
         workflow.set_entry_point("distribute_segments")
         
         # 添加边：分配完成后，所有工作者并行开始
-        workflow.add_edge("distribute_segments", "worker_0")
-        workflow.add_edge("distribute_segments", "worker_1")
-        workflow.add_edge("distribute_segments", "worker_2")
-        workflow.add_edge("distribute_segments", "worker_3")
-        workflow.add_edge("distribute_segments", "worker_4")
+        for i in range(self.num_workers):
+            worker_id = f"worker_{i}"
+            workflow.add_edge("distribute_segments", worker_id)
         
         # 添加边：所有工作者完成后直接结束
-        workflow.add_edge("worker_0", END)
-        workflow.add_edge("worker_1", END)
-        workflow.add_edge("worker_2", END)
-        workflow.add_edge("worker_3", END)
-        workflow.add_edge("worker_4", END)
+        for i in range(self.num_workers):
+            worker_id = f"worker_{i}"
+            workflow.add_edge(worker_id, END)
         
         # 编译工作流
         return workflow.compile()

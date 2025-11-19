@@ -9,8 +9,6 @@ import re
 from typing import Dict, List, Any, Optional
 from pathlib import Path
 
-from src.services.novel_to_comic.data_models import Scene, VisualNarrative
-
 
 class PromptGenerator:
     """
