@@ -74,27 +74,7 @@ class NovelToComicProcessor:
             result = self.workflow.process_chapter(chapter_file, chapter_title, novel_type)
             
             # 保存结果
-            output_path = self.workflow.save_result(result)
-            
-            # 生成提示词和旁白
-            prompts = []
-            prompts_output_path = None
-            try:
-                # 使用已保存的故事板文件生成提示词和旁白
-                prompts = self.workflow.generate_prompts_for_chapter(output_path)
-                self.logger.info(f"成功生成 {len(prompts)} 个场景的提示词和旁白")
-                
-                # 保存提示词和旁白
-                if prompts:
-                    prompts_output_path = self.workflow.save_prompts(prompts, chapter_title)
-            except Exception as e:
-                self.logger.error(f"生成提示词和旁白失败: {e}")
-                error = ProcessingError(
-                    error_type="提示词生成错误",
-                    error_message=str(e),
-                    timestamp=datetime.now().isoformat()
-                )
-                result.errors.append(error)
+            output_path = self.workflow.save_result(result)        
             
             # 创建处理摘要
             summary = ProcessingSummary(
