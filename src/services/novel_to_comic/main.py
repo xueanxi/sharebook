@@ -89,7 +89,6 @@ class NovelToComicProcessor:
             return ProcessingResult(
                 success=True,
                 output_path=output_path,
-                prompts_output_path=prompts_output_path,
                 processing_summary=summary,
                 errors=[error.error_message for error in result.errors]
             )
@@ -136,7 +135,7 @@ class NovelToComicProcessor:
             # 智能排序：按章节顺序排序
             txt_files = ChapterSorter.sort_chapter_files(txt_files)
             
-            print(f"发现 {len(txt_files)} 个章节文件，按顺序处理...")
+            self.logger.debug(f"发现 {len(txt_files)} 个章节文件，按顺序处理...")
             
             # 处理所有文件
             total_segments = 0
@@ -150,8 +149,8 @@ class NovelToComicProcessor:
                 # 提取章节标题
                 chapter_title = self.file_handler.get_file_name_without_extension(txt_file)
                 
-                print(f"\n[{i}/{len(txt_files)}] 正在处理: {chapter_title}")
-                print(f"文件路径: {txt_file}")
+                self.logger.info(f"\n[{i}/{len(txt_files)}] 正在处理: {chapter_title}")
+                self.logger.info(f"文件路径: {txt_file}")
                 
                 result = self.process_chapter(txt_file, chapter_title, novel_type)
                 
@@ -163,20 +162,18 @@ class NovelToComicProcessor:
                         total_storyboards += result.processing_summary.total_storyboards
                         total_errors.extend(result.errors)
                     
-                    print(f"✓ 处理成功: {result.output_path}")
-                    if result.prompts_output_path:
-                        print(f"  提示词文件: {result.prompts_output_path}")
+                    self.logger.info(f"✓ 处理成功: {result.output_path}")
                     if result.processing_summary:
                         summary = result.processing_summary
-                        print(f"  - 段落数: {summary.total_segments}")
-                        print(f"  - 场景数: {summary.total_scenes}")
-                        print(f"  - 故事板数: {summary.total_storyboards}")
+                        self.logger.info(f"  - 段落数: {summary.total_segments}")
+                        self.logger.info(f"  - 场景数: {summary.total_scenes}")
+                        self.logger.info(f"  - 故事板数: {summary.total_storyboards}")
                 else:
                     failed_files.append(txt_file)
                     total_errors.extend(result.errors)
-                    print(f"✗ 处理失败: {txt_file}")
+                    self.logger.error(f"✗ 处理失败: {txt_file}")
                     for error in result.errors:
-                        print(f"  错误: {error}")
+                        self.logger.error(f"  错误: {error}")
             
             # 创建总体摘要
             summary = ProcessingSummary(
@@ -189,21 +186,21 @@ class NovelToComicProcessor:
             )
             
             # 输出处理结果摘要
-            print(f"\n{'='*50}")
-            print("批量处理完成!")
-            print(f"{'='*50}")
-            print(f"总文件数: {len(txt_files)}")
-            print(f"成功处理: {len(processed_files)}")
-            print(f"处理失败: {len(failed_files)}")
-            print(f"总段落数: {total_segments}")
-            print(f"总场景数: {total_scenes}")
-            print(f"总故事板数: {total_storyboards}")
-            print(f"错误数量: {len(total_errors)}")
+            self.logger.info(f"\n{'='*50}")
+            self.logger.info("批量处理完成!")
+            self.logger.info(f"{'='*50}")
+            self.logger.info(f"总文件数: {len(txt_files)}")
+            self.logger.info(f"成功处理: {len(processed_files)}")
+            self.logger.info(f"处理失败: {len(failed_files)}")
+            self.logger.info(f"总段落数: {total_segments}")
+            self.logger.info(f"总场景数: {total_scenes}")
+            self.logger.info(f"总故事板数: {total_storyboards}")
+            self.logger.info(f"错误数量: {len(total_errors)}")
             
             if failed_files:
-                print(f"\n失败的文件:")
+                self.logger.info(f"\n失败的文件:")
                 for failed_file in failed_files:
-                    print(f"  - {failed_file}")
+                    self.logger.info(f"  - {failed_file}")
             
             return ProcessingResult(
                 success=len(failed_files) == 0,
@@ -277,12 +274,8 @@ def main():
     # 输出结果
     if result.success:
         if not args.auto and not args.directory:  # 单文件处理
-            print("处理成功!")
             print(f"输出路径: {result.output_path}")
-            
-            if result.prompts_output_path:
-                print(f"提示词文件: {result.prompts_output_path}")
-            
+
             if result.processing_summary:
                 summary = result.processing_summary
                 print(f"总段落数: {summary.total_segments}")

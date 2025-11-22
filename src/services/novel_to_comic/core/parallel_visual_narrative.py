@@ -221,6 +221,12 @@ class ParallelVisualNarrativeWorkflow:
         all_visual_narratives = result.get("all_visual_narratives", [])
         errors = result.get("errors", [])
         
+        # 按场景顺序排序视觉叙述，确保即使在并行处理模式下也能保持原始顺序
+        all_visual_narratives.sort(key=lambda vn: (
+            next((scene.segment_index for scene in scenes if scene.scene_id == vn.scene_id), 0),
+            next((scene.scene_index_in_segment for scene in scenes if scene.scene_id == vn.scene_id), 0)
+        ))
+        
         # 记录处理结果
         logger.info(f"并行处理完成，耗时: {end_time - start_time:.2f}秒")
         logger.info(f"总视觉叙述数: {len(all_visual_narratives)}，错误数: {len(errors)}")

@@ -145,6 +145,9 @@ class NovelToComicWorkflow:
             end_time = time.time()
             processing_time = f"{end_time - start_time:.1f}秒"
             
+            # 重新排序场景ID，确保全局唯一性
+            self._reorder_scene_ids(all_scenes)
+            
             chapter_info = ChapterInfo(
                 chapter_title=chapter_title,
                 chapter_file=chapter_file,
@@ -161,15 +164,10 @@ class NovelToComicWorkflow:
                 total_storyboards=len(storyboards)
             )
             
-            # 更新段落中的场景信息
-            for segment in segments:
-                segment_scenes = [s for s in all_scenes if s.segment_index == segment.segment_index]
-                segment.scenes = segment_scenes
-            
             result = ChapterResult(
                 chapter_info=chapter_info,
                 basic_stats=basic_stats,
-                segments=segments,
+                scenes=all_scenes,  # 使用scenes而不是segments
                 errors=errors
             )
             
@@ -208,7 +206,7 @@ class NovelToComicWorkflow:
             return ChapterResult(
                 chapter_info=chapter_info,
                 basic_stats=basic_stats,
-                segments=[],
+                scenes=[],  # 使用scenes而不是segments
                 errors=errors
             )
     
@@ -363,3 +361,21 @@ class NovelToComicWorkflow:
                 self.logger.error(f"场景 {scene.scene_id} 视觉叙述生成失败: {e}")
         
         return storyboards
+    
+    def _reorder_scene_ids(self, scenes: List[Scene]) -> None:
+        """
+        重新排序场景ID，确保全局唯一性
+        
+        Args:
+            scenes: 场景列表
+        """
+        for i, scene in enumerate(scenes):
+            # 更新场景ID，使用全局索引
+            old_scene_id = scene.scene_id
+            scene.scene_id = f"scene_{i+1:03d}"  # 格式化为 scene_001, scene_002, ...
+            
+            # 如果场景有视觉叙述，也需要更新其中的scene_id
+            if scene.visual_narrative:
+                scene.visual_narrative.scene_id = scene.scene_id
+            
+            self.logger.debug(f"场景ID已更新: {old_scene_id} -> {scene.scene_id}")

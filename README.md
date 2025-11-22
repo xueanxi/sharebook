@@ -26,7 +26,7 @@ python src/services/extraction_character/main.py --novel-path path/to/novels --c
 python -m src.services.novel_to_comic.main --auto
 
 # 处理单个章节
-python -m src.services.novel_to_comic.main -f "data/cleaned_novel/章节文件.txt" -t "章节标题" -n "玄幻"
+python -m src.services.novel_to_comic.main -f "data/cleaned_novel/第一章 遇强则强.txt" -t "章节标题" -n "玄幻"
 
 # 批量处理指定目录
 python -m src.services.novel_to_comic.main -d "data/cleaned_novel" -n "玄幻"

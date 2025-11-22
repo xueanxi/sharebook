@@ -236,6 +236,10 @@ class ParallelSceneSplitterWorkflow:
         all_scenes = result.get("all_scenes", [])
         errors = result.get("errors", [])
         
+        # 按照段落的原始顺序和场景在段落中的顺序排序场景
+        # 这确保了即使在并行处理模式下，场景也保持正确的顺序
+        all_scenes.sort(key=lambda scene: (scene.segment_index, scene.scene_index_in_segment))
+        
         # 记录处理结果
         logger.info(f"并行处理完成，耗时: {end_time - start_time:.2f}秒")
         logger.info(f"总场景数: {len(all_scenes)}，错误数: {len(errors)}")
