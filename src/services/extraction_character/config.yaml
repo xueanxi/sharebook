@@ -16,5 +16,5 @@ extraction:
     csv_path: D:/work/code/python/sharebook2/data/characters/characters.csv
     novel_path: D:/work/code/python/sharebook2/data/cleaned_novel
   progress:
-    current_chapter: 第八章 收徒！获得葬天棺！.txt
-    last_update_time: '2025-11-22T18:46:48.742573'
+    current_chapter: 第十五章 弹指杀元婴！.txt
+    last_update_time: '2025-11-22T19:00:57.009187'

@@ -7,6 +7,27 @@ import csv
 from typing import List, Dict, Any, Tuple, Set
 from pathlib import Path
 
+# 导入变更日志记录器和公用日志管理器
+try:
+    from .change_logger import ChangeLogger
+    from ...utils.logging_manager import get_module_logger, LogModule
+except ImportError:
+    # 如果导入失败，创建空的日志记录器
+    class ChangeLogger:
+        def __init__(self, *args, **kwargs):
+            pass
+        def log_character_merge(self, *args, **kwargs):
+            return True
+        def log_character_update(self, *args, **kwargs):
+            return True
+    
+    import logging
+    def get_module_logger(module):
+        return logging.getLogger(module.value)
+    
+    class LogModule:
+        EXTRACTION_CHARACTER = type('obj', (object,), {'value': 'extraction_character'})()
+
 # CSV列顺序常量
 COLUMNS_ORDER = ['姓名', '别名', '性别', '外貌特征', '服装特点', '角色类型', '容貌提示词']
 
@@ -30,6 +51,8 @@ class CSVUtils:
             csv_path: CSV文件路径
         """
         self.csv_path = csv_path
+        self.change_logger = ChangeLogger()
+        self.logger = get_module_logger(LogModule.EXTRACTION_CHARACTER)
         self._ensure_csv_exists()
     
     def _ensure_csv_exists(self):
@@ -67,8 +90,11 @@ class CSVUtils:
                 with open(self.csv_path, 'r', encoding='utf-8') as f:
                     reader = csv.DictReader(f)
                     return list(reader)
+            
+            self.logger.debug(f"读取CSV文件成功: {self.csv_path}")
+            return HAS_PANDAS and not existing_data.empty or not HAS_PANDAS and existing_data
         except Exception as e:
-            print(f"读取CSV文件失败: {e}")
+            self.logger.error(f"读取CSV文件失败: {e}")
             if HAS_PANDAS:
                 return pd.DataFrame(columns=COLUMNS_ORDER)
             else:
@@ -104,9 +130,10 @@ class CSVUtils:
                         writer = csv.writer(f)
                         writer.writerow(COLUMNS_ORDER)
             
+            self.logger.debug(f"写入CSV文件成功: {self.csv_path}")
             return True
         except Exception as e:
-            print(f"写入CSV文件失败: {e}")
+            self.logger.error(f"写入CSV文件失败: {e}")
             return False
     
     def append_characters(self, characters: List[Dict[str, Any]]) -> bool:
@@ -137,13 +164,15 @@ class CSVUtils:
                         combined_df[col] = ''
                 combined_df = combined_df[columns_order]
                 
+                self.logger.info(f"追加 {len(characters)} 个角色到CSV成功")
                 return self.write_csv(combined_df)
             else:
                 # 使用基础csv操作
                 combined_data = existing_data + characters
+                self.logger.info(f"追加 {len(characters)} 个角色到CSV成功")
                 return self.write_csv(combined_data)
         except Exception as e:
-            print(f"追加角色到CSV失败: {e}")
+            self.logger.error(f"追加角色到CSV失败: {e}")
             return False
     
     def update_characters(self, characters: List[Dict[str, Any]]) -> bool:
@@ -198,11 +227,33 @@ class CSVUtils:
                     if char.get('姓名', '') not in new_names
                 ]
                 
-                # 合并数据
+                # 合并数据并记录变更日志
                 combined_data = old_characters + characters
+                
+                # 记录角色更新日志
+                updated_count = 0
+                for character in characters:
+                    name = character.get('姓名', '')
+                    if name:
+                        # 查找原始角色信息
+                        original_char = None
+                        for old_char in existing_data:
+                            if old_char.get('姓名', '') == name:
+                                original_char = old_char
+                                break
+                        
+                        if original_char and original_char != character:
+                            self.change_logger.log_character_update(
+                                original_character=original_char,
+                                updated_character=character,
+                                update_reason="CSV更新角色信息"
+                            )
+                            updated_count += 1
+                
+                self.logger.info(f"更新CSV成功，更新了 {updated_count} 个角色信息")
                 return self.write_csv(combined_data)
         except Exception as e:
-            print(f"更新CSV失败: {e}")
+            self.logger.error(f"更新CSV失败: {e}")
             return False
     
     def find_existing_characters(self, characters: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
@@ -302,9 +353,10 @@ class CSVUtils:
                     normalized_character = self._normalize_character_info(character)
                     new_characters.append(normalized_character)
             
+            self.logger.debug(f"查找已存在角色完成，新角色: {len(new_characters)}, 已存在角色: {len(existing_characters)}")
             return new_characters, existing_characters
         except Exception as e:
-            print(f"查找已存在角色失败: {e}")
+            self.logger.error(f"查找已存在角色失败: {e}")
             return characters, []
     
     def _is_similar_character(self, name1: str, name2: str, gender1: str, appearance1: str, existing_info: Dict[str, Any]) -> bool:
@@ -410,7 +462,17 @@ class CSVUtils:
         
         # 如果有已存在信息，进行智能合并
         if existing_info:
+            original_normalized = normalized.copy()
             normalized = self._merge_with_existing_info(normalized, existing_info)
+            
+            # 记录角色更新日志
+            if normalized != original_normalized:
+                self.change_logger.log_character_update(
+                    original_character=existing_info,
+                    updated_character=normalized,
+                    update_reason="角色信息智能合并"
+                )
+                self.logger.debug(f"角色信息智能合并: {normalized.get('姓名', '')}")
         
         return normalized
     
@@ -490,9 +552,10 @@ class CSVUtils:
                     if name in aliases:
                         return row
             
+            self.logger.debug(f"获取角色信息成功: {name}")
             return {}
         except Exception as e:
-            print(f"获取角色信息失败: {e}")
+            self.logger.error(f"获取角色信息失败: {e}")
             return {}
     
     def get_all_character_names_and_aliases(self) -> Set[str]:
@@ -531,9 +594,10 @@ class CSVUtils:
                     all_names.add(name)
                     all_names.update(aliases)
             
+            self.logger.debug(f"获取角色名称和别名成功，共 {len(all_names)} 个")
             return all_names
         except Exception as e:
-            print(f"获取角色名称和别名失败: {e}")
+            self.logger.error(f"获取角色名称和别名失败: {e}")
             return set()
     
     def merge_character_info(self, existing_info: Dict[str, Any], new_info: Dict[str, Any]) -> Dict[str, Any]:
@@ -589,5 +653,5 @@ class CSVUtils:
             
             return merged
         except Exception as e:
-            print(f"合并角色信息失败: {e}")
+            self.logger.error(f"合并角色信息失败: {e}")
             return new_info
