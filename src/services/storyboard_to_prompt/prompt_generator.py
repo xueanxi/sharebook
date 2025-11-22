@@ -143,18 +143,7 @@ class PromptGenerator:
                         english_prompt += line
             
             return english_prompt.strip()
-            
         except Exception as e:
             logger.error(f"解析英文提示词结果失败: {str(e)}")
             return result
          
-
-    def _generate_simple_english_prompt(self, scene: Dict[str, Any]) -> str:
-        """生成简单的英文提示词"""
-        scene_description = scene.get('scene_description', 'scene')
-        environment = scene.get('environment', 'environment')
-        
-        # 简单的中文到英文映射
-        fallback_prompt = f"{scene_description}, {environment}, comic style, high quality, detailed"
-        
-        return fallback_prompt
