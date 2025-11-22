@@ -6,3 +6,14 @@ storyboard_to_prompt:
     storyboard_dir: "data/storyboards"
     # 提示词JSON文件输出目录
     output_dir: "data/storyboards_prompt"
+  
+  # 参考图片配置
+  reference_images:
+    # 角色图片目录
+    character_image_dir: "data/characters/image"
+    # 支持的图片格式
+    supported_formats: [".jpg", ".jpeg", ".png", ".webp"]
+    # 图片质量要求
+    min_resolution: [512, 512]
+    # 图片命名规则
+    naming_pattern: "{character_name}.jpg"
