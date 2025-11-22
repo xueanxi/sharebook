@@ -110,14 +110,16 @@ VISUAL_PROMPT = """
         "layout": "画面布局描述",
         "focus": "焦点元素（角色面部或上半身）"
     }},
-    "character": {{
-        "name": "选定的主要角色名",
-        "position": "在画面中的位置",
-        "pose": "姿态描述",
-        "expression": "表情描述",
-        "clothing_details": "服装细节",
-        "action": "正在执行的动作"
-    }},
+    "characters": [
+        {{
+            "name": "选定的主要角色名",
+            "position": "在画面中的位置",
+            "pose": "姿态描述",
+            "expression": "表情描述",
+            "clothing_details": "服装细节",
+            "action": "正在执行的动作"
+        }}
+    ],
     "environment": {{
         "background": "简洁背景描述",
         "atmosphere": "氛围描述",

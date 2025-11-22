@@ -157,7 +157,7 @@ class VisualNarrativeAgent:
                 self.logger.debug(f"LLM调用尝试 {attempt + 1}/{MAX_RETRIES}")
                 
                 # 记录输入
-                self.file_logger.info(f"输入参数: {json.dumps(input_params, ensure_ascii=False, indent=2)}")
+                self.file_logger.debug(f"输入参数: {json.dumps(input_params, ensure_ascii=False, indent=2)}")
                 
                 # 调用链
                 start_time = time.time()
@@ -165,7 +165,7 @@ class VisualNarrativeAgent:
                 end_time = time.time()
                 
                 # 记录输出
-                self.file_logger.info(f"LLM响应 (耗时: {end_time - start_time:.2f}秒):\n{json.dumps(result, ensure_ascii=False, indent=2)}")
+                self.file_logger.debug(f"LLM响应 (耗时: {end_time - start_time:.2f}秒):\n{json.dumps(result, ensure_ascii=False, indent=2)}")
                 
                 return result
                 
@@ -192,63 +192,156 @@ class VisualNarrativeAgent:
         Returns:
             VisualNarrative对象
         """
-        # 转换构图信息
-        composition_data = visual_data.get("composition", {})
-        composition = Composition(
-            shot_type=composition_data.get("shot_type", "中景"),
-            angle=composition_data.get("angle", "平视"),
-            layout=composition_data.get("layout", "标准布局"),
-            focus=composition_data.get("focus", "角色")
-        )
-        
-        # 转换角色信息
-        visual_characters = []
-        for char_data in visual_data.get("characters", []):
-            character = VisualCharacter(
-                name=char_data.get("name", "未知角色"),
-                position=char_data.get("position", "中心"),
-                pose=char_data.get("pose", "站立"),
-                expression=char_data.get("expression", "平静"),
-                clothing_details=char_data.get("clothing_details", "普通服装"),
-                action=char_data.get("action", "静止")
+        try:
+            # 转换构图信息
+            composition_data = visual_data.get("composition", {})
+            composition = Composition(
+                shot_type=composition_data.get("shot_type", "中景"),
+                angle=composition_data.get("angle", "平视"),
+                layout=composition_data.get("layout", "标准布局"),
+                focus=composition_data.get("focus", "角色")
             )
-            visual_characters.append(character)
+            
+            # 转换角色信息 - 兼容单数和复数格式
+            visual_characters = []
+            characters_data = visual_data.get("characters", [])
+            
+            # 如果没有characters字段，尝试从character字段获取（向后兼容）
+            if not characters_data and "character" in visual_data:
+                characters_data = [visual_data["character"]]
+            
+            for char_data in characters_data:
+                if isinstance(char_data, dict):
+                    character = VisualCharacter(
+                        name=char_data.get("name", "未知角色"),
+                        position=char_data.get("position", "中心"),
+                        pose=char_data.get("pose", "站立"),
+                        expression=char_data.get("expression", "平静"),
+                        clothing_details=char_data.get("clothing_details", "普通服装"),
+                        action=char_data.get("action", "静止")
+                    )
+                    visual_characters.append(character)
+            
+            # 如果没有角色信息，创建一个默认角色
+            if not visual_characters and scene.characters:
+                # 使用场景中的第一个角色
+                scene_char = scene.characters[0]
+                self.logger.warning(f"视觉数据中未包含角色信息，使用场景中的第一个角色: {scene_char.name}")
+                default_character = VisualCharacter(
+                    name=scene_char.name,
+                    position="中心",
+                    pose="站立",
+                    expression=scene_char.expression,
+                    clothing_details="根据场景描述",
+                    action=scene_char.action
+                )
+                visual_characters.append(default_character)
+
+            
+            # 转换环境信息
+            env_data = visual_data.get("environment", {})
+            environment = Environment(
+                background=env_data.get("background", scene.environment if scene.environment else "简单背景"),
+                atmosphere=env_data.get("atmosphere", scene.atmosphere if scene.atmosphere else "平和"),
+                lighting=env_data.get("lighting", "自然光"),
+                color_scheme=env_data.get("color_scheme", "自然色彩")
+            )
+            
+            # 转换风格信息
+            style_data = visual_data.get("style", {})
+            style = Style(
+                art_style=style_data.get("art_style", "写实风格"),
+                quality_tags=style_data.get("quality_tags", "高质量"),
+                additional_details=style_data.get("additional_details", "无额外细节")
+            )
+            
+            # 转换旁白信息
+            narration_data = visual_data.get("narration", {})
+            narration = Narration(
+                scene_description=narration_data.get("scene_description", scene.scene_description if scene.scene_description else ""),
+                inner_monologue=narration_data.get("inner_monologue", ""),
+                emotional_text=narration_data.get("emotional_text", scene.emotional_tone if scene.emotional_tone else ""),
+                transition_text=narration_data.get("transition_text", scene.transition_cue if scene.transition_cue else "")
+            )
+            
+            # 创建VisualNarrative对象
+            visual_narrative = VisualNarrative(
+                visual_description=visual_data.get("visual_description", scene.scene_description if scene.scene_description else "视觉描述"),
+                composition=composition,
+                characters=visual_characters,
+                environment=environment,
+                style=style,
+                narration=narration,
+            )
+            
+            return visual_narrative
+            
+        except Exception as e:
+            self.logger.error(f"转换视觉数据失败: {e}")
+            # 返回一个默认的VisualNarrative对象
+            return self._create_default_visual_narrative(scene)
+    
+    def _create_default_visual_narrative(self, scene: Scene) -> VisualNarrative:
+        """
+        创建默认的视觉叙述对象
         
-        # 转换环境信息
-        env_data = visual_data.get("environment", {})
+        Args:
+            scene: 场景对象
+            
+        Returns:
+            默认的VisualNarrative对象
+        """
+        # 创建默认构图
+        composition = Composition(
+            shot_type="中景",
+            angle="平视",
+            layout="标准布局",
+            focus="角色"
+        )
+        
+        # 创建默认角色
+        visual_characters = []
+        if scene.characters:
+            scene_char = scene.characters[0]
+            default_character = VisualCharacter(
+                name=scene_char.name,
+                position="中心",
+                pose="站立",
+                expression=scene_char.expression,
+                clothing_details="根据场景描述",
+                action=scene_char.action
+            )
+            visual_characters.append(default_character)
+        
+        # 创建默认环境
         environment = Environment(
-            background=env_data.get("background", "简单背景"),
-            atmosphere=env_data.get("atmosphere", "平和"),
-            lighting=env_data.get("lighting", "自然光"),
-            color_scheme=env_data.get("color_scheme", "自然色彩")
+            background=scene.environment if scene.environment else "简单背景",
+            atmosphere=scene.atmosphere if scene.atmosphere else "平和",
+            lighting="自然光",
+            color_scheme="自然色彩"
         )
         
-        # 转换风格信息
-        style_data = visual_data.get("style", {})
+        # 创建默认风格
         style = Style(
-            art_style=style_data.get("art_style", "写实风格"),
-            quality_tags=style_data.get("quality_tags", "高质量"),
-            additional_details=style_data.get("additional_details", "无额外细节")
+            art_style="写实风格",
+            quality_tags="高质量",
+            additional_details="无额外细节"
         )
         
-        # 转换旁白信息
-        narration_data = visual_data.get("narration", {})
+        # 创建默认旁白
         narration = Narration(
-            scene_description=narration_data.get("scene_description", ""),
-            inner_monologue=narration_data.get("inner_monologue", ""),
-            emotional_text=narration_data.get("emotional_text", ""),
-            transition_text=narration_data.get("transition_text", "")
+            scene_description=scene.scene_description if scene.scene_description else "",
+            inner_monologue="",
+            emotional_text=scene.emotional_tone if scene.emotional_tone else "",
+            transition_text=scene.transition_cue if scene.transition_cue else ""
         )
         
-        # 创建VisualNarrative对象
-        visual_narrative = VisualNarrative(
-            visual_description=visual_data.get("visual_description", "视觉描述"),
+        # 创建默认VisualNarrative对象
+        return VisualNarrative(
+            visual_description=scene.scene_description if scene.scene_description else "默认视觉描述",
             composition=composition,
             characters=visual_characters,
             environment=environment,
             style=style,
-            narration=narration,
-            scene_id=scene.scene_id
+            narration=narration
         )
-        
-        return visual_narrative

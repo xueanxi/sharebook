@@ -137,7 +137,6 @@ class VisualNarrative:
     environment: Environment
     style: Style
     narration: Narration
-    scene_id: str
 
 
 @dataclass

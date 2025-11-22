@@ -159,6 +159,22 @@ class ParallelVisualNarrativeWorkflow:
         
         return "无"
     
+    def _collect_results(self, state: FixedParallelVisualState) -> Dict[str, Any]:
+        """
+        收集所有工作者的结果，确保所有工作者都已完成
+        """
+        logger.info("收集所有工作者的处理结果")
+        
+        # 验证所有工作者是否都已完成
+        completed_workers = state.get("completed_workers", [])
+        total_workers = state.get("total_workers", self.num_workers)
+        
+        if len(completed_workers) < total_workers:
+            logger.warning(f"部分工作者尚未完成: {len(completed_workers)}/{total_workers}")
+        
+        # 返回当前状态，无需修改
+        return state
+    
     def _build_workflow(self) -> StateGraph:
         """
         构建工作流
@@ -183,10 +199,16 @@ class ParallelVisualNarrativeWorkflow:
             worker_id = f"visual_worker_{i}"
             workflow.add_edge("distribute_scenes", worker_id)
         
-        # 添加边：所有工作者完成后直接结束
+        # 添加汇聚节点，等待所有工作者完成
+        workflow.add_node("collect_results", self._collect_results)
+        
+        # 添加边：所有工作者完成后汇聚到结果收集节点
         for i in range(self.num_workers):
             worker_id = f"visual_worker_{i}"
-            workflow.add_edge(worker_id, END)
+            workflow.add_edge(worker_id, "collect_results")
+        
+        # 添加边：结果收集完成后结束
+        workflow.add_edge("collect_results", END)
         
         # 编译工作流
         return workflow.compile()

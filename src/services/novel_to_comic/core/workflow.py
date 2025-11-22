@@ -123,15 +123,19 @@ class NovelToComicWorkflow:
                     }
                     visual_narratives = self.parallel_visual_workflow.process_scenes_parallel(all_scenes, context)
                     
-                    # 将视觉叙述添加到场景中
-                    for i, visual_narrative in enumerate(visual_narratives):
-                        # 找到对应的场景
-                        scene_id = visual_narrative.scene_id
-                        for scene in all_scenes:
-                            if scene.scene_id == scene_id:
-                                scene.visual_narrative = visual_narrative
-                                storyboards.append(visual_narrative)
-                                break
+                    # 重要修复：确保所有场景都有对应的visual_narrative字段
+                    # 创建scene_id到visual_narrative的映射
+                    vn_map = {vn.scene_id: vn for vn in visual_narratives}
+                    
+                    # 为每个场景分配对应的视觉叙述
+                    for scene in all_scenes:
+                        if scene.scene_id in vn_map:
+                            scene.visual_narrative = vn_map[scene.scene_id]
+                            storyboards.append(vn_map[scene.scene_id])
+                        else:
+                            # 如果没有找到对应的视觉叙述，设置为None并记录错误
+                            self.logger.error(f"场景 {scene.scene_id} 未找到对应的视觉叙述")
+                            raise Exception(f"场景 {scene.scene_id} 未找到对应的视觉叙述")
                 except Exception as e:
                     self.logger.error(f"并行视觉生成失败，回退到顺序模式: {e}")
                     # 回退到顺序处理
@@ -351,14 +355,9 @@ class NovelToComicWorkflow:
                 scene.visual_narrative = visual_narrative
                 storyboards.append(visual_narrative)
             except Exception as e:
-                error = ProcessingError(
-                    error_type="视觉叙述生成错误",
-                    error_message=str(e),
-                    scene_id=scene.scene_id,
-                    timestamp=datetime.now().isoformat()
-                )
-                errors.append(error)
                 self.logger.error(f"场景 {scene.scene_id} 视觉叙述生成失败: {e}")
+                scene.visual_narrative = None
+                raise Exception(f"场景 {scene.scene_id} 视觉叙述生成失败: {e}")
         
         return storyboards
     
