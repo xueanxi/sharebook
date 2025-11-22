@@ -11,11 +11,8 @@ SINGLE_SCENE_TO_PROMPT_CONVERTER = """
 背景信息：
 - 小说类型：{novel_type}
 
-场景信息：
+故事板信息：
 {scene_info}
-
-角色信息：
-{character_info}
 
 转换要求：
 1. 为当前场景生成详细的视觉提示词，确保角色一致性

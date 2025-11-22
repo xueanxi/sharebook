@@ -19,8 +19,8 @@ if root_path not in sys.path:
 from .file_manager import FileManager
 from .prompt_generator import PromptGenerator
 
-logger = logging.getLogger(__name__)
-
+from src.utils.logging_manager import LogModule,get_module_logger
+logger = get_module_logger(LogModule.STORYBOARD_TO_PROMPT)
 
 class StoryboardToPromptProcessor:
     """故事板到提示词转换处理器"""
@@ -135,15 +135,32 @@ class StoryboardToPromptProcessor:
             
             # 提取章节信息
             chapter_info = storyboard_data.get('chapter_info', {})
-            segments = storyboard_data.get('segments', [])
+            scenes = storyboard_data.get('scenes', [])
+            logger.info(f"章节: {chapter_info.get('chapter_title', '未知章节')} 包含 {len(scenes)} 个场景")
+            # 生成提示词 - 直接处理scenes数组
+            scene_data = []
+            for i, scene in enumerate(scenes):
+                try:
+                    # 为场景添加章节信息
+                    scene['chapter_title'] = chapter_info.get('chapter_title', '未知章节')
+                    
+                    # 生成简单英文提示词
+                    english_prompt = self.prompt_generator.generate_prompt(scene)
+                    
+                    # 构建场景数据
+                    scene_dict = {
+                        "scene_id": scene.get('scene_id', f'scene_{i+1}'),
+                        "scene_index": i + 1,
+                        "scene_description": scene.get('scene_description', ''),
+                        "english_prompt": english_prompt
+                    }
+                    scene_data.append(scene_dict)
+                    
+                except Exception as e:
+                    logger.error(f"处理场景失败: {str(e)}")
+                    raise Exception(f"处理场景失败: {str(e)}")
             
-            # 生成提示词
-            prompts = []
-            for segment in segments:
-                segment_prompts = self._process_segment(segment)
-                prompts.extend(segment_prompts)
-            
-            # 保存提示词
+            # 保存场景提示词到JSON文件
             output_path = self.file_manager.get_output_file_path(
                 chapter_info.get('chapter_title', '未知章节')
             )
@@ -152,15 +169,15 @@ class StoryboardToPromptProcessor:
             if self.file_manager.file_exists(output_path):
                 self.file_manager.create_backup(output_path)
             
-            success = self.file_manager.save_prompts(chapter_info, prompts, output_path)
+            success = self.file_manager.save_scene_prompts_json(chapter_info, scene_data, output_path)
             
             if success:
                 logger.info(f"成功处理章节 {chapter_info.get('chapter_title', '未知章节')}, "
-                           f"生成 {len(prompts)} 个提示词")
+                           f"生成 {len(scene_data)} 个场景提示词")
                 return {
                     'success': True,
-                    'prompt_count': len(prompts),
-                    'prompts': prompts,
+                    'prompt_count': len(scene_data),
+                    'scenes': scene_data,
                     'output_path': str(output_path)
                 }
             else:
@@ -168,7 +185,7 @@ class StoryboardToPromptProcessor:
                     'success': False,
                     'error': '保存提示词文件失败',
                     'prompt_count': 0,
-                    'prompts': []
+                    'scenes': []
                 }
                 
         except Exception as e:
@@ -180,37 +197,7 @@ class StoryboardToPromptProcessor:
                 'prompts': []
             }
     
-    def _process_segment(self, segment: Dict[str, Any]) -> List[Dict[str, Any]]:
-        """
-        处理单个段落
-        
-        Args:
-            segment: 段落数据
-            
-        Returns:
-            生成的提示词列表
-        """
-        prompts = []
-        scenes = segment.get('scenes', [])
-        
-        for scene in scenes:
-            try:
-                # 为场景添加段落信息
-                scene['segment_id'] = segment.get('segment_id', '')
-                scene['segment_index'] = segment.get('segment_index', 0)
-                scene['text'] = segment.get('text', '')
-                
-                # 生成提示词
-                prompt = self.prompt_generator.generate_prompt(scene)
-                prompts.append(prompt)
-                
-            except Exception as e:
-                logger.error(f"处理场景失败: {str(e)}")
-                # 生成备用提示词
-                fallback_prompt = self.prompt_generator._generate_fallback_prompt(scene)
-                prompts.append(fallback_prompt)
-        
-        return prompts
+    
     
     def get_processing_progress(self) -> Dict[str, Any]:
         """
@@ -277,29 +264,20 @@ class StoryboardToPromptProcessor:
             if 'chapter_info' not in data:
                 errors.append("缺少chapter_info字段")
             
-            if 'segments' not in data:
-                errors.append("缺少segments字段")
+            # 适配新的JSON结构 - 检查scenes字段而不是segments
+            if 'scenes' not in data:
+                errors.append("缺少scenes字段")
                 return False, errors
             
-            # 检查段落格式
-            segments = data['segments']
-            if not isinstance(segments, list):
-                errors.append("segments字段必须是列表")
+            # 检查场景格式
+            scenes = data['scenes']
+            if not isinstance(scenes, list):
+                errors.append("scenes字段必须是列表")
                 return False, errors
             
-            for i, segment in enumerate(segments):
-                if 'scenes' not in segment:
-                    errors.append(f"段落{i}缺少scenes字段")
-                    continue
-                
-                scenes = segment['scenes']
-                if not isinstance(scenes, list):
-                    errors.append(f"段落{i}的scenes字段必须是列表")
-                    continue
-                
-                for j, scene in enumerate(scenes):
-                    if 'scene_description' not in scene:
-                        errors.append(f"段落{i}场景{j}缺少scene_description字段")
+            for i, scene in enumerate(scenes):
+                if 'scene_description' not in scene:
+                    errors.append(f"场景{i}缺少scene_description字段")
             
             return len(errors) == 0, errors
             

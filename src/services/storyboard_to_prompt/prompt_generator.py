@@ -2,12 +2,13 @@
 提示词生成器
 负责根据故事板场景生成AI绘画提示词
 """
-import logging
 from typing import Dict, List, Optional, Tuple, Any
 from langchain_core.prompts import PromptTemplate
 from langchain_openai import ChatOpenAI
 import os
 import sys
+from src.utils.logging_manager import LogModule,get_module_logger
+
 # 获取项目根目录的绝对路径
 current_file = os.path.abspath(__file__)
 root_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(current_file))))
@@ -19,8 +20,11 @@ from config.llm_config import LLMConfig
 from .config.prompts import (
     SINGLE_SCENE_TO_PROMPT_CONVERTER
 )
+from src.utils.common_config import get_common_config
 
-logger = logging.getLogger(__name__)
+
+novel_type = get_common_config().get_novel_type()
+logger = get_module_logger(LogModule.STORYBOARD_TO_PROMPT)
 
 # 提示词生成器配置
 PROMPT_GENERATOR_CONFIG = {
@@ -43,63 +47,36 @@ class PromptGenerator:
         self.llm_kwargs = LLMConfig.get_openai_kwargs()
         self.llm_kwargs.update(PROMPT_GENERATOR_CONFIG)
         self.llm = ChatOpenAI(**self.llm_kwargs)
-        
-        self._init_chains()
-    
-    def _init_chains(self):
-        """初始化LLM链"""
-        # 新版本langchain使用不同的方式创建链
         self.scene_converter_prompt = SINGLE_SCENE_TO_PROMPT_CONVERTER
     
-    def generate_prompt(self, scene: Dict[str, Any]) -> Dict[str, Any]:
+    
+    def generate_prompt(self, scene: Dict[str, Any]) -> str:
         """
-        根据场景信息生成提示词
+        根据场景信息生成英文提示词
         
         Args:
             scene: 场景信息字典
             
         Returns:
-            包含提示词的字典
+            英文提示词字符串
         """
         try:
             # 提取场景信息
             scene_info = self._extract_scene_info(scene)
             
             # 生成基础提示词
-            formatted_prompt = self.scene_converter_prompt.format(**scene_info)
+            formatted_prompt = self.scene_converter_prompt.format(novel_type=novel_type,scene_info=scene_info)
             prompt_text = self.llm.invoke(formatted_prompt).content
             
-            # 解析提示词
-            positive_prompt, negative_prompt = self._parse_prompt_result(prompt_text)
+            # 解析提示词，只获取正面提示词部分
+            positive_prompt = self._parse_english_prompt(prompt_text)
             
-            # 应用优化规则
-            optimized_prompt = self._apply_optimization_rules(positive_prompt, scene_info)
-            
-            # 生成最终提示词
-            final_prompt = {
-                'prompt_id': f"{scene.get('segment_index', 0)}-{scene.get('scene_id', 1)}",
-                'segment_id': scene.get('segment_id', ''),
-                'segment_index': scene.get('segment_index', 0),
-                'scene_id': scene.get('scene_id', 1),
-                'scene_index_in_segment': scene.get('scene_index_in_segment', 0),
-                'text_content': scene.get('text', ''),
-                'prompt_text': optimized_prompt,
-                'negative_prompt': negative_prompt or self._generate_default_negative_prompt(),
-                'metadata': {
-                    'style': self._extract_style(scene),
-                    'quality_tags': self._extract_quality_tags(scene),
-                    'aspect_ratio': self._determine_aspect_ratio(scene),
-                    'importance_score': scene.get('importance_score', 5),
-                    'visual_suitability': scene.get('visual_suitability', 5)
-                }
-            }
-            
-            logger.info(f"成功生成场景 {scene.get('scene_id')} 的提示词")
-            return final_prompt
+            logger.info(f"成功生成场景 {scene.get('scene_id')} 的英文提示词")
+            return positive_prompt
             
         except Exception as e:
             logger.error(f"生成提示词失败: {str(e)}")
-            return self._generate_fallback_prompt(scene)
+            raise Exception(f"生成提示词失败: {str(e)}")
     
     def _extract_scene_info(self, scene: Dict[str, Any]) -> Dict[str, str]:
         """提取场景信息供LLM使用"""
@@ -132,103 +109,52 @@ class PromptGenerator:
             'quality_tags': ', '.join(style.get('quality_tags', []))
         }
     
-    def _parse_prompt_result(self, result: str) -> Tuple[str, Optional[str]]:
-        """解析LLM生成的提示词结果"""
+    def _parse_english_prompt(self, result: str) -> str:
+        """解析LLM生成的英文提示词结果"""
         try:
             lines = result.strip().split('\n')
-            positive_prompt = ""
-            negative_prompt = ""
+            english_prompt = ""
             
-            current_section = None
+            # 查找Visual Prompt部分
+            found_visual_prompt = False
             for line in lines:
                 line = line.strip()
-                if line.startswith('正面提示词：'):
-                    current_section = 'positive'
-                    positive_prompt = line.replace('正面提示词：', '').strip()
-                elif line.startswith('负面提示词：'):
-                    current_section = 'negative'
-                    negative_prompt = line.replace('负面提示词：', '').strip()
-                elif current_section == 'positive' and line:
-                    positive_prompt += ' ' + line
-                elif current_section == 'negative' and line:
-                    negative_prompt += ' ' + line
+                if line.startswith('Visual Prompt:'):
+                    found_visual_prompt = True
+                    # 提取Visual Prompt后的内容
+                    prompt_start = line.replace('Visual Prompt:', '').strip()
+                    if prompt_start:
+                        english_prompt = prompt_start
+                    continue
+                elif found_visual_prompt and line:
+                    # 继续收集Visual Prompt的内容，直到遇到下一个标题
+                    if line.startswith(('Art Style Guidance:', 'Character Focus:')):
+                        break
+                    english_prompt += ' ' + line
             
-            return positive_prompt.strip(), negative_prompt.strip() if negative_prompt else None
+            # 如果没有找到Visual Prompt，尝试提取所有英文内容
+            if not english_prompt:
+                for line in lines:
+                    line = line.strip()
+                    # 简单的英文检测：检查是否包含英文字母
+                    if any(char.isalpha() and char.isascii() for char in line):
+                        if english_prompt:
+                            english_prompt += ' '
+                        english_prompt += line
+            
+            return english_prompt.strip()
             
         except Exception as e:
-            logger.error(f"解析提示词结果失败: {str(e)}")
-            return result, None
-    
-    def _apply_optimization_rules(self, prompt: str, scene_info: Dict[str, str]) -> str:
-        """应用提示词优化规则"""
-        # 规则1: 确保包含漫画风格
-        if '漫画' not in prompt and 'anime' not in prompt.lower():
-            prompt += ', 漫画风格'
+            logger.error(f"解析英文提示词结果失败: {str(e)}")
+            return result
+         
+
+    def _generate_simple_english_prompt(self, scene: Dict[str, Any]) -> str:
+        """生成简单的英文提示词"""
+        scene_description = scene.get('scene_description', 'scene')
+        environment = scene.get('environment', 'environment')
         
-        # 规则2: 添加质量标签
-        quality_tags = ['高质量', '细节丰富', '8K']
-        for tag in quality_tags:
-            if tag not in prompt:
-                prompt += f', {tag}'
+        # 简单的中文到英文映射
+        fallback_prompt = f"{scene_description}, {environment}, comic style, high quality, detailed"
         
-        # 规则3: 确保角色描述一致性
-        if scene_info['characters']:
-            prompt = f"{scene_info['characters']}, {prompt}"
-        
-        # 规则4: 优化场景描述
-        if scene_info['environment']:
-            prompt = f"{scene_info['environment']}, {prompt}"
-        
-        return prompt
-    
-    def _generate_default_negative_prompt(self) -> str:
-        """生成默认负面提示词"""
-        return "低质量, 变形, 模糊, 丑陋, 水印, 文字, 签名, 多余的手指, 错误的解剖结构"
-    
-    def _extract_style(self, scene: Dict[str, Any]) -> str:
-        """提取艺术风格"""
-        visual_narrative = scene.get('visual_narrative', {})
-        style = visual_narrative.get('style', {})
-        return style.get('art_style', '漫画风格')
-    
-    def _extract_quality_tags(self, scene: Dict[str, Any]) -> List[str]:
-        """提取质量标签"""
-        visual_narrative = scene.get('visual_narrative', {})
-        style = visual_narrative.get('style', {})
-        return style.get('quality_tags', ['高质量', '细节丰富'])
-    
-    def _determine_aspect_ratio(self, scene: Dict[str, Any]) -> str:
-        """根据场景类型确定宽高比"""
-        shot_type = scene.get('visual_narrative', {}).get('composition', {}).get('shot_type', '')
-        
-        if '特写' in shot_type:
-            return "4:5"
-        elif '全景' in shot_type or '远景' in shot_type:
-            return "16:9"
-        else:
-            return "3:4"
-    
-    def _generate_fallback_prompt(self, scene: Dict[str, Any]) -> Dict[str, Any]:
-        """生成备用提示词"""
-        scene_description = scene.get('scene_description', '场景')
-        environment = scene.get('environment', '环境')
-        
-        fallback_prompt = f"{scene_description}, {environment}, 漫画风格, 高质量, 细节丰富"
-        
-        return {
-            'prompt_id': f"{scene.get('segment_index', 0)}-{scene.get('scene_id', 1)}",
-            'segment_id': scene.get('segment_id', ''),
-            'segment_index': scene.get('segment_index', 0),
-            'scene_id': scene.get('scene_id', 1),
-            'scene_index_in_segment': scene.get('scene_index_in_segment', 0),
-            'text_content': scene.get('text', ''),
-            'prompt_text': fallback_prompt,
-            'negative_prompt': self._generate_default_negative_prompt(),
-            'metadata': {
-                'style': '漫画风格',
-                'quality_tags': ['高质量', '细节丰富'],
-                'aspect_ratio': '3:4',
-                'importance_score': scene.get('importance_score', 5),
-                'visual_suitability': scene.get('visual_suitability', 5)
-            }
-        }
+        return fallback_prompt

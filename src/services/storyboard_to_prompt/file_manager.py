@@ -184,6 +184,46 @@ class FileManager:
         except Exception as e:
             logger.error(f"保存提示词文件失败: {str(e)}")
             return False
+
+    def save_scene_prompts_json(self, chapter_info: Dict[str, Any], scenes: List[Dict[str, Any]], 
+                               output_path: Optional[Path] = None) -> bool:
+        """
+        保存场景提示词到JSON文件，每个场景作为数组中的一条数据
+        
+        Args:
+            chapter_info: 章节信息
+            scenes: 包含场景信息和英文提示词的字典列表
+            output_path: 输出文件路径，如果为None则自动生成
+            
+        Returns:
+            保存是否成功
+        """
+        try:
+            # 生成输出文件路径
+            if output_path is None:
+                chapter_title = chapter_info.get('chapter_title', '未知章节')
+                output_filename = f"{chapter_title}_prompts.json"
+                output_path = self.output_dir / output_filename
+            
+            # 构建输出数据
+            output_data = {
+                "chapter_info": chapter_info,
+                "scenes": scenes
+            }
+            
+            # 确保输出目录存在
+            self._ensure_directory_exists(output_path.parent)
+            
+            # 保存JSON文件
+            with open(output_path, 'w', encoding='utf-8') as f:
+                json.dump(output_data, f, ensure_ascii=False, indent=2)
+            
+            logger.info(f"成功保存场景提示词JSON文件: {output_path}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"保存场景提示词JSON文件失败: {str(e)}")
+            return False
     
     def file_exists(self, file_path: Path) -> bool:
         """
