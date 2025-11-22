@@ -188,8 +188,13 @@ class ParallelVisualNarrativeWorkflow:
         # 动态添加视觉工作者节点
         for i in range(self.num_workers):
             worker_id = f"visual_worker_{i}"
-            # 使用lambda函数绑定_process_worker_scenes方法和worker_id参数
-            workflow.add_node(worker_id, lambda state, worker_id=worker_id: self._process_worker_scenes(state, worker_id))
+            # 创建独立的函数来避免lambda闭包问题
+            def create_worker_function(wid):
+                def worker_function(state):
+                    return self._process_worker_scenes(state, wid)
+                return worker_function
+            
+            workflow.add_node(worker_id, create_worker_function(worker_id))
         
         # 设置入口点
         workflow.set_entry_point("distribute_scenes")
@@ -244,6 +249,7 @@ class ParallelVisualNarrativeWorkflow:
         errors = result.get("errors", [])
         
         # 按场景顺序排序视觉叙述，确保即使在并行处理模式下也能保持原始顺序
+        # 注意：这里使用原始的scene_id来匹配，因为此时scene_id还没有被重新排序
         all_visual_narratives.sort(key=lambda vn: (
             next((scene.segment_index for scene in scenes if scene.scene_id == vn.scene_id), 0),
             next((scene.scene_index_in_segment for scene in scenes if scene.scene_id == vn.scene_id), 0)

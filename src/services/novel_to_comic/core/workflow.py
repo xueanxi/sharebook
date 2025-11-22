@@ -134,8 +134,15 @@ class NovelToComicWorkflow:
                             storyboards.append(vn_map[scene.scene_id])
                         else:
                             # 如果没有找到对应的视觉叙述，设置为None并记录错误
+                            scene.visual_narrative = None
+                            error = ProcessingError(
+                                error_type="视觉叙述映射错误",
+                                error_message=f"场景 {scene.scene_id} 未找到对应的视觉叙述",
+                                scene_id=scene.scene_id,
+                                timestamp=datetime.now().isoformat()
+                            )
+                            errors.append(error)
                             self.logger.error(f"场景 {scene.scene_id} 未找到对应的视觉叙述")
-                            raise Exception(f"场景 {scene.scene_id} 未找到对应的视觉叙述")
                 except Exception as e:
                     self.logger.error(f"并行视觉生成失败，回退到顺序模式: {e}")
                     # 回退到顺序处理
@@ -376,5 +383,3 @@ class NovelToComicWorkflow:
             # 如果场景有视觉叙述，也需要更新其中的scene_id
             if scene.visual_narrative:
                 scene.visual_narrative.scene_id = scene.scene_id
-            
-            self.logger.debug(f"场景ID已更新: {old_scene_id} -> {scene.scene_id}")

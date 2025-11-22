@@ -185,9 +185,9 @@ class SceneSplitterAgent:
             )
             scene_characters.append(character)
         
-        # 创建Scene对象
+        # 创建Scene对象，强制使用UUID确保唯一性
         scene = Scene(
-            scene_id=scene_data.get("scene_id", str(uuid.uuid4())),
+            scene_id=str(uuid.uuid4()),
             scene_description=scene_data.get("scene_description", "未知场景描述"),
             environment=scene_data.get("environment", "未知环境"),
             atmosphere=scene_data.get("atmosphere", "未知氛围"),
