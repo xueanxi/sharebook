@@ -39,11 +39,6 @@ def main():
         help="重置处理进度"
     )
     parser.add_argument(
-        "--progress",
-        action="store_true",
-        help="显示当前进度"
-    )
-    parser.add_argument(
         "--novel-path",
         type=str,
         help="小说文件目录路径（覆盖配置文件中的设置）"
@@ -74,15 +69,6 @@ def main():
                 config['extraction']['paths']['csv_path'] = args.csv_path
             workflow.config_manager.config = config
         
-        # 显示进度
-        if args.progress:
-            progress = workflow.get_progress()
-            print(f"总章节数: {progress['total_chapters']}")
-            print(f"已处理章节: {progress['processed_chapters']}")
-            print(f"处理进度: {progress['progress_percentage']:.1f}%")
-            if progress['current_chapter']:
-                print(f"当前章节: {progress['current_chapter']}")
-            return
         
         # 运行工作流
         print("开始角色提取...")
