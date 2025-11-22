@@ -17,10 +17,11 @@ from src.services.novel_to_comic.config.processing_config import SCENE_SPLITTER_
 from src.services.novel_to_comic.models.data_models import TextSegment, Scene, SceneCharacter
 from src.services.novel_to_comic.utils.character_manager import CharacterManager
 from src.utils.logging_manager import get_module_logger, LogModule
+from src.utils import common_config
 from config.llm_config import LLMConfig
 
 logger = get_module_logger(LogModule.NOVEL_TO_COMIC)
-
+is_show_llm_log = common_config.get_common_config().get_show_llm_log()
 
 class SceneSplitterAgent:
     """场景分割Agent"""
@@ -100,7 +101,8 @@ class SceneSplitterAgent:
                 self.logger.debug(f"LLM调用尝试 {attempt + 1}/{MAX_RETRIES}")
                 
                 # 记录输入
-                self.file_logger.info(f"输入参数: {json.dumps(input_params, ensure_ascii=False, indent=2)}")
+                if is_show_llm_log:
+                    self.file_logger.info(f"输入参数: {json.dumps(input_params, ensure_ascii=False, indent=2)}")
                 
                 # 调用链
                 start_time = time.time()
@@ -108,7 +110,8 @@ class SceneSplitterAgent:
                 end_time = time.time()
                 
                 # 记录输出
-                self.file_logger.info(f"LLM响应 (耗时: {end_time - start_time:.2f}秒)")
+                if is_show_llm_log:
+                    self.file_logger.info(f"LLM响应 (耗时: {end_time - start_time:.2f}秒):\n{json.dumps(result, ensure_ascii=False, indent=2)}")
                 
                 # 提取场景数据
                 if "scenes" in result:

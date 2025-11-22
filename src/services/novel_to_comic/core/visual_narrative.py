@@ -18,11 +18,12 @@ from src.services.novel_to_comic.models.data_models import (
     Environment, Style, Narration, StoryboardSuggestions
 )
 from src.services.novel_to_comic.utils.character_manager import CharacterManager
+from src.utils import common_config
 from src.utils.logging_manager import get_module_logger, LogModule
 from config.llm_config import LLMConfig
 
 logger = get_module_logger(LogModule.NOVEL_TO_COMIC)
-
+is_show_llm_log = common_config.get_common_config().get_show_llm_log()
 
 class VisualNarrativeAgent:
     """视觉文案生成Agent"""
@@ -157,7 +158,8 @@ class VisualNarrativeAgent:
                 self.logger.debug(f"LLM调用尝试 {attempt + 1}/{MAX_RETRIES}")
                 
                 # 记录输入
-                self.file_logger.debug(f"输入参数: {json.dumps(input_params, ensure_ascii=False, indent=2)}")
+                if is_show_llm_log:
+                    self.file_logger.debug(f"输入参数: {json.dumps(input_params, ensure_ascii=False, indent=2)}")
                 
                 # 调用链
                 start_time = time.time()
@@ -165,7 +167,8 @@ class VisualNarrativeAgent:
                 end_time = time.time()
                 
                 # 记录输出
-                self.file_logger.debug(f"LLM响应 (耗时: {end_time - start_time:.2f}秒):\n{json.dumps(result, ensure_ascii=False, indent=2)}")
+                if is_show_llm_log:
+                    self.file_logger.debug(f"LLM响应 (耗时: {end_time - start_time:.2f}秒):\n{json.dumps(result, ensure_ascii=False, indent=2)}")
                 
                 return result
                 
@@ -272,6 +275,7 @@ class VisualNarrativeAgent:
                 environment=environment,
                 style=style,
                 narration=narration,
+                scene_id=scene.scene_id
             )
             
             return visual_narrative
@@ -343,5 +347,6 @@ class VisualNarrativeAgent:
             characters=visual_characters,
             environment=environment,
             style=style,
-            narration=narration
+            narration=narration,
+            scene_id=scene.scene_id
         )
