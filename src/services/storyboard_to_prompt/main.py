@@ -150,13 +150,18 @@ def process_all_chapters(processor: StoryboardToPromptProcessor, optimize_batch:
             print(f"  - {error}")
 
 
-def process_single_chapter(processor: StoryboardToPromptProcessor, chapter_path: str):
-    """处理单个章节"""
-    file_path = Path(chapter_path)
+def process_single_chapter(processor: StoryboardToPromptProcessor, chapter_file_name: str):
+    """
+    处理单个章节
+    chapter_file_name:格式：第一章 遇强则强_storyboards.json
+    """
+    # 在配置的故事板目录中查找文件
+    file_path = processor.file_manager.storyboard_dir / chapter_file_name
+
     
     if not file_path.exists():
-        print(f"文件不存在: {chapter_path}")
-        return
+        print(f"文件不存在: {file_path}")
+        raise FileNotFoundError(f"文件不存在: {file_path}")
     
     logger.info(f"处理章节: {file_path}")
     
@@ -206,10 +211,16 @@ def list_chapters(processor: StoryboardToPromptProcessor):
 
 def validate_file(processor: StoryboardToPromptProcessor, file_path: str):
     """验证故事板文件"""
-    path = Path(file_path)
+    # 如果提供的路径不是绝对路径，则在配置的故事板目录中查找
+    path_obj = Path(file_path)
+    if not path_obj.is_absolute():
+        # 在配置的故事板目录中查找文件
+        path = processor.file_manager.storyboard_dir / path_obj.name
+    else:
+        path = path_obj
     
     if not path.exists():
-        print(f"文件不存在: {file_path}")
+        print(f"文件不存在: {path}")
         return
     
     print(f"验证文件: {path}")
