@@ -1,12 +1,20 @@
 """
-提示词生成器类
-负责根据场景信息生成图像生成提示词
+提示词生成器
+负责根据故事板场景生成AI绘画提示词
 """
-import json
 import logging
 from typing import Dict, List, Optional, Tuple, Any
 from langchain_core.prompts import PromptTemplate
 from langchain_openai import ChatOpenAI
+import os
+import sys
+# 获取项目根目录的绝对路径
+current_file = os.path.abspath(__file__)
+root_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(current_file))))
+print(f"prompt_generator#项目根目录: {root_path}")
+if root_path not in sys.path:
+    sys.path.insert(0, root_path)
+
 from config.llm_config import LLMConfig
 from .config.prompts import (
     SINGLE_SCENE_TO_PROMPT_CONVERTER

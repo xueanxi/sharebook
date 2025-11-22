@@ -7,6 +7,14 @@ from typing import Dict, List, Optional, Any, Tuple
 from pathlib import Path
 import time
 from datetime import datetime
+import os
+import sys
+
+# 添加项目根目录到路径
+current_file = os.path.abspath(__file__)
+root_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(current_file))))
+if root_path not in sys.path:
+    sys.path.insert(0, root_path)
 
 from .file_manager import FileManager
 from .prompt_generator import PromptGenerator
@@ -91,17 +99,6 @@ class StoryboardToPromptProcessor:
                 self.processing_stats['errors'].append(error_msg)
                 logger.error(error_msg)
         
-        # 批量优化
-        if optimize_batch and all_prompts:
-            logger.info("开始批量优化提示词")
-            try:
-                # 这里可以添加批量优化逻辑
-                # optimization_suggestions = self.prompt_generator.optimize_batch_prompts(
-                #     "批量章节", all_prompts
-                # )
-                logger.info("批量优化完成")
-            except Exception as e:
-                logger.error(f"批量优化失败: {str(e)}")
         
         # 计算处理时间
         self.processing_stats['processing_time'] = time.time() - start_time

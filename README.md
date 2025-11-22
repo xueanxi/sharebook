@@ -95,26 +95,26 @@ python src/services/character_image_generation/main.py --test
 ## 故事板到提示词转换
 ```bash
 # 处理所有章节
-python src/services/storyboard_to_prompt/main.py --all
+python -m src.services.storyboard_to_prompt.main --all
 
 # 处理单个章节
-python src/services/storyboard_to_prompt/main.py --chapter "data/storyboards/第一章 遇强则强_storyboards.json"
+python -m src.services.storyboard_to_prompt.main --chapter "第一章 遇强则强_storyboards.json"
 
 # 列出所有可用章节
-python src/services/storyboard_to_prompt/main.py --list
+python -m src.services.storyboard_to_prompt.main --list
 
 # 验证故事板文件格式
-python src/services/storyboard_to_prompt/main.py --validate "data/storyboards/第一章 遇强则强_storyboards.json"
+python -m src.services.storyboard_to_prompt.main --validate "第一章 遇强则强_storyboards.json"
 
 # 清理旧备份文件
-python src/services/storyboard_to_prompt/main.py --clean-backups --keep 5
+python -m src.services.storyboard_to_prompt.main --clean-backups --keep 5
 
 # 导出处理报告
-python src/services/storyboard_to_prompt/main.py --export-report
+python -m src.services.storyboard_to_prompt.main --export-report
 
 # 参数说明
 # --all: 处理所有章节
-# --chapter: 处理指定章节的故事板文件
+# --chapter: 处理指定章节的故事板文件（只需文件名，不需要完整路径）
 # --list: 列出所有可用章节
 # --validate: 验证故事板文件格式
 # --clean-backups: 清理旧备份文件
