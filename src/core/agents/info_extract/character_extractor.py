@@ -41,7 +41,10 @@ class CharacterExtractor(BaseExtractor):
         文本：{text}
         """
         
-        # 创建提示模板和处理链
+        # 调用父类的_create_chain方法，确保_llm_callback_handler被初始化
+        self._create_chain(prompt_template)
+        
+        # 创建自己的处理链，使用JsonOutputParser
         from langchain_core.prompts import ChatPromptTemplate
         from langchain_core.output_parsers import JsonOutputParser
         
