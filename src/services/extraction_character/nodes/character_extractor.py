@@ -119,8 +119,11 @@ class CharacterExtractor:
                 
                 processed_characters.append(processed_character)
             
+            # 合并重复角色
+            merged_characters = self.llm_utils.merge_duplicate_characters(processed_characters)
+            
             # 更新状态
-            state["extracted_characters"] = processed_characters
+            state["extracted_characters"] = merged_characters
             state["error"] = None
             
             return state

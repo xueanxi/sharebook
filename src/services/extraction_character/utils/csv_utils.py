@@ -207,7 +207,7 @@ class CSVUtils:
     
     def find_existing_characters(self, characters: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
         """
-        查找已存在的角色
+        查找已存在的角色（增强版本，支持更智能的角色匹配）
         
         Args:
             characters: 角色列表
@@ -226,49 +226,225 @@ class CSVUtils:
                 if not existing_data:
                     return characters, []
             
-            # 创建角色名称和别名的集合
-            existing_names = set()
-            existing_aliases = set()
+            # 创建角色信息映射
+            existing_characters_info = {}
             
             if HAS_PANDAS:
                 # 使用pandas
                 for _, row in existing_data.iterrows():
                     name = row['姓名']
                     aliases = str(row['别名']).split('|') if pd.notna(row['别名']) and row['别名'] else []
+                    gender = row.get('性别', '未知')
+                    appearance = row.get('外貌特征', '未知')
                     
-                    existing_names.add(name)
-                    existing_aliases.update(aliases)
-                    existing_aliases.add(name)  # 主名称也算作别名
+                    all_names = {name} | set(aliases)
+                    for char_name in all_names:
+                        existing_characters_info[char_name] = {
+                            'name': name,
+                            'aliases': aliases,
+                            'gender': gender,
+                            'appearance': appearance
+                        }
             else:
                 # 使用基础csv操作
                 for row in existing_data:
                     name = row.get('姓名', '')
                     aliases = str(row.get('别名', '')).split('|') if row.get('别名') else []
+                    gender = row.get('性别', '未知')
+                    appearance = row.get('外貌特征', '未知')
                     
-                    existing_names.add(name)
-                    existing_aliases.update(aliases)
-                    existing_aliases.add(name)  # 主名称也算作别名
+                    all_names = {name} | set(aliases)
+                    for char_name in all_names:
+                        existing_characters_info[char_name] = {
+                            'name': name,
+                            'aliases': aliases,
+                            'gender': gender,
+                            'appearance': appearance
+                        }
             
             new_characters = []
             existing_characters = []
             
             for character in characters:
-                name = character.get('姓名', '')
-                aliases = character.get('别名', [])
+                name = character.get('name', '') or character.get('姓名', '')
+                aliases = character.get('aliases', [])
+                gender = character.get('性别', '未知')
+                appearance = character.get('外貌特征', '未知')
                 
-                # 检查主名称或别名是否已存在
+                # 检查直接匹配
                 all_names = [name] + aliases
-                is_existing = any(alias in existing_names or alias in existing_aliases for alias in all_names)
+                is_existing = False
+                matched_existing_info = None
+                
+                for char_name in all_names:
+                    if char_name in existing_characters_info:
+                        is_existing = True
+                        matched_existing_info = existing_characters_info[char_name]
+                        break
+                
+                # 如果没有直接匹配，进行模糊匹配
+                if not is_existing:
+                    for char_name in all_names:
+                        for existing_name, existing_info in existing_characters_info.items():
+                            if self._is_similar_character(char_name, existing_name, gender, appearance, existing_info):
+                                is_existing = True
+                                matched_existing_info = existing_info
+                                break
+                        if is_existing:
+                            break
                 
                 if is_existing:
-                    existing_characters.append(character)
+                    # 更新角色信息，确保字段名称一致
+                    updated_character = self._normalize_character_info(character, matched_existing_info)
+                    existing_characters.append(updated_character)
                 else:
-                    new_characters.append(character)
+                    # 标准化新角色信息
+                    normalized_character = self._normalize_character_info(character)
+                    new_characters.append(normalized_character)
             
             return new_characters, existing_characters
         except Exception as e:
             print(f"查找已存在角色失败: {e}")
             return characters, []
+    
+    def _is_similar_character(self, name1: str, name2: str, gender1: str, appearance1: str, existing_info: Dict[str, Any]) -> bool:
+        """
+        判断两个角色是否相似（可能是同一角色的不同称呼）
+        
+        Args:
+            name1: 第一个角色名称
+            name2: 第二个角色名称
+            gender1: 第一个角色性别
+            appearance1: 第一个角色外貌特征
+            existing_info: 已存在角色信息
+            
+        Returns:
+            是否相似
+        """
+        # 如果名称完全相同
+        if name1 == name2:
+            return True
+        
+        # 如果名称包含关系（如"陈枭"和"枭"）
+        if name1 in name2 or name2 in name1:
+            # 检查性别是否匹配
+            gender2 = existing_info.get('gender', '未知')
+            if gender1 != '未知' and gender2 != '未知' and gender1 != gender2:
+                return False
+            
+            # 检查外貌特征是否相似
+            appearance2 = existing_info.get('appearance', '未知')
+            if appearance1 != '未知' and appearance2 != '未知':
+                # 简单的相似度检查
+                common_words = set(appearance1.split()) & set(appearance2.split())
+                if len(common_words) >= 2:  # 如果有2个或更多共同词汇
+                    return True
+            
+            return True
+        
+        # 检查是否是常见的称呼变化
+        if self._is_nickname_variation(name1, name2):
+            return True
+        
+        return False
+    
+    def _is_nickname_variation(self, name1: str, name2: str) -> bool:
+        """
+        检查是否是常见的昵称变化
+        
+        Args:
+            name1: 第一个名称
+            name2: 第二个名称
+            
+        Returns:
+            是否是昵称变化
+        """
+        # 常见的称呼前缀/后缀
+        prefixes = ['老', '小', '大', '阿']
+        suffixes = ['儿', '子', '哥', '姐', '弟', '妹', '爷', '婆', '公', '仙', '尊', '王', '皇', '帝', '圣', '魔', '妖', '鬼', '神', '佛']
+        
+        # 检查是否只是添加了前缀或后缀
+        for prefix in prefixes:
+            if name1.startswith(prefix) and name1[len(prefix):] == name2:
+                return True
+            if name2.startswith(prefix) and name2[len(prefix):] == name1:
+                return True
+        
+        for suffix in suffixes:
+            if name1.endswith(suffix) and name1[:-len(suffix)] == name2:
+                return True
+            if name2.endswith(suffix) and name2[:-len(suffix)] == name1:
+                return True
+        
+        return False
+    
+    def _normalize_character_info(self, character: Dict[str, Any], existing_info: Dict[str, Any] = None) -> Dict[str, Any]:
+        """
+        标准化角色信息，确保字段名称一致
+        
+        Args:
+            character: 角色信息
+            existing_info: 已存在角色信息（可选）
+            
+        Returns:
+            标准化后的角色信息
+        """
+        normalized = {}
+        
+        # 标准化姓名字段
+        name = character.get('name') or character.get('姓名', '')
+        normalized['姓名'] = name
+        
+        # 标准化别名字段
+        aliases = character.get('aliases', [])
+        if isinstance(aliases, str):
+            aliases = [alias.strip() for alias in aliases.split(',') if alias.strip()]
+        normalized['别名'] = aliases
+        
+        # 标准化其他字段
+        normalized['性别'] = character.get('性别', '未知')
+        normalized['外貌特征'] = character.get('外貌特征', '未知')
+        normalized['服装特点'] = character.get('服装特点', '未知')
+        normalized['角色类型'] = character.get('角色类型', '其他')
+        normalized['容貌提示词'] = character.get('容貌提示词', '')
+        
+        # 如果有已存在信息，进行智能合并
+        if existing_info:
+            normalized = self._merge_with_existing_info(normalized, existing_info)
+        
+        return normalized
+    
+    def _merge_with_existing_info(self, new_info: Dict[str, Any], existing_info: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        与已存在信息合并
+        
+        Args:
+            new_info: 新角色信息
+            existing_info: 已存在角色信息
+            
+        Returns:
+            合并后的角色信息
+        """
+        merged = new_info.copy()
+        
+        # 合并别名
+        existing_aliases = set(existing_info.get('aliases', []))
+        new_aliases = set(new_info.get('别名', []))
+        merged_aliases = existing_aliases.union(new_aliases)
+        merged['别名'] = list(merged_aliases)
+        
+        # 保留更详细的信息
+        for field in ['性别', '外貌特征', '服装特点', '角色类型', '容貌提示词']:
+            existing_value = existing_info.get(field, '未知' if field != '容貌提示词' else '')
+            new_value = new_info.get(field, '未知' if field != '容貌提示词' else '')
+            
+            # 如果新信息更详细（不为"未知"），使用新信息
+            if new_value not in ['未知', ''] and (existing_value in ['未知', ''] or len(new_value) > len(existing_value)):
+                merged[field] = new_value
+            else:
+                merged[field] = existing_value
+        
+        return merged
     
     def get_character_by_name(self, name: str) -> Dict[str, Any]:
         """

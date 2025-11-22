@@ -4,7 +4,7 @@ extraction:
     retry_count: 3
   llm:
     config_path: D:/work/code/python/sharebook/config/llm_config.py
-    max_tokens: 2000
+    max_tokens: 3000
     temperature: 0.4
     timeout: 30
   novel_type: 玄幻修真
@@ -16,5 +16,5 @@ extraction:
     csv_path: D:/work/code/python/sharebook2/data/characters/characters.csv
     novel_path: D:/work/code/python/sharebook2/data/cleaned_novel
   progress:
-    current_chapter: ''
-    last_update_time: ''
+    current_chapter: 第八章 收徒！获得葬天棺！.txt
+    last_update_time: '2025-11-22T18:46:48.742573'

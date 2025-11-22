@@ -23,7 +23,6 @@ class LogModule(Enum):
     EXTRACTION = "extraction"                  # 信息提取模块
     EXTRACTION_CHARACTER = "extraction_character"  # 角色提取模块
     STORYBOARD_TO_PROMPT = "storyboard_to_prompt"  # 故事板到提示词转换模块
-    CHARACTER_CARD = "character_card"          # 角色卡片模块
     CORE = "core"                              # 核心模块
     UTILS = "utils"                            # 工具模块
     API = "api"                                # API模块
@@ -114,7 +113,6 @@ class LogManager:
             "extraction": LogModule.EXTRACTION,
             "extraction_character": LogModule.EXTRACTION_CHARACTER,
             "storyboard_to_prompt": LogModule.STORYBOARD_TO_PROMPT,
-            "character_card": LogModule.CHARACTER_CARD,
             "core": LogModule.CORE,
             "utils": LogModule.UTILS,
             "api": LogModule.API,
