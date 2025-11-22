@@ -1,0 +1,8 @@
+# 故事板到提示词转换配置
+storyboard_to_prompt:
+  # 输入输出路径配置
+  paths:
+    # 故事板JSON文件所在目录
+    storyboard_dir: "data/storyboards"
+    # 提示词JSON文件输出目录
+    output_dir: "data/storyboards_prompt"

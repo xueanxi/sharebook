@@ -92,3 +92,51 @@ python src/services/character_image_generation/main.py --test
 - 格式：PNG图片文件
 - 文件命名：`image_001.png`, `image_002.png`等
 
+## 故事板到提示词转换
+```bash
+# 处理所有章节
+python src/services/storyboard_to_prompt/main.py --all
+
+# 处理单个章节
+python src/services/storyboard_to_prompt/main.py --chapter "data/storyboards/第一章 遇强则强_storyboards.json"
+
+# 列出所有可用章节
+python src/services/storyboard_to_prompt/main.py --list
+
+# 验证故事板文件格式
+python src/services/storyboard_to_prompt/main.py --validate "data/storyboards/第一章 遇强则强_storyboards.json"
+
+# 清理旧备份文件
+python src/services/storyboard_to_prompt/main.py --clean-backups --keep 5
+
+# 导出处理报告
+python src/services/storyboard_to_prompt/main.py --export-report
+
+# 参数说明
+# --all: 处理所有章节
+# --chapter: 处理指定章节的故事板文件
+# --list: 列出所有可用章节
+# --validate: 验证故事板文件格式
+# --clean-backups: 清理旧备份文件
+# --keep: 保留备份文件数量 (默认: 10)
+# --export-report: 导出处理报告
+# --no-batch-optimize: 跳过批量优化
+# --output: 指定输出目录
+# --config: 指定配置文件路径
+# --verbose, -v: 详细输出
+```
+
+### 功能特点
+- **智能提示词生成**：根据故事板场景信息自动生成图像生成提示词
+- **批量优化**：支持批量优化提示词，确保风格一致性
+- **文件验证**：提供故事板文件格式验证功能
+- **备份管理**：自动备份处理结果，支持备份文件管理
+- **进度跟踪**：详细记录处理进度和结果统计
+- **错误处理**：完善的错误处理和日志记录机制
+
+### 输出文件
+- 位置：`data/storyboards_prompt/`
+- 格式：JSON文件，包含场景提示词、负面提示词和元数据
+- 文件命名：`{章节标题}_prompts.json`
+- 备份：自动创建备份文件，文件名包含时间戳
+
