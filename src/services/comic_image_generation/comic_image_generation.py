@@ -10,9 +10,9 @@ import time
 import yaml
 from typing import List, Dict, Optional, Union, Any
 from src.utils.comfyui_wrapper import ComfyUIWrapper
-from config.logging_config import get_logger
+from config.logging_config import get_module_logger, LogModule
 
-logger = get_logger(__name__)
+logger = get_module_logger(LogModule.COMIC_IMAGE_GENERATION)
 
 
 class ComicImageGeneration:

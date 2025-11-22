@@ -16,12 +16,10 @@ from langgraph.types import Send
 import operator
 
 from config.llm_config import LLMConfig
-from src.utils.logging_manager import get_agent_logger, get_agent_file_logger, log_agent_process
+from src.utils.logging_manager import get_module_logger, LogModule, log_agent_process
 
 # 初始化日志记录器
-logger = get_agent_logger(__name__)
-# 初始化文件专用日志记录器，用于记录LLM详细输出
-file_logger = get_agent_file_logger(__name__)
+logger = get_module_logger(LogModule.EXTRACTION)
 
 # 定义状态类型
 class NovelExtractionState(TypedDict):
@@ -64,7 +62,7 @@ class BaseAgent:
         # 创建LLM实例
         self.llm = ChatOpenAI(**self.llm_kwargs)
     
-    def _create_chain(self, prompt_template: str):
+    def _create_chain(self):
         """创建处理链
         
         Args:
@@ -103,7 +101,7 @@ class BaseAgent:
         chain = prompt | self.llm | StrOutputParser()
         
         # 保存回调处理器供后续使用
-        self._llm_callback_handler = LLMCallbackHandler(file_logger)
+        self._llm_callback_handler = LLMCallbackHandler(logger)
         
         return chain
     

@@ -29,8 +29,8 @@ from src.utils.logging_manager import (
 general_logger = get_logger("example_module")
 general_logger.info("这是一条通用日志信息")
 
-# 示例2: 使用Agent日志
-agent_logger = get_agent_logger("character_extractor")
+# 示例2: 使用模块日志
+agent_logger = get_module_logger(LogModule.MAIN)
 agent_logger.info("Agent开始处理文本")
 
 # 示例3: 使用API日志
@@ -51,7 +51,7 @@ try:
     # 模拟一个错误
     result = 1 / 0
 except Exception as e:
-    error_logger.error(f"发生错误: {str(e)}", exc_info=True)
+    error_logger.error(f"发生错误: {str(e)}")
 
 # 示例7: 使用性能日志
 performance_logger = get_performance_logger("performance_monitor")
@@ -75,7 +75,7 @@ class ExampleAgent:
     """示例Agent类"""
     
     @log_agent_process
-    def process(self, state):
+    def process(self):
         """处理状态的方法"""
         time.sleep(0.5)  # 模拟处理时间
         return {"result": "处理完成"}

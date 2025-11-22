@@ -21,9 +21,9 @@ from src.services.novel_to_comic.config.processing_config import (
     OUTPUT_DIR, ENABLE_PARALLEL_SCENE_SPLITTING, 
     MAX_SCENE_SPLITTING_CONCURRENT
 )
-from src.utils.logging_manager import get_logger, LogCategory
+from src.utils.logging_manager import get_module_logger, LogModule
 
-logger = get_logger(__name__, LogCategory.GENERAL)
+logger = get_module_logger(LogModule.NOVEL_TO_COMIC)
 
 
 class NovelToComicWorkflow:

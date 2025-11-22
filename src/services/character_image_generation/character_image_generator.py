@@ -9,9 +9,9 @@ from typing import List, Dict, Optional
 from .character_data_reader import CharacterDataReader
 from .comfyui_interface import ComfyUIInterface
 from .file_manager import FileManager
-from config.logging_config import get_logger
+from config.logging_config import get_module_logger, LogModule
 
-logger = get_logger(__name__)
+logger = get_module_logger(LogModule.CHARACTER_IMAGE_GENERATION)
 
 
 class CharacterImageGenerator:

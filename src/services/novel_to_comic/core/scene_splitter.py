@@ -16,10 +16,10 @@ from src.services.novel_to_comic.config.prompts import SCENE_SPLITTER_PROMPT
 from src.services.novel_to_comic.config.processing_config import SCENE_SPLITTER_CONFIG, MAX_RETRIES, RETRY_DELAY
 from src.services.novel_to_comic.models.data_models import TextSegment, Scene, SceneCharacter
 from src.services.novel_to_comic.utils.character_manager import CharacterManager
-from src.utils.logging_manager import get_logger, LogCategory, get_agent_file_logger
+from src.utils.logging_manager import get_module_logger, LogModule
 from config.llm_config import LLMConfig
 
-logger = get_logger(__name__, LogCategory.AGENT)
+logger = get_module_logger(LogModule.NOVEL_TO_COMIC)
 
 
 class SceneSplitterAgent:
@@ -28,7 +28,7 @@ class SceneSplitterAgent:
     def __init__(self, character_manager: CharacterManager):
         self.character_manager = character_manager
         self.logger = logger
-        self.file_logger = get_agent_file_logger(self.__class__.__name__)
+        self.file_logger = get_module_logger(LogModule.NOVEL_TO_COMIC)
         
         # 初始化LLM
         self.llm_kwargs = LLMConfig.get_openai_kwargs()
@@ -108,7 +108,7 @@ class SceneSplitterAgent:
                 end_time = time.time()
                 
                 # 记录输出
-                self.file_logger.info(f"LLM响应 (耗时: {end_time - start_time:.2f}秒):\n{json.dumps(result, ensure_ascii=False, indent=2)}")
+                self.file_logger.info(f"LLM响应 (耗时: {end_time - start_time:.2f}秒)")
                 
                 # 提取场景数据
                 if "scenes" in result:

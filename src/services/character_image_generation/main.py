@@ -14,43 +14,15 @@ project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../..
 sys.path.insert(0, project_root)
 
 from src.services.character_image_generation.character_image_generator import CharacterImageGenerator
-from config.logging_config import get_logger
+from config.logging_config import get_module_logger, LogModule
 
-logger = get_logger(__name__)
+logger = get_module_logger(LogModule.CHARACTER_IMAGE_GENERATION)
 
 
 def parse_arguments():
     """解析命令行参数"""
     parser = argparse.ArgumentParser(
-        description="角色图片生成工具",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-示例:
-  # 生成所有角色图片
-  python main.py --all
-  
-  # 生成指定角色图片
-  python main.py --name "搬山宗宗主"
-  
-  # 批量生成多个角色图片
-  python main.py --names "搬山宗宗主,叶师弟,灵儿"
-  
-  # 指定输出目录
-  python main.py --all --output "custom_output"
-  
-  # 设置批处理大小
-  python main.py --all --batch-size 2
-  
-  # 强制重新生成已有图片的角色
-  python main.py --all --force
-  
-  # 列出所有角色
-  python main.py --list
-  
-  # 测试ComfyUI连接
-  python main.py --test
-        """
-    )
+        description="角色图片生成工具")
     
     # 角色选择参数
     group = parser.add_mutually_exclusive_group(required=True)

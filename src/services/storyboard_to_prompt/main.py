@@ -12,11 +12,11 @@ root_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__fi
 print(f"项目根目录: {root_path}")    
 sys.path.append(root_path)
 
-from config.logging_config import get_logger
+from config.logging_config import get_module_logger, LogModule
 from .storyboard_to_prompt_processor import StoryboardToPromptProcessor
 
 # 设置日志
-logger = get_logger(__name__)
+logger = get_module_logger(LogModule.STORYBOARD_TO_PROMPT)
 
 
 def main():

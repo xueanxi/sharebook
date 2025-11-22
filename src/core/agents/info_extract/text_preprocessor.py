@@ -5,7 +5,7 @@
 from typing import Dict, Any
 import time
 from .base import BaseAgent, NovelExtractionState
-from src.utils.logging_manager import get_agent_logger
+from src.utils.logging_manager import get_module_logger, LogModule
 from pathlib import Path
 
 
@@ -14,9 +14,9 @@ class TextPreprocessor(BaseAgent):
     
     def __init__(self, model_name=None, temperature=0.7):
         super().__init__(model_name, temperature)
-        self.logger = get_agent_logger(self.__class__.__name__)
+        self.logger = get_module_logger(LogModule.CORE)
         self.cleaned_novel_dir = Path('data/cleaned_novel')
-        self.cleaned_novel_dir.mkdir(parents=True, exist_ok=True)
+        self.cleaned_novel_dir.mkdir(parents=True)
         
         # 使用LCEL创建处理链
         prompt_template = """

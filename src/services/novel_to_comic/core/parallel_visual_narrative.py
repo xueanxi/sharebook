@@ -15,9 +15,9 @@ from src.services.novel_to_comic.models.data_models import (
 )
 from src.services.novel_to_comic.utils.character_manager import CharacterManager
 from src.services.novel_to_comic.config.processing_config import MAX_SCENE_SPLITTING_CONCURRENT
-from src.utils.logging_manager import get_logger, LogCategory
+from src.utils.logging_manager import get_module_logger, LogModule
 
-logger = get_logger(__name__, LogCategory.PERFORMANCE)
+logger = get_module_logger(LogModule.NOVEL_TO_COMIC)
 
 
 class FixedParallelVisualState(TypedDict):

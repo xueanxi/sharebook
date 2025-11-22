@@ -16,5 +16,5 @@ extraction:
     csv_path: D:/work/code/python/sharebook2/data/characters/characters.csv
     novel_path: D:/work/code/python/sharebook2/data/cleaned_novel
   progress:
-    current_chapter: 第十三章 难道是他？.txt
-    last_update_time: '2025-11-16T13:07:21.170816'
+    current_chapter: ''
+    last_update_time: ''

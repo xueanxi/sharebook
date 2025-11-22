@@ -9,15 +9,15 @@ import json
 import time
 from typing import List, Dict, Optional
 from src.utils.comfyui_wrapper import ComfyUIWrapper
-from config.logging_config import get_logger
+from config.logging_config import get_module_logger, LogModule
 
-logger = get_logger(__name__)
+logger = get_module_logger(LogModule.CHARACTER_IMAGE_GENERATION)
 
 
 class ComfyUIInterface:
     """ComfyUI接口封装类"""
     
-    def __init__(self, workflow_template: str = "comfyui/novel_t2I_flux.json"):
+    def __init__(self):
         """
         初始化ComfyUI接口
         

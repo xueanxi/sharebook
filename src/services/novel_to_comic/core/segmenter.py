@@ -9,9 +9,9 @@ from src.services.novel_to_comic.config.processing_config import SEGMENT_MAX_LEN
 from src.services.novel_to_comic.models.data_models import TextSegment, SegmentMetadata
 from src.services.novel_to_comic.utils.text_processor import TextProcessor
 from src.services.novel_to_comic.utils.character_manager import CharacterManager
-from src.utils.logging_manager import get_logger, LogCategory
+from src.utils.logging_manager import get_module_logger, LogModule
 
-logger = get_logger(__name__, LogCategory.DATA)
+logger = get_module_logger(LogModule.NOVEL_TO_COMIC)
 
 
 class IntelligentSegmenter:

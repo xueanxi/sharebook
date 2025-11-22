@@ -9,7 +9,9 @@ from config_manager import ConfigManager
 from nodes.chapter_selector import ChapterSelector
 from nodes.progress_checker import ProgressChecker
 from utils.backup_utils import BackupUtils
+from src.utils.logging_manager import LogModule, get_module_logger
 
+logger = get_module_logger(LogModule.EXTRACTION_CHARACTER)
 
 class CharacterExtractionOrchestrator:
     """角色提取工作流编排器"""
@@ -38,6 +40,7 @@ class CharacterExtractionOrchestrator:
         Returns:
             处理结果
         """
+        logger.info(f"开始运行角色提取编排器，重置进度: {reset_progress}")
         try:
             # 初始化状态
             state = self._initialize_state(reset_progress)

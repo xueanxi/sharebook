@@ -18,10 +18,10 @@ from src.services.novel_to_comic.models.data_models import (
     Environment, Style, Narration, StoryboardSuggestions
 )
 from src.services.novel_to_comic.utils.character_manager import CharacterManager
-from src.utils.logging_manager import get_logger, LogCategory, get_agent_file_logger
+from src.utils.logging_manager import get_module_logger, LogModule
 from config.llm_config import LLMConfig
 
-logger = get_logger(__name__, LogCategory.AGENT)
+logger = get_module_logger(LogModule.NOVEL_TO_COMIC)
 
 
 class VisualNarrativeAgent:
@@ -30,7 +30,7 @@ class VisualNarrativeAgent:
     def __init__(self, character_manager: CharacterManager):
         self.character_manager = character_manager
         self.logger = logger
-        self.file_logger = get_agent_file_logger(self.__class__.__name__)
+        self.file_logger = get_module_logger(LogModule.NOVEL_TO_COMIC)
         
         # 初始化LLM
         self.llm_kwargs = LLMConfig.get_openai_kwargs()
