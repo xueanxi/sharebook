@@ -7,6 +7,8 @@ import time
 from .base import BaseAgent, NovelExtractionState
 from src.utils.logging_manager import get_module_logger, LogModule
 from pathlib import Path
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import StrOutputParser
 
 
 class TextPreprocessor(BaseAgent):
@@ -16,7 +18,7 @@ class TextPreprocessor(BaseAgent):
         super().__init__(model_name, temperature)
         self.logger = get_module_logger(LogModule.CORE)
         self.cleaned_novel_dir = Path('data/cleaned_novel')
-        self.cleaned_novel_dir.mkdir(parents=True)
+        self.cleaned_novel_dir.mkdir(parents=True, exist_ok=True)
         
         # 使用LCEL创建处理链
         prompt_template = """
@@ -36,8 +38,11 @@ class TextPreprocessor(BaseAgent):
         文本：{text}
         """
         
+        # 创建提示模板
+        self.prompt = ChatPromptTemplate.from_template(prompt_template)
+        
         # 创建处理链
-        self.chain = self._create_chain(prompt_template)
+        self.chain = self.prompt | self.llm | StrOutputParser()
     
     def process(self, state: NovelExtractionState) -> None:
         """处理文本
@@ -88,3 +93,4 @@ class TextPreprocessor(BaseAgent):
             state["errors"].append(f"文本预处理异常: {str(e)}")
             state["completed_tasks"].append("文本预处理(失败)")
     
+

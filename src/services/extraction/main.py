@@ -4,10 +4,18 @@
 """
 
 import os
+import sys
+
+# 添加项目根目录到Python路径
+current_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.dirname(os.path.dirname(os.path.dirname(current_dir)))
+sys.path.insert(0, project_root)
+
 import json
 import asyncio
 import aiofiles
-from typing import Dict, Any, Optional
+import argparse
+from typing import Dict, Any, Optional, List
 from langchain_core.messages import BaseMessage
 from pathlib import Path
 from src.core.agents.info_extract import NovelInformationExtractor
@@ -228,66 +236,53 @@ async def batch_extract_novel_info(file_paths: list, output_dir: Optional[str] =
     return results
 
 
-if __name__ == "__main__":
-    # 示例用法
-    import argparse
+def main():
+    """主函数，处理命令行参数"""
+    parser = argparse.ArgumentParser(description="ShareNovel 小说信息提取工具")
     
-    parser = argparse.ArgumentParser(description="小说信息提取工具")
-    parser.add_argument("input_path", help="小说文件路径或包含小说文件的目录")
-    parser.add_argument("--output", "-o", help="输出目录", default=None)
-    parser.add_argument("--processes", "-p", type=int, default=4, help="最大并发处理数量，默认为4")
-    parser.add_argument("--single", "-s", action="store_true", help="强制使用单线程处理，即使输入是目录")
+    # 信息提取命令参数
+    extract_group = parser.add_mutually_exclusive_group(required=True)
+    extract_group.add_argument('-f', '--file', help='要处理的小说文件路径')
+    extract_group.add_argument('-d', '--directory', help='包含小说文件的目录路径')
+    parser.add_argument('-o', '--output', help='输出目录', default='data/output')
     
+    # 直接解析所有命令行参数
     args = parser.parse_args()
     
-    async def main():
-        try:
-            # 扫描输入路径，获取所有小说文件
-            file_paths = scan_novel_files(args.input_path)
-            
-            if not file_paths:
-                print(f"在路径 {args.input_path} 中未找到小说文件")
-                exit(1)
-            
-            print(f"找到 {len(file_paths)} 个小说文件")
-            
-            # 如果输入是目录且没有强制指定单进程，则使用异步IO
-            is_directory = os.path.isdir(args.input_path)
-            use_async = is_directory and not args.single
-            
-            if use_async:
-                print(f"检测到目录输入，使用异步IO处理 (最大并发数: {args.processes})")
-                result = await batch_extract_novel_info(file_paths, args.output, args.processes)
+    # 处理新的命令行参数格式
+    if args.file:
+        # 单文件提取 - 需要异步处理
+        async def process_single():
+            result = await extract_novel_information(args.file, args.output)
+            if result.get("success", False):
+                print("✅ 信息提取成功!")
+                if "output_file" in result:
+                    print(f"结果已保存到: {result['output_file']}")
+                print("使用langgraph处理模式")
             else:
-                # 所有情况都使用批量处理函数，确保信号量控制生效
-                print(f"使用异步IO处理 {len(file_paths)} 个文件 (最大并发数: {args.processes})")
-                result = await batch_extract_novel_info(file_paths, args.output, args.processes)
-            
-            # 输出结果
-            if isinstance(result, dict) and "results" in result:
-                # 批量处理结果
-                if result.get("success", False):
-                    print(f"批量处理成功! 成功处理 {result['successful_extractions']} 个文件")
-                else:
-                    print(f"批量处理部分失败! 成功: {result['successful_extractions']}, 失败: {result['failed_extractions']}")
-                    if "error" in result:
-                        print(f"错误信息: {result['error']}")
-            else:
-                # 单文件处理结果
-                if result.get("success", False):
-                    print("信息提取成功!")
-                    if "output_file" in result:
-                        print(f"结果已保存到: {result['output_file']}")
-                else:
-                    print("信息提取失败:")
-                    print(result.get("error", "未知错误"))
-                    
-        except ValueError as e:
-            print(f"错误: {str(e)}")
-            exit(1)
-        except Exception as e:
-            print(f"处理过程中发生异常: {str(e)}")
-            exit(1)
-    
-    # 运行主函数
-    asyncio.run(main())
+                print("❌ 信息提取失败:")
+                print(result.get("error", "未知错误"))
+        
+        asyncio.run(process_single())
+    elif args.directory:
+        # 批量提取
+        txt_files = [os.path.join(args.directory, f) for f in os.listdir(args.directory) 
+                     if f.endswith('.txt')]
+        if not txt_files:
+            print(f"在目录 {args.directory} 中没有找到.txt文件")
+            return
+        
+        async def process_batch():
+            result = await batch_extract_novel_info(txt_files, args.output)
+            print(f"处理完成: {result['successful_extractions']}/{result['total_files']} 个文件成功")
+            if result.get("failed_extractions", 0) > 0:
+                print(f"有 {result['failed_extractions']} 个文件处理失败")
+            print("使用 langgraph 并行处理模式")
+        
+        asyncio.run(process_batch())
+    else:
+        parser.print_help()
+
+
+if __name__ == "__main__":
+    main()

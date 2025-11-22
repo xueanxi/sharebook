@@ -41,9 +41,12 @@ class CharacterExtractor(BaseExtractor):
         文本：{text}
         """
         
-        # 创建处理链，使用JSON输出解析器
+        # 创建提示模板和处理链
+        from langchain_core.prompts import ChatPromptTemplate
         from langchain_core.output_parsers import JsonOutputParser
-        self.chain = self._create_chain(prompt_template) | JsonOutputParser()
+        
+        self.prompt = ChatPromptTemplate.from_template(prompt_template)
+        self.chain = self.prompt | self.llm | JsonOutputParser()
     
     def process(self, state: NovelExtractionState) -> None:
         """处理文本
