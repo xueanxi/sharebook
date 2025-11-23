@@ -18,6 +18,8 @@ if root_path not in sys.path:
 
 from .file_manager import FileManager
 from .prompt_generator import PromptGenerator
+from .character_data_manager import CharacterDataManager
+from .reference_image_manager import ReferenceImageManager
 
 from src.utils.logging_manager import LogModule,get_module_logger
 logger = get_module_logger(LogModule.STORYBOARD_TO_PROMPT)
@@ -34,7 +36,16 @@ class StoryboardToPromptProcessor:
             llm: 语言模型实例
         """
         self.file_manager = FileManager(config_path)
-        self.prompt_generator = PromptGenerator(llm)
+        
+        # 初始化角色数据管理器
+        csv_path = self.file_manager.config.get('storyboard_to_prompt', {}).get('reference_images', {}).get('characters_csv', 'data/characters/characters.csv')
+        self.character_manager = CharacterDataManager(csv_path)
+        
+        # 初始化参考图片管理器
+        image_dir = self.file_manager.config.get('storyboard_to_prompt', {}).get('reference_images', {}).get('character_image_dir', 'data/characters/image')
+        self.image_manager = ReferenceImageManager(image_dir)
+        
+        self.prompt_generator = PromptGenerator(llm, self.character_manager, self.image_manager)
         
         # 处理统计
         self.processing_stats = {
@@ -144,15 +155,16 @@ class StoryboardToPromptProcessor:
                     # 为场景添加章节信息
                     scene['chapter_title'] = chapter_info.get('chapter_title', '未知章节')
                     
-                    # 生成简单英文提示词
-                    english_prompt = self.prompt_generator.generate_prompt(scene)
+                    # 生成英文提示词并获取角色信息
+                    english_prompt, scene_characters = self.prompt_generator.generate_prompt_with_characters(scene)
                     
                     # 构建场景数据
                     scene_dict = {
                         "scene_id": scene.get('scene_id', f'scene_{i+1}'),
                         "scene_index": i + 1,
                         "scene_description": scene.get('scene_description', ''),
-                        "english_prompt": english_prompt
+                        "english_prompt": english_prompt,
+                        "characters": scene_characters
                     }
                     scene_data.append(scene_dict)
                     
@@ -236,7 +248,7 @@ class StoryboardToPromptProcessor:
         }
         logger.info("处理统计已重置")
     
-    def validate_storyboard_file(self, file_path: Path) -> Tuple[bool, List[str]]:
+    def validate_storyboard_file(self, file_path) -> Tuple[bool, List[str]]:
         """
         验证故事板文件格式
         
@@ -249,6 +261,10 @@ class StoryboardToPromptProcessor:
         errors = []
         
         try:
+            # 确保file_path是Path对象
+            if not isinstance(file_path, Path):
+                file_path = Path(file_path)
+            
             # 检查文件是否存在
             if not self.file_manager.file_exists(file_path):
                 errors.append(f"文件不存在: {file_path}")

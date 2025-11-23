@@ -52,12 +52,14 @@ MULTIPLE_CHARACTER_CONFIG = {
 class PromptGenerator:
     """提示词生成器类"""
     
-    def __init__(self, llm=None):
+    def __init__(self, llm=None, character_manager=None, image_manager=None):
         """
         初始化提示词生成器
         
         Args:
             llm: 语言模型实例，如果为None则使用默认配置
+            character_manager: 角色数据管理器实例
+            image_manager: 参考图片管理器实例
         """
         # 初始化LLM
         self.llm_kwargs = LLMConfig.get_openai_kwargs()
@@ -68,6 +70,10 @@ class PromptGenerator:
         self.double_character_prompt = DOUBLE_CHARACTER_PROMPT_TEMPLATE
         self.multiple_character_prompt = MULTIPLE_CHARACTER_PROMPT_TEMPLATE
         self.character_analysis_prompt = CHARACTER_FEATURE_ANALYSIS_TEMPLATE
+        
+        # 初始化管理器
+        self.character_manager = character_manager
+        self.image_manager = image_manager
     
     
     def generate_prompt(self, scene: Dict[str, Any], reference_images: Optional[List[str]] = None) -> str:
@@ -100,6 +106,86 @@ class PromptGenerator:
         except Exception as e:
             logger.error(f"生成提示词失败: {str(e)}")
             raise Exception(f"生成提示词失败: {str(e)}")
+    
+    def generate_prompt_with_characters(self, scene: Dict[str, Any], reference_images: Optional[List[str]] = None) -> tuple[str, List[Dict[str, Any]]]:
+        """
+        根据场景信息和参考图片生成英文提示词，并返回角色信息
+        
+        Args:
+            scene: 场景信息字典
+            reference_images: 参考图片路径列表（可选）
+            
+        Returns:
+            (英文提示词字符串, 角色信息列表)
+        """
+        try:
+            # 分析场景中的角色
+            character_analysis = self._analyze_characters(scene)
+            character_count = len(character_analysis['characters'])
+            
+            # 根据角色数量选择生成策略
+            if character_count == 1:
+                prompt = self._generate_single_character_prompt(scene)
+            elif character_count == 2:
+                prompt = self._generate_double_character_prompt(scene, character_analysis)
+            else:
+                prompt = self._generate_multiple_character_prompt(scene, character_analysis)
+            
+            # 获取角色详细信息
+            scene_characters = self._get_scene_characters_info(character_analysis['characters'])
+            
+            logger.info(f"成功生成场景 {scene.get('scene_id')} 的英文提示词（角色数量：{character_count}）")
+            return prompt, scene_characters
+            
+        except Exception as e:
+            logger.error(f"生成提示词失败: {str(e)}")
+            raise Exception(f"生成提示词失败: {str(e)}")
+    
+    def _get_scene_characters_info(self, characters: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """
+        获取场景中角色的详细信息
+        
+        Args:
+            characters: 角色信息列表
+            
+        Returns:
+            角色详细信息列表
+        """
+        scene_characters = []
+        
+        for char in characters:
+            char_name = char.get('name', '')
+            if not char_name:
+                continue
+            
+            # 从角色数据管理器获取角色信息
+            character_info = {}
+            if self.character_manager:
+                character_info = self.character_manager.get_character_reference_info(char_name)
+            
+            # 如果没有找到角色信息，使用基本信息
+            if not character_info:
+                character_info = {
+                    'name': char_name,
+                    'aliases': [],
+                    'gender': 'unknown',
+                    'character_type': 'unknown',
+                    'reference_image_path': None,
+                    'character_prompt': char.get('appearance', ''),  # 使用外貌作为提示词
+                    'appearance': char.get('appearance', ''),
+                    'clothing': ''
+                }
+            
+            # 获取参考图片信息
+            if self.image_manager and character_info['name']:
+                best_image = self.image_manager.get_best_reference_image(character_info['name'])
+                if best_image:
+                    character_info['reference_image_path'] = best_image['path']
+                    character_info['image_validation'] = best_image['validation']
+            
+            scene_characters.append(character_info)
+        
+        return scene_characters
     
     def _analyze_characters(self, scene: Dict[str, Any]) -> Dict[str, Any]:
         """

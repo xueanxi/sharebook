@@ -13,7 +13,7 @@ storyboard_to_prompt:
     character_image_dir: "data/characters/image"
     # 支持的图片格式
     supported_formats: [".jpg", ".jpeg", ".png", ".webp"]
-    # 图片质量要求
-    min_resolution: [512, 512]
     # 图片命名规则
     naming_pattern: "{character_name}.jpg"
+    # 角色数据CSV文件
+    characters_csv: "data/characters/characters.csv"
