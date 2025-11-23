@@ -40,6 +40,7 @@ class LLMUtils:
         self.logger = get_module_logger(LogModule.EXTRACTION_CHARACTER)
     
     
+    
     def _load_llm_config(self, config_path: str) -> Dict[str, Any]:
         """
         加载LLM配置
@@ -164,7 +165,33 @@ class LLMUtils:
         if not self.llm:
             return []
         
+<<<<<<< HEAD
         prompt = CHARACTER_EXTRACTION_PROMPT.format(chapter_content=chapter_content)
+=======
+        prompt = f"""
+你是一个专业的小说角色提取专家。请从以下章节文本中提取所有角色名称。
+
+任务要求：
+1. 识别文本中提到的所有角色名称（包括主角、配角、反派等）
+2. 严格过滤掉地名、门派名、机构名，如：XX宗、XX门、XX派、XX教、XX山、XX峰、XX城、XX寨、XX帮、XX阁、XX楼等
+3. 忽略无明确名称的泛指角色（如"路人甲"、"众人"、"长老"、"弟子"等）
+4. 只返回明确有个人姓名或个人称号的角色
+5. 对于每个角色，尽可能识别其可能的别名、昵称或称号，但要排除通用称呼（如"他"、"她"、"姑娘"、"先生"、"爹"等）
+6. 确保提取的是具体的个人角色，而不是组织、地点或群体
+
+输出格式：
+[
+  {{
+    "name": "角色名称",
+    "aliases": ["别名1", "别名2", ...]  // 可选，如果没有别名则为空列表
+  }},
+  ...
+]
+
+章节文本：
+{chapter_content}
+"""
+>>>>>>> ddd95c6630a704c2acadff19a2303b43b82a8052
         
         try:
             response = self.llm.invoke(prompt)
@@ -194,7 +221,10 @@ class LLMUtils:
                 if self._confirm_character_with_llm(name, chapter_content):
                     filtered_characters.append(character)
             
+<<<<<<< HEAD
             self.logger.info(f"角色提取完成，提取到 {len(filtered_characters)} 个角色")
+=======
+>>>>>>> ddd95c6630a704c2acadff19a2303b43b82a8052
             return filtered_characters
         except Exception as e:
             self.logger.error(f"角色提取失败: {e}")
@@ -222,21 +252,52 @@ class LLMUtils:
                 return False  # 如果找不到上下文，可能不是角色
             
             # 构建确认提示词
+<<<<<<< HEAD
             prompt = CHARACTER_CONFIRMATION_PROMPT.format(
                 character_name=character_name,
                 context_snippets=context_snippets
             )
+=======
+            prompt = f"""
+你是一个角色识别专家。请仔细判断以下名称是否为小说中的真实人物角色。
+
+待确认名称：{character_name}
+
+上下文片段：
+{context_snippets}
+
+判断标准：
+1. 是否有具体的人物特征描述（外貌、动作、语言、心理活动等）
+2. 是否参与具体的故事情节或对话
+3. 是否有个人化的行为表现（如说、想、做、感受等）
+4. 是否是地名、门派名、建筑名、组织名等非人物概念
+
+请特别注意：
+- 像"李山峰"、"张天门"这样包含地名词汇的真实人名应该确认为人物
+- 像"风雷宗"、"玄天宗"这样的纯地名/门派名应该被排除
+- 像"山峰主"、"宗主大人"这样的职位称呼，如果指的是具体人物，应该确认为人物
+
+请只回答：是人物 或 非人物
+"""
+>>>>>>> ddd95c6630a704c2acadff19a2303b43b82a8052
             
             response = self.llm.invoke(prompt)
             result = response.content.strip()
             
             # 解析LLM的回答
+<<<<<<< HEAD
             is_character = "是人物" in result
             self.logger.debug(f"角色确认结果 {character_name}: {is_character}")
             return is_character
             
         except Exception as e:
             self.logger.error(f"LLM角色确认失败 {character_name}: {e}")
+=======
+            return "是人物" in result
+            
+        except Exception as e:
+            print(f"LLM角色确认失败 {character_name}: {e}")
+>>>>>>> ddd95c6630a704c2acadff19a2303b43b82a8052
             return True  # 出错时默认通过，避免误删
     
     def _extract_character_context(self, character_name: str, chapter_content: str) -> str:
@@ -268,7 +329,11 @@ class LLMUtils:
             return "\n".join(relevant_sentences)
             
         except Exception as e:
+<<<<<<< HEAD
             self.logger.error(f"提取上下文失败: {e}")
+=======
+            print(f"提取上下文失败: {e}")
+>>>>>>> ddd95c6630a704c2acadff19a2303b43b82a8052
             return ""
     
     def _clean_json_response(self, response: str) -> str:
@@ -341,7 +406,41 @@ class LLMUtils:
             # 构建角色信息文本用于LLM分析
             characters_text = json.dumps(characters, ensure_ascii=False, indent=2)
             
+<<<<<<< HEAD
             prompt = CHARACTER_MERGE_PROMPT.format(characters_text=characters_text)
+=======
+            prompt = f"""
+你是一个专业的角色信息合并专家。请分析以下角色列表，识别并合并重复的角色（同一角色的不同别名或称呼）。
+
+角色列表：
+{characters_text}
+
+任务要求：
+1. 识别可能是同一角色的不同名称或别名
+2. 基于角色的性别、外貌特征、角色类型等信息进行判断
+3. 合并重复角色，保留最完整的角色名称作为主名称
+4. 整合所有别名，去除重复
+5. 合并角色特征信息，保留更详细的描述
+6. 不要合并明显不同的角色
+
+输出要求：
+- 如果没有需要合并的角色，请直接返回：[]
+- 如果有需要合并的角色，请严格按照以下JSON格式返回，不要添加任何其他文字说明：
+[
+  {{
+    "name": "主角色名称",
+    "aliases": ["别名1", "别名2", ...],
+    "reason": "合并原因说明"
+  }},
+  ...
+]
+
+重要提醒：
+- 只输出JSON数组，不要输出任何解释性文字
+- 确保JSON格式完全正确，包括逗号、括号等
+- 如果没有需要合并的角色，只输出 []
+"""
+>>>>>>> ddd95c6630a704c2acadff19a2303b43b82a8052
             
             response = self.llm.invoke(prompt)
             result = response.content.strip()
@@ -370,6 +469,7 @@ class LLMUtils:
                 return characters
             
             # 执行合并操作
+<<<<<<< HEAD
             merged_result = self._execute_character_merge(characters, merge_instructions)
             
             # 记录合并变更日志
@@ -414,6 +514,16 @@ class LLMUtils:
             return characters
         except Exception as e:
             self.logger.error(f"角色合并分析失败: {e}")
+=======
+            return self._execute_character_merge(characters, merge_instructions)
+            
+        except json.JSONDecodeError as e:
+            print(f"角色合并JSON解析失败: {e}")
+            # 返回原始角色列表，不进行合并
+            return characters
+        except Exception as e:
+            print(f"角色合并分析失败: {e}")
+>>>>>>> ddd95c6630a704c2acadff19a2303b43b82a8052
             return characters
     
     def _execute_character_merge(self, characters: List[Dict[str, Any]], merge_instructions: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
@@ -537,11 +647,47 @@ class LLMUtils:
         
         aliases_str = ", ".join(character_aliases) if character_aliases else "无"
         
+<<<<<<< HEAD
         prompt = CHARACTER_ANALYSIS_PROMPT.format(
             character_name=character_name,
             aliases_str=aliases_str,
             novel_type=self.novel_type
         )
+=======
+        prompt = f"""
+你是一个专业的小说角色分析专家。请对以下角色进行全面分析。
+
+角色信息：
+- 姓名：{character_name}
+- 别名：{aliases_str}
+- 小说类型：{self.novel_type}
+
+任务要求：
+1. 判断角色性别（男/女/未知）
+2. 提取外貌特征（发型、面容、身材等，50字以内）
+3. 提取服装特点（衣着风格、特殊装饰等，50字以内）
+4. 判断角色类型（主角/配角/反派/其他）
+5. 整合和补充别名信息（如果有，不要把一些通用的，没有区分辨识度的称呼作为别名，比如"他"、"她"、"姑娘"、"先生"、"爹"等）
+6. 生成英文的动漫风格容貌提示词，用于文生图生成角色上半身脸部特写，要求符合小说描述和{{novel_type}}类型风格，可以适当发挥以避免千篇一律
+
+输出格式（JSON）：
+{{
+  "性别": "男/女/未知",
+  "外貌特征": "外貌描述（50字以内）",
+  "服装特点": "服装描述（50字以内）",
+  "角色类型": "主角/配角/反派/其他",
+  "别名": ["别名1", "别名2", ...],  // 如果没有别名则为空列表
+  "容貌提示词": "英文的动漫风格容貌提示词，用于文生图，包含面部特征、发型、表情等细节，符合{self.novel_type}类型风格，例如：anime style, upper body, close-up portrait, young girl with long silver hair and blue eyes, gentle smile"
+}}
+
+注意：
+1. 如果某项信息不明确，请填写"未知"
+  2. 保持描述简洁准确（除容貌提示词外）
+  3. 容貌提示词必须是英文的，应详细描述角色的面部特征、表情、气质等，适合生成动漫风格的图像
+  4. 容貌提示词格式为"anime style, upper body, close-up portrait, [详细容貌描述]"，要符合小说中的角色设定和{self.novel_type}类型风格，可以适当发挥以增加独特性
+  5. 确保容貌提示词符合{self.novel_type}小说类型的风格特点，避免生成与小说类型不符的图像
+"""
+>>>>>>> ddd95c6630a704c2acadff19a2303b43b82a8052
         
         try:
             response = self.llm.invoke(prompt)
@@ -594,11 +740,53 @@ class LLMUtils:
                 "别名": list(set(existing_info.get("别名", []) + new_info.get("别名", [])))
             }
         
+<<<<<<< HEAD
         prompt = CHARACTER_INFO_MERGE_PROMPT.format(
             existing_info=json.dumps(existing_info, ensure_ascii=False, indent=2),
             new_info=json.dumps(new_info, ensure_ascii=False, indent=2),
             novel_type=self.novel_type
         )
+=======
+        prompt = f"""
+你是一个专业的角色信息整合专家。请根据已有信息和新信息，合并角色数据。
+
+已有角色信息：
+{json.dumps(existing_info, ensure_ascii=False, indent=2)}
+
+新角色信息：
+{json.dumps(new_info, ensure_ascii=False, indent=2)}
+
+小说类型：{self.novel_type}
+
+任务要求：
+1. 智能合并新旧信息：
+   - 优先保留更详细、更准确的描述
+   - 去除重复信息
+   - 补充缺失信息
+   - 保持描述简洁（每项不超过50字，容貌提示词除外）
+2. 确保合并后的信息逻辑一致
+3. 合并别名信息，去除重复，保持唯一性，不要把一些通用的，没有区分辨识度的称呼作为别名（比如"他"、"她"、"姑娘"、"先生"、"爹"等）
+4. 智能合并容貌提示词，生成英文的动漫风格容貌提示词，用于文生图生成角色上半身脸部特写，要求符合小说描述和{{novel_type}}类型风格，可以适当发挥以避免千篇一律
+
+输出格式（JSON）：
+{{
+  "姓名": "角色姓名",
+  "性别": "男/女/未知",
+  "外貌特征": "外貌描述（50字以内）",
+  "服装特点": "服装描述（50字以内）",
+  "角色类型": "主角/配角/反派/其他",
+  "别名": ["别名1", "别名2", ...],  // 如果没有别名则为空列表
+  "容貌提示词": "英文的动漫风格容貌提示词，用于文生图，包含面部特征、发型、表情等细节，符合{self.novel_type}类型风格，例如：anime style, upper body, close-up portrait, young girl with long silver hair and blue eyes, gentle smile"
+}}
+
+注意：
+1. 如果某项信息不明确，请填写"未知"
+2. 保持描述简洁准确（除容貌提示词外）
+3. 容貌提示词必须是英文的，应详细描述角色的面部特征、表情、气质等，适合生成动漫风格的图像
+4. 容貌提示词格式为"anime style, upper body, close-up portrait, [详细容貌描述]"，要符合小说中的角色设定和{{novel_type}}类型风格，可以适当发挥以增加独特性
+5. 确保容貌提示词符合{{novel_type}}小说类型的风格特点，避免生成与小说类型不符的图像
+"""
+>>>>>>> ddd95c6630a704c2acadff19a2303b43b82a8052
         
         try:
             response = self.llm.invoke(prompt)

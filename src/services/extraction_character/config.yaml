@@ -16,5 +16,10 @@ extraction:
     csv_path: D:/work/code/python/sharebook2/data/characters/characters.csv
     novel_path: D:/work/code/python/sharebook2/data/cleaned_novel
   progress:
+<<<<<<< HEAD
     current_chapter: 第二十八章 罗天秘境签到！.txt
     last_update_time: '2025-11-22T19:16:00.643947'
+=======
+    current_chapter: 第八章 收徒！获得葬天棺！.txt
+    last_update_time: '2025-11-22T18:46:48.742573'
+>>>>>>> ddd95c6630a704c2acadff19a2303b43b82a8052
