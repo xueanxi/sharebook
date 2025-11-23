@@ -250,6 +250,20 @@ class ComfyUIWrapper:
             workflow[node_id]["inputs"]["batch_size"] = batch_size
         else:
             raise ValueError(f"无法找到节点 {node_id} 或其batch_size参数")
+    
+    def update_workflow_image(self, workflow: Dict[str, Any], node_id: str, image_filename: str) -> None:
+        """
+        更新工作流中的图片参数
+        
+        Args:
+            workflow: 工作流数据
+            node_id: 节点ID
+            image_filename: 图片文件名
+        """
+        if node_id in workflow and "inputs" in workflow[node_id] and "image" in workflow[node_id]["inputs"]:
+            workflow[node_id]["inputs"]["image"] = image_filename
+        else:
+            raise ValueError(f"无法找到节点 {node_id} 或其图片输入参数")
             
     def __enter__(self):
         """上下文管理器入口，自动建立连接"""

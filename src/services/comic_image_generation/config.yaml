@@ -1,10 +1,12 @@
 comic_image_generation:
   paths:
     comfyui_input_dir: "D:/ComfyUI-aki-v2/ComfyUI/input/"
-    workflow_template: "comfyui/novel_t2I_flux_pulid.json"
+    single_character_workflow: "comfyui/novel_single_charator_refimage.json"
+    multi_character_workflow: "comfyui/novel_multi_charator_refiamge.json"
+    storyboards_prompt_dir: "data/storyboards_prompt/"
     output_root_dir: "data/storyboards_image/"
   generation:
-    default_batch_size: 1
+    default_batch_size: 4
   error_handling:
     log_errors: true
     retry_count: 3

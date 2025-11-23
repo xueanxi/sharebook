@@ -103,9 +103,6 @@ python -m src.services.storyboard_to_prompt.main --chapter "第一章 遇强则�
 # 列出所有可用章节
 python -m src.services.storyboard_to_prompt.main --list
 
-# 验证故事板文件格式
-python -m src.services.storyboard_to_prompt.main --validate "第一章 遇强则强_storyboards.json"
-
 # 清理旧备份文件
 python -m src.services.storyboard_to_prompt.main --clean-backups --keep 5
 
@@ -140,3 +137,36 @@ python -m src.services.storyboard_to_prompt.main --export-report
 - 文件命名：`{章节标题}_prompts.json`
 - 备份：自动创建备份文件，文件名包含时间戳
 
+## 漫画图片生成
+```bash
+# 测试ComfyUI连接
+python -m src.services.comic_image_generation.main --test
+
+# 生成单角色图片
+python -m src.services.comic_image_generation.main --single "一个英俊的年轻男子，黑发，穿着现代服装，站在城市街道上，动漫风格" --ref-image "data/characters/image/搬山宗宗主/image_001.png"
+
+# 生成多角色图片
+python -m src.services.comic_image_generation.main --multi "男女主角背靠背站立，男性持盾，女性握剑，气氛严肃，背景为海洋" --ref-image-1 "data/characters/image/搬山宗宗主/image_001.png" --ref-image-2 "data/characters/image/搬山宗宗主/image_001.png"
+
+# 处理单个章节
+python -m src.services.comic_image_generation.main -f "data/storyboards_prompt/第一章 遇强则强_prompts.json"
+
+# 处理目录中的所有章节
+python -m src.services.comic_image_generation.main -d "data/storyboards_prompt/"
+
+# 自动模式（处理配置文件中的默认目录）
+python -m src.services.comic_image_generation.main --auto
+
+# 参数说明
+# --test: 测试ComfyUI连接状态
+# --single: 生成单角色图片的提示词
+# --multi: 生成多角色图片的提示词
+# --ref-image: 单角色参考图片路径
+# --ref-image-1: 多角色参考图片1路径
+# --ref-image-2: 多角色参考图片2路径
+# -f, --file: 单个章节JSON文件路径
+# -d, --directory: 故事板提示词目录路径
+# --auto: 自动模式，处理配置文件中的默认目录
+# -s, --save-dir: 自定义保存目录
+# -b, --batch-size: 批处理大小（从配置文件读取默认值）
+```
