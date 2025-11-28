@@ -62,7 +62,6 @@ class Scene:
     environment: str  # 环境描述
     atmosphere: str  # 氛围描述
     time: str  # 时间设定
-    characters: List[SceneCharacter]  # 场景中的角色列表
     main_action: str  # 主要动作描述
     emotional_tone: str  # 情感基调
     importance_score: int  # 重要性评分
@@ -70,6 +69,7 @@ class Scene:
     transition_cue: str  # 过渡提示
     segment_index: int  # 所属段落索引
     scene_index_in_segment: int  # 在段落中的场景索引
+    character: Optional[SceneCharacter] = None  # 场景中的主要角色
     visual_narrative: Optional['VisualNarrative'] = None  # 视觉叙述信息
 
 

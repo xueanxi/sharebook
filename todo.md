@@ -3,3 +3,4 @@
 2. 把验证“generate_prompts_for_chapter”过程并行化
 3. 每个角色应该设计一个id，这样方便后续处理
 5. novel_to_comic模块的visual_narrative为空
+6. langchain是否可以处理think模型的输出？目前好像有报错。

@@ -462,21 +462,7 @@ class CSVUtils:
         
         # 如果有已存在信息，进行智能合并
         if existing_info:
-<<<<<<< HEAD
-            original_normalized = normalized.copy()
             normalized = self._merge_with_existing_info(normalized, existing_info)
-            
-            # 记录角色更新日志
-            if normalized != original_normalized:
-                self.change_logger.log_character_update(
-                    original_character=existing_info,
-                    updated_character=normalized,
-                    update_reason="角色信息智能合并"
-                )
-                self.logger.debug(f"角色信息智能合并: {normalized.get('姓名', '')}")
-=======
-            normalized = self._merge_with_existing_info(normalized, existing_info)
->>>>>>> ddd95c6630a704c2acadff19a2303b43b82a8052
         
         return normalized
     

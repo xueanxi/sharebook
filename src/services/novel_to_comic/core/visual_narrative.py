@@ -205,31 +205,24 @@ class VisualNarrativeAgent:
                 focus=composition_data.get("focus", "角色")
             )
             
-            # 转换角色信息 - 兼容单数和复数格式
+            # 转换角色信息
             visual_characters = []
-            characters_data = visual_data.get("characters", [])
-            
-            # 如果没有characters字段，尝试从character字段获取（向后兼容）
-            if not characters_data and "character" in visual_data:
-                characters_data = [visual_data["character"]]
-            
-            for char_data in characters_data:
-                if isinstance(char_data, dict):
-                    character = VisualCharacter(
-                        name=char_data.get("name", "未知角色"),
-                        position=char_data.get("position", "中心"),
-                        pose=char_data.get("pose", "站立"),
-                        expression=char_data.get("expression", "平静"),
-                        clothing_details=char_data.get("clothing_details", "普通服装"),
-                        action=char_data.get("action", "静止")
-                    )
-                    visual_characters.append(character)
+            character_data = visual_data.get("character")
+            if character_data:
+                character = VisualCharacter(
+                    name=character_data.get("name", "未知角色"),
+                    position=character_data.get("position", "中心"),
+                    pose=character_data.get("pose", "站立"),
+                    expression=character_data.get("expression", "平静"),
+                    clothing_details=character_data.get("clothing_details", "普通服装"),
+                    action=character_data.get("action", "静止")
+                )
+                visual_characters.append(character)
             
             # 如果没有角色信息，创建一个默认角色
-            if not visual_characters and scene.characters:
-                # 使用场景中的第一个角色
-                scene_char = scene.characters[0]
-                self.logger.warning(f"视觉数据中未包含角色信息，使用场景中的第一个角色: {scene_char.name}")
+            if not visual_characters and scene.character:
+                scene_char = scene.character
+                self.logger.warning(f"视觉数据中未包含角色信息，使用场景中的角色: {scene_char.name}")
                 default_character = VisualCharacter(
                     name=scene_char.name,
                     position="中心",
@@ -239,6 +232,7 @@ class VisualNarrativeAgent:
                     action=scene_char.action
                 )
                 visual_characters.append(default_character)
+                self.logger.warning(f"视觉数据中未包含角色信息，使用场景中的角色: {scene_char.name}")
 
             
             # 转换环境信息
@@ -305,8 +299,8 @@ class VisualNarrativeAgent:
         
         # 创建默认角色
         visual_characters = []
-        if scene.characters:
-            scene_char = scene.characters[0]
+        if scene.character:
+            scene_char = scene.character
             default_character = VisualCharacter(
                 name=scene_char.name,
                 position="中心",

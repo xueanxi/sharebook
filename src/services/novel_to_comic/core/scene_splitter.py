@@ -173,17 +173,22 @@ class SceneSplitterAgent:
         Returns:
             Scene对象
         """
-        # 转换角色数据
-        scene_characters = []
-        for char_data in scene_data.get("characters", []):
-            character = SceneCharacter(
-                name=char_data.get("name", "未知角色"),
-                appearance=char_data.get("appearance", "未知外观"),
-                expression=char_data.get("expression", "未知表情"),
-                action=char_data.get("action", "未知动作"),
-                emotion=char_data.get("emotion", "未知情绪")
+        # 转换角色数据 - 使用单角色格式
+        scene_character = None
+        
+        # 获取单角色格式数据
+        character_data = scene_data.get("character")
+        if character_data:
+            scene_character = SceneCharacter(
+                name=character_data.get("name", "未知角色"),
+                appearance=character_data.get("appearance", "未知外观"),
+                expression=character_data.get("expression", "未知表情"),
+                action=character_data.get("action", "未知动作"),
+                emotion=character_data.get("emotion", "未知情绪")
             )
-            scene_characters.append(character)
+        else:
+            logger.error(f"场景 {scene_data.get('scene_id', '未知ID')} 缺少角色信息")
+            raise Exception(f"场景 {scene_data.get('scene_id', '未知ID')} 缺少角色信息")
         
         # 创建Scene对象，强制使用UUID确保唯一性
         scene = Scene(
@@ -192,7 +197,7 @@ class SceneSplitterAgent:
             environment=scene_data.get("environment", "未知环境"),
             atmosphere=scene_data.get("atmosphere", "未知氛围"),
             time=scene_data.get("time", "未知时间"),
-            characters=scene_characters,
+            character=scene_character,
             main_action=scene_data.get("main_action", "未知动作"),
             emotional_tone=scene_data.get("emotional_tone", "未知情绪"),
             importance_score=scene_data.get("importance_score", 5),

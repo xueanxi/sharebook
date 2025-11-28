@@ -165,9 +165,6 @@ class LLMUtils:
         if not self.llm:
             return []
         
-<<<<<<< HEAD
-        prompt = CHARACTER_EXTRACTION_PROMPT.format(chapter_content=chapter_content)
-=======
         prompt = f"""
 你是一个专业的小说角色提取专家。请从以下章节文本中提取所有角色名称。
 
@@ -191,7 +188,6 @@ class LLMUtils:
 章节文本：
 {chapter_content}
 """
->>>>>>> ddd95c6630a704c2acadff19a2303b43b82a8052
         
         try:
             response = self.llm.invoke(prompt)
@@ -221,10 +217,6 @@ class LLMUtils:
                 if self._confirm_character_with_llm(name, chapter_content):
                     filtered_characters.append(character)
             
-<<<<<<< HEAD
-            self.logger.info(f"角色提取完成，提取到 {len(filtered_characters)} 个角色")
-=======
->>>>>>> ddd95c6630a704c2acadff19a2303b43b82a8052
             return filtered_characters
         except Exception as e:
             self.logger.error(f"角色提取失败: {e}")
@@ -252,12 +244,6 @@ class LLMUtils:
                 return False  # 如果找不到上下文，可能不是角色
             
             # 构建确认提示词
-<<<<<<< HEAD
-            prompt = CHARACTER_CONFIRMATION_PROMPT.format(
-                character_name=character_name,
-                context_snippets=context_snippets
-            )
-=======
             prompt = f"""
 你是一个角色识别专家。请仔细判断以下名称是否为小说中的真实人物角色。
 
@@ -279,25 +265,15 @@ class LLMUtils:
 
 请只回答：是人物 或 非人物
 """
->>>>>>> ddd95c6630a704c2acadff19a2303b43b82a8052
             
             response = self.llm.invoke(prompt)
             result = response.content.strip()
             
             # 解析LLM的回答
-<<<<<<< HEAD
-            is_character = "是人物" in result
-            self.logger.debug(f"角色确认结果 {character_name}: {is_character}")
-            return is_character
-            
-        except Exception as e:
-            self.logger.error(f"LLM角色确认失败 {character_name}: {e}")
-=======
             return "是人物" in result
             
         except Exception as e:
             print(f"LLM角色确认失败 {character_name}: {e}")
->>>>>>> ddd95c6630a704c2acadff19a2303b43b82a8052
             return True  # 出错时默认通过，避免误删
     
     def _extract_character_context(self, character_name: str, chapter_content: str) -> str:
@@ -329,11 +305,7 @@ class LLMUtils:
             return "\n".join(relevant_sentences)
             
         except Exception as e:
-<<<<<<< HEAD
-            self.logger.error(f"提取上下文失败: {e}")
-=======
             print(f"提取上下文失败: {e}")
->>>>>>> ddd95c6630a704c2acadff19a2303b43b82a8052
             return ""
     
     def _clean_json_response(self, response: str) -> str:
@@ -406,9 +378,6 @@ class LLMUtils:
             # 构建角色信息文本用于LLM分析
             characters_text = json.dumps(characters, ensure_ascii=False, indent=2)
             
-<<<<<<< HEAD
-            prompt = CHARACTER_MERGE_PROMPT.format(characters_text=characters_text)
-=======
             prompt = f"""
 你是一个专业的角色信息合并专家。请分析以下角色列表，识别并合并重复的角色（同一角色的不同别名或称呼）。
 
@@ -440,7 +409,6 @@ class LLMUtils:
 - 确保JSON格式完全正确，包括逗号、括号等
 - 如果没有需要合并的角色，只输出 []
 """
->>>>>>> ddd95c6630a704c2acadff19a2303b43b82a8052
             
             response = self.llm.invoke(prompt)
             result = response.content.strip()
@@ -469,52 +437,6 @@ class LLMUtils:
                 return characters
             
             # 执行合并操作
-<<<<<<< HEAD
-            merged_result = self._execute_character_merge(characters, merge_instructions)
-            
-            # 记录合并变更日志
-            if merge_instructions and len(merged_result) < len(characters):
-                for instruction in merge_instructions:
-                    main_name = instruction.get("name", "")
-                    aliases = instruction.get("aliases", [])
-                    reason = instruction.get("reason", "")
-                    
-                    if main_name:
-                        # 找出被合并的角色
-                        merged_characters = []
-                        all_names_to_merge = {main_name} | set(aliases)
-                        
-                        for character in characters:
-                            char_name = character.get("name", "")
-                            char_aliases = set(character.get("aliases", []))
-                            all_char_names = {char_name} | char_aliases
-                            
-                            if all_names_to_merge & all_char_names:
-                                merged_characters.append(character)
-                        
-                        # 找到合并后的角色
-                        final_character = None
-                        for char in merged_result:
-                            if char.get("name", "") == main_name:
-                                final_character = char
-                                break
-                        
-                        if final_character and len(merged_characters) > 1:
-                            self.change_logger.log_character_merge(
-                                merge_operation=instruction,
-                                original_characters=merged_characters,
-                                merged_character=final_character
-                            )
-            
-            self.logger.info(f"角色合并完成，从 {len(characters)} 个角色合并为 {len(merged_result)} 个角色")
-            return merged_result
-        except json.JSONDecodeError as e:
-            self.logger.error(f"角色合并JSON解析失败: {e}")
-            # 返回原始角色列表，不进行合并
-            return characters
-        except Exception as e:
-            self.logger.error(f"角色合并分析失败: {e}")
-=======
             return self._execute_character_merge(characters, merge_instructions)
             
         except json.JSONDecodeError as e:
@@ -523,7 +445,6 @@ class LLMUtils:
             return characters
         except Exception as e:
             print(f"角色合并分析失败: {e}")
->>>>>>> ddd95c6630a704c2acadff19a2303b43b82a8052
             return characters
     
     def _execute_character_merge(self, characters: List[Dict[str, Any]], merge_instructions: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
@@ -647,13 +568,6 @@ class LLMUtils:
         
         aliases_str = ", ".join(character_aliases) if character_aliases else "无"
         
-<<<<<<< HEAD
-        prompt = CHARACTER_ANALYSIS_PROMPT.format(
-            character_name=character_name,
-            aliases_str=aliases_str,
-            novel_type=self.novel_type
-        )
-=======
         prompt = f"""
 你是一个专业的小说角色分析专家。请对以下角色进行全面分析。
 
@@ -687,7 +601,6 @@ class LLMUtils:
   4. 容貌提示词格式为"anime style, upper body, close-up portrait, [详细容貌描述]"，要符合小说中的角色设定和{self.novel_type}类型风格，可以适当发挥以增加独特性
   5. 确保容貌提示词符合{self.novel_type}小说类型的风格特点，避免生成与小说类型不符的图像
 """
->>>>>>> ddd95c6630a704c2acadff19a2303b43b82a8052
         
         try:
             response = self.llm.invoke(prompt)
@@ -740,13 +653,6 @@ class LLMUtils:
                 "别名": list(set(existing_info.get("别名", []) + new_info.get("别名", [])))
             }
         
-<<<<<<< HEAD
-        prompt = CHARACTER_INFO_MERGE_PROMPT.format(
-            existing_info=json.dumps(existing_info, ensure_ascii=False, indent=2),
-            new_info=json.dumps(new_info, ensure_ascii=False, indent=2),
-            novel_type=self.novel_type
-        )
-=======
         prompt = f"""
 你是一个专业的角色信息整合专家。请根据已有信息和新信息，合并角色数据。
 
@@ -786,7 +692,6 @@ class LLMUtils:
 4. 容貌提示词格式为"anime style, upper body, close-up portrait, [详细容貌描述]"，要符合小说中的角色设定和{{novel_type}}类型风格，可以适当发挥以增加独特性
 5. 确保容貌提示词符合{{novel_type}}小说类型的风格特点，避免生成与小说类型不符的图像
 """
->>>>>>> ddd95c6630a704c2acadff19a2303b43b82a8052
         
         try:
             response = self.llm.invoke(prompt)
