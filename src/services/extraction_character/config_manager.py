@@ -21,6 +21,26 @@ class ConfigManager:
         """
         self.config_path = config_path
         self.config = self._load_config()
+        # 获取项目根目录
+        # 从 src/services/extraction_character/config_manager.py 到项目根目录需要向上4级
+        self.project_root = Path(__file__).resolve().parent.parent.parent.parent
+    
+    def _get_absolute_path(self, relative_path: str) -> str:
+        """
+        将相对路径转换为绝对路径
+        
+        Args:
+            relative_path: 相对路径
+            
+        Returns:
+            绝对路径
+        """
+        # 如果已经是绝对路径，直接返回
+        if os.path.isabs(relative_path):
+            return relative_path
+        
+        # 转换为绝对路径
+        return str(self.project_root / relative_path)
     
     def _load_config(self) -> Dict[str, Any]:
         """
@@ -56,8 +76,8 @@ class ConfigManager:
                     'last_update_time': ''
                 },
                 'paths': {
-                    'novel_path': 'D:/work/code/python/sharebook2/data/cleaned_novel',
-                    'csv_path': 'D:/work/code/python/sharebook2/data/characters/characters.csv',
+                    'novel_path': 'data/cleaned_novel',
+                    'csv_path': 'data/characters/characters.csv',
                     'config_path': self.config_path
                 },
                 'parallel': {
@@ -65,7 +85,7 @@ class ConfigManager:
                     'max_csv_agents': 6
                 },
                 'llm': {
-                    'config_path': 'D:/work/code/python/sharebook2/config/llm_config.py',
+                    'config_path': 'config/llm_config.py',
                     'temperature': 0.4,
                     'max_tokens': 2000,
                     'timeout': 30
@@ -114,11 +134,13 @@ class ConfigManager:
     
     def get_novel_path(self) -> str:
         """获取小说文件目录路径"""
-        return self.config['extraction']['paths']['novel_path']
+        relative_path = self.config['extraction']['paths']['novel_path']
+        return self._get_absolute_path(relative_path)
     
     def get_csv_path(self) -> str:
         """获取CSV文件路径"""
-        return self.config['extraction']['paths']['csv_path']
+        relative_path = self.config['extraction']['paths']['csv_path']
+        return self._get_absolute_path(relative_path)
     
     def get_max_analyzer_agents(self) -> int:
         """获取角色分析最大并行agent数"""
@@ -130,7 +152,11 @@ class ConfigManager:
     
     def get_llm_config(self) -> Dict[str, Any]:
         """获取LLM配置"""
-        return self.config['extraction']['llm']
+        llm_config = self.config['extraction']['llm'].copy()
+        # 转换LLM配置路径为绝对路径
+        if 'config_path' in llm_config:
+            llm_config['config_path'] = self._get_absolute_path(llm_config['config_path'])
+        return llm_config
     
     def get_retry_count(self) -> int:
         """获取重试次数"""
