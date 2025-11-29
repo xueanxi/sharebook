@@ -19,8 +19,9 @@ from sharebook.services.novel_to_comic.config.processing_config import (
 )
 from sharebook.utils.logging_manager import get_module_logger, LogModule
 from sharebook.utils.text_processing import ChapterSorter
+from sharebook.utils.data_helper import data_helper
 
-logger = get_logger(LogModule.MAIN)
+logger = get_module_logger(LogModule.MAIN)
 
 
 class NovelToComicProcessor:
@@ -224,7 +225,7 @@ def main():
     parser.add_argument("-d", "--directory", help="章节目录路径")
     parser.add_argument("-t", "--title", help="章节标题（仅在使用-f时有效）")
     parser.add_argument("-n", "--novel-type", default="玄幻", help="小说类型（默认：玄幻）")
-    parser.add_argument("--auto", action="store_true", help="自动模式：处理data/cleaned_novel目录中的所有章节")
+    parser.add_argument("--auto", action="store_true", help=f"自动模式：处理{data_helper.cleaned_novel_dir}目录中的所有章节")
     parser.add_argument("--parallel", action="store_true", help="启用并行场景分割")
     parser.add_argument("--no-parallel", action="store_true", help="禁用并行场景分割")
     
@@ -248,7 +249,7 @@ def main():
     
     if args.auto:
         # 自动模式：处理默认目录
-        default_dir = "data/cleaned_novel"
+        default_dir = data_helper.cleaned_novel_dir
         print(f"自动模式：处理目录 {default_dir} 中的所有章节")
         result = processor.process_directory(default_dir, args.novel_type)
     elif args.file:
@@ -263,7 +264,7 @@ def main():
         print("   python -m src.services.novel_to_comic.main -f <章节文件路径> -t <章节标题>")
         print("2. 批量处理目录:")
         print("   python -m src.services.novel_to_comic.main -d <章节目录路径>")
-        print("3. 自动模式（处理data/cleaned_novel目录）:")
+        print(f"3. 自动模式（处理{data_helper.cleaned_novel_dir}目录）:")
         print("   python -m src.services.novel_to_comic.main --auto")
         print("\n并行处理选项:")
         print("  --parallel     启用并行场景分割（最多5个并发）")

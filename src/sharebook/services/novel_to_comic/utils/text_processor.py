@@ -7,7 +7,7 @@ from typing import List, Dict, Any, Tuple, Optional
 
 from sharebook.utils.logging_manager import get_module_logger, LogModule
 
-logger = get_logger(LogModule.NOVEL_TO_COMIC)
+logger = get_module_logger(LogModule.NOVEL_TO_COMIC)
 
 
 class TextProcessor:

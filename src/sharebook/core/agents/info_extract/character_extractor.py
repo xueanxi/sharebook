@@ -13,7 +13,7 @@ class CharacterExtractor(BaseExtractor):
     
     def __init__(self, model_name=None, temperature=0.7):
         super().__init__(model_name, temperature)
-        self.logger = get_logger(LogModule.EXTRACTION_CHARACTER)
+        self.logger = get_module_logger(LogModule.EXTRACTION_CHARACTER)
         
         # 使用LCEL创建处理链
         prompt_template = """

@@ -10,6 +10,7 @@ import urllib.parse
 import os
 import time
 from typing import Dict, Any, Optional, List
+from .data_helper import data_helper
 
 
 class ComfyUIWrapper:
@@ -104,7 +105,7 @@ class ComfyUIWrapper:
     def generate_images(
         self, 
         prompt: Dict[str, Any], 
-        save_dir: str = "data/characters/image",
+        save_dir: str = None,
         connect_if_needed: bool = True
     ) -> Dict[str, str]:
         """
@@ -118,6 +119,10 @@ class ComfyUIWrapper:
         Returns:
             包含文件名和保存路径的字典
         """
+        # 如果没有指定保存目录，使用默认的角色图片目录
+        if save_dir is None:
+            save_dir = str(data_helper.get_character_image_path("", "").parent)
+        
         # 确保WebSocket连接
         if not self.ws and connect_if_needed:
             self.connect()

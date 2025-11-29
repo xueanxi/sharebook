@@ -2,18 +2,20 @@
 storyboard_to_prompt:
   # 输入输出路径配置
   paths:
+    # 注意：以下路径在代码中会通过data_helper获取实际路径
     # 故事板JSON文件所在目录
-    storyboard_dir: "data/storyboards"
+    storyboard_dir: "data/storyboards"  # 实际使用: data_helper.get_storyboards_dir()
     # 提示词JSON文件输出目录
-    output_dir: "data/storyboards_prompt"
+    output_dir: "data/storyboards_prompt"  # 实际使用: data_helper.get_storyboards_prompt_dir()
   
   # 参考图片配置
   reference_images:
+    # 注意：以下路径在代码中会通过data_helper获取实际路径
     # 角色图片目录
-    character_image_dir: "data/characters/image"
+    character_image_dir: "data/characters/image"  # 实际使用: data_helper.get_character_image_dir()
     # 支持的图片格式
     supported_formats: [".jpg", ".jpeg", ".png", ".webp"]
     # 图片命名规则
     naming_pattern: "{character_name}.jpg"
     # 角色数据CSV文件
-    characters_csv: "data/characters/characters.csv"
+    characters_csv: "data/characters/characters.csv"  # 实际使用: data_helper.get_characters_csv_path()

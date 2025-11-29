@@ -13,6 +13,9 @@ import sys
 # 添加项目根目录到路径
 current_file = os.path.abspath(__file__)
 root_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(current_file))))
+
+# 导入data_helper
+from sharebook.utils.data_helper import data_helper
 if root_path not in sys.path:
     sys.path.insert(0, root_path)
 
@@ -38,11 +41,11 @@ class StoryboardToPromptProcessor:
         self.file_manager = FileManager(config_path)
         
         # 初始化角色数据管理器
-        csv_path = self.file_manager.config.get('storyboard_to_prompt', {}).get('reference_images', {}).get('characters_csv', 'data/characters/characters.csv')
+        csv_path = self.file_manager.config.get('storyboard_to_prompt', {}).get('reference_images', {}).get('characters_csv', str(data_helper.get_characters_path()))
         self.character_manager = CharacterDataManager(csv_path)
         
         # 初始化参考图片管理器
-        image_dir = self.file_manager.config.get('storyboard_to_prompt', {}).get('reference_images', {}).get('character_image_dir', 'data/characters/image')
+        image_dir = self.file_manager.config.get('storyboard_to_prompt', {}).get('reference_images', {}).get('character_image_dir', str(data_helper.get_character_image_path("", "").parent))
         self.image_manager = ReferenceImageManager(image_dir)
         
         self.prompt_generator = PromptGenerator(llm, self.character_manager, self.image_manager)

@@ -15,6 +15,7 @@ sys.path.insert(0, project_root)
 
 from sharebook.services.character_image_generation.character_image_generator import CharacterImageGenerator
 from sharebook.utils.logging_manager import get_logger, LogModule
+from sharebook.utils.data_helper import data_helper
 
 logger = get_logger(LogModule.CHARACTER_IMAGE_GENERATION)
 
@@ -56,14 +57,14 @@ def parse_arguments():
     parser.add_argument(
         "--output", 
         type=str,
-        default="data/characters/image",
+        default=data_helper.get_character_image_dir(),
         help="图片输出目录 (默认: data/characters/image)"
     )
     
     parser.add_argument(
         "--csv", 
         type=str,
-        default="data/characters/characters.csv",
+        default=data_helper.get_characters_csv_path(),
         help="角色数据CSV文件路径 (默认: data/characters/characters.csv)"
     )
     

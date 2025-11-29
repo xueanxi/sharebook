@@ -13,8 +13,9 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(
 from sharebook.services.comic_image_generation import ComicImageGeneration
 from sharebook.utils.logging_manager import get_module_logger, LogModule
 from sharebook.utils.text_processing.chapter_sorter import ChapterSorter
+from sharebook.utils.data_helper import data_helper
 
-logger = get_logger(LogModule.MAIN)
+logger = get_module_logger(LogModule.MAIN)
 logger.setLevel('DEBUG')
 
 
@@ -424,8 +425,8 @@ def main():
         # 获取配置文件中的默认值用于显示
     generation_config = processor.comic_gen.config.get("comic_image_generation", {}).get("generation", {})
     default_batch_size = generation_config.get("default_batch_size", 1)
-    default_output_dir = processor.comic_gen.config.get("comic_image_generation", {}).get("paths", {}).get("output_root_dir", "data/storyboards_image/")
-    default_storyboards_dir = processor.comic_gen.config.get("comic_image_generation", {}).get("paths", {}).get("storyboards_prompt_dir", "data/storyboards_prompt/")
+    default_output_dir = processor.comic_gen.config.get("comic_image_generation", {}).get("paths", {}).get("output_root_dir", data_helper.get_storyboards_image_dir())
+    default_storyboards_dir = processor.comic_gen.config.get("comic_image_generation", {}).get("paths", {}).get("storyboards_prompt_dir", data_helper.get_storyboards_prompt_dir())
     
     print("通用参数:")
     print("  -s, --save-dir     保存目录")

@@ -14,6 +14,7 @@ if root_path not in sys.path:
     sys.path.insert(0, root_path)
 
 from sharebook.utils.logging_manager import LogModule, get_module_logger
+from sharebook.utils.data_helper import data_helper
 
 logger = get_logger(LogModule.STORYBOARD_TO_PROMPT)
 
@@ -29,7 +30,7 @@ class ReferenceImageManager:
             image_dir: 角色图片目录路径，如果为None则使用默认路径
         """
         if image_dir is None:
-            image_dir = "data/characters/image"
+            image_dir = data_helper.get_character_image_dir()
         
         self.image_dir = Path(image_dir)
         self.supported_formats = [".jpg", ".jpeg", ".png", ".webp"]

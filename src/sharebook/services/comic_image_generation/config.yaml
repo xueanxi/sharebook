@@ -3,8 +3,9 @@ comic_image_generation:
     comfyui_input_dir: "D:/ComfyUI-aki-v2/ComfyUI/input/"
     single_character_workflow: "comfyui/novel_single_charator_refimage.json"
     multi_character_workflow: "comfyui/novel_multi_charator_refiamge.json"
-    storyboards_prompt_dir: "data/storyboards_prompt/"
-    output_root_dir: "data/storyboards_image/"
+    # 注意：以下路径在代码中会通过data_helper获取实际路径
+    storyboards_prompt_dir: "data/storyboards_prompt/"  # 实际使用: data_helper.get_storyboards_prompt_dir()
+    output_root_dir: "data/storyboards_image/"  # 实际使用: data_helper.get_storyboards_image_dir()
   generation:
     default_batch_size: 4
   error_handling:

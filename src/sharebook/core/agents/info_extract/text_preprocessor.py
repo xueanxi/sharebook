@@ -9,6 +9,7 @@ from sharebook.utils.logging_manager import get_module_logger, LogModule
 from pathlib import Path
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
+from sharebook.utils.data_helper import data_helper
 
 
 class TextPreprocessor(BaseAgent):
@@ -16,9 +17,8 @@ class TextPreprocessor(BaseAgent):
     
     def __init__(self, model_name=None, temperature=0.7):
         super().__init__(model_name, temperature)
-        self.logger = get_logger(LogModule.CORE)
-        self.cleaned_novel_dir = Path('data/cleaned_novel')
-        self.cleaned_novel_dir.mkdir(parents=True, exist_ok=True)
+        self.logger = get_module_logger(LogModule.CORE)
+        self.cleaned_novel_dir = data_helper.cleaned_novel_dir
         
         # 使用LCEL创建处理链
         prompt_template = """

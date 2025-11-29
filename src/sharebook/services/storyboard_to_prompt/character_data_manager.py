@@ -17,6 +17,7 @@ if root_path not in sys.path:
     sys.path.insert(0, root_path)
 
 from sharebook.utils.logging_manager import LogModule, get_module_logger
+from sharebook.utils.data_helper import data_helper
 
 logger = get_logger(LogModule.STORYBOARD_TO_PROMPT)
 
@@ -32,7 +33,7 @@ class CharacterDataManager:
             csv_path: 角色CSV文件路径，如果为None则使用默认路径
         """
         if csv_path is None:
-            csv_path = "data/characters/characters.csv"
+            csv_path = data_helper.get_characters_csv_path()
         
         self.csv_path = Path(csv_path)
         self.characters_data = {}
@@ -119,7 +120,7 @@ class CharacterDataManager:
             return {}
         
         # 构建参考图片路径
-        reference_image_path = f"data/characters/image/{character_name}.jpg"
+        reference_image_path = data_helper.get_character_image_path(character_name)
         image_path = Path(reference_image_path)
         
         return {
@@ -187,7 +188,7 @@ class CharacterDataManager:
                 is_valid = False
             
             # 检查参考图片
-            image_path = Path(f"data/characters/image/{name}.jpg")
+            image_path = Path(data_helper.get_character_image_path(name))
             if not image_path.exists():
                 validation_result['missing_images'].append(name)
                 is_valid = False

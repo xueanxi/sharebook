@@ -19,6 +19,7 @@ from typing import Dict, Any, Optional, List
 from langchain_core.messages import BaseMessage
 from pathlib import Path
 from sharebook.core.agents.info_extract import NovelInformationExtractor
+from sharebook.utils.data_helper import data_helper
 
 
 def custom_json_serializer(obj):
@@ -244,7 +245,7 @@ def main():
     extract_group = parser.add_mutually_exclusive_group(required=True)
     extract_group.add_argument('-f', '--file', help='要处理的小说文件路径')
     extract_group.add_argument('-d', '--directory', help='包含小说文件的目录路径')
-    parser.add_argument('-o', '--output', help='输出目录', default='data/output')
+    parser.add_argument('-o', '--output', help='输出目录', default=data_helper.get_output_dir())
     
     # 直接解析所有命令行参数
     args = parser.parse_args()

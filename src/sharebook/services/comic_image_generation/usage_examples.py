@@ -11,8 +11,9 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(
 
 from sharebook.services.comic_image_generation import ComicImageGeneration
 from sharebook.utils.logging_manager import get_module_logger, LogModule
+from sharebook.utils.data_helper import data_helper
 
-logger = get_logger(LogModule.COMIC_IMAGE_GENERATION)
+logger = get_module_logger(LogModule.COMIC_IMAGE_GENERATION)
 
 
 def example_single_character():
@@ -24,7 +25,7 @@ def example_single_character():
     
     # 生成单角色图片
     prompt = "一个英俊的年轻男子，黑发，穿着现代服装，站在城市街道上，动漫风格"
-    reference_image = "data/characters/image/搬山宗宗主/image_001.png"  # 可选
+    reference_image = data_helper.get_character_image_path("搬山宗宗主/image_001.png")  # 可选
     
     try:
         image_paths = comic_gen.generate_image(
@@ -47,8 +48,8 @@ def example_multi_character():
     
     # 生成多角色图片
     prompt = "男女主角背靠背站立，男性持盾，女性握剑，气氛严肃，背景为海洋"
-    ref_image_1 = "data/characters/image/搬山宗宗主/image_001.png"  # 可选
-    ref_image_2 = "data/characters/image/搬山宗宗主/image_001.png"  # 可选
+    ref_image_1 = data_helper.get_character_image_path("搬山宗宗主/image_001.png")  # 可选
+    ref_image_2 = data_helper.get_character_image_path("搬山宗宗主/image_001.png")  # 可选
     
     try:
         image_paths = comic_gen.generate_multi_character_image(
@@ -71,7 +72,7 @@ def example_chapter_processing():
     comic_gen = ComicImageGeneration()
     
     # 处理单个章节
-    chapter_json_path = "data/storyboards_prompt/第一章.json"
+    chapter_json_path = os.path.join(data_helper.get_storyboards_prompt_dir(), "第一章.json")
     
     try:
         chapter_results = comic_gen.process_chapter(
@@ -93,7 +94,7 @@ def example_all_chapters_processing():
     try:
         # 处理所有章节
         all_results = comic_gen.process_all_chapters(
-            storyboards_prompt_dir="data/storyboards_prompt/",
+            storyboards_prompt_dir=data_helper.get_storyboards_prompt_dir(),
             save_dir="output/all_chapters"
         )
         print(f"所有章节处理成功，结果: {all_results}")
@@ -119,7 +120,7 @@ def example_batch_generation():
         image_paths = comic_gen.generate_multiple_images(
             prompts=prompts,
             save_dir="output/batch",
-            reference_image="data/characters/image/搬山宗宗主/image_001.png",
+            reference_image=data_helper.get_character_image_path("搬山宗宗主/image_001.png"),
             batch_size=1
         )
         print(f"批量生成成功，保存路径: {image_paths}")

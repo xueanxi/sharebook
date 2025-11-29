@@ -11,6 +11,7 @@ from pathlib import Path
 # 导入公用日志管理器
 try:
     from ...utils.logging_manager import get_module_logger, LogModule
+    from ...utils.data_helper import data_helper
 except ImportError:
     # 如果导入失败，使用基础日志
     import logging
@@ -19,18 +20,27 @@ except ImportError:
     
     class LogModule:
         EXTRACTION_CHARACTER = type('obj', (object,), {'value': 'extraction_character'})()
+    
+    # 备用data_helper
+    class DataHelper:
+        def get_characters_history_dir(self):
+            return "data/characters/history"
+    
+    data_helper = DataHelper()
 
 
 class ChangeLogger:
     """变更日志记录器"""
     
-    def __init__(self, log_dir: str = "data/characters/history"):
+    def __init__(self, log_dir: str = None):
         """
         初始化变更日志记录器
         
         Args:
             log_dir: 日志目录路径
         """
+        if log_dir is None:
+            log_dir = data_helper.get_characters_history_dir()
         self.log_dir = Path(log_dir)
         self.log_dir.mkdir(parents=True, exist_ok=True)
         self.logger = get_logger(LogModule.EXTRACTION_CHARACTER)

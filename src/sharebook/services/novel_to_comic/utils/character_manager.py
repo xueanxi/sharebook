@@ -8,14 +8,15 @@ from typing import List, Dict, Optional
 from sharebook.services.novel_to_comic.models.data_models import CharacterInfo
 from sharebook.services.novel_to_comic.utils.file_handler import FileHandler
 from sharebook.utils.logging_manager import get_module_logger, LogModule
+from sharebook.utils.data_helper import data_helper
 
-logger = get_logger(LogModule.NOVEL_TO_COMIC)
+logger = get_module_logger(LogModule.NOVEL_TO_COMIC)
 
 
 class CharacterManager:
     """角色数据管理器"""
     
-    def __init__(self, character_csv_path: str = "data/characters/characters.csv"):
+    def __init__(self, character_csv_path: str = data_helper.get_characters_csv_path()):
         self.character_csv_path = character_csv_path
         self.file_handler = FileHandler()
         self.logger = logger

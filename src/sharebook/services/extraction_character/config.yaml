@@ -12,8 +12,9 @@ extraction:
     max_csv_agents: 6
   paths:
     config_path: src/services/extraction_character/config.yaml
-    csv_path: data/characters/characters.csv
-    novel_path: data/raw
+    # 注意：以下路径在代码中会通过data_helper获取实际路径
+    csv_path: data/characters/characters.csv  # 实际使用: data_helper.get_characters_csv_path()
+    novel_path: data/raw  # 实际使用: data_helper.get_raw_dir()
   progress:
     current_chapter: 第四十三章 一招入魂！.txt
     last_update_time: '2025-11-28T22:53:37.638401'

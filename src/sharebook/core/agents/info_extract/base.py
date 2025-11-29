@@ -19,7 +19,7 @@ from sharebook.config.llm_config import LLMConfig
 from sharebook.utils.logging_manager import get_module_logger, LogModule, log_agent_process
 
 # 初始化日志记录器
-logger = get_logger(LogModule.EXTRACTION)
+logger = get_module_logger(LogModule.EXTRACTION)
 
 # 定义状态类型
 class NovelExtractionState(TypedDict):
