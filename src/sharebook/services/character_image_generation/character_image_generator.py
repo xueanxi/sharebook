@@ -9,10 +9,10 @@ from typing import List, Dict, Optional
 from .character_data_reader import CharacterDataReader
 from .comfyui_interface import ComfyUIInterface
 from .file_manager import FileManager
-from sharebook.utils.logging_manager import get_logger, LogModule
+from sharebook.utils.logging_manager import get_module_logger, LogModule
 from sharebook.utils.data_helper import data_helper
 
-logger = get_logger(LogModule.CHARACTER_IMAGE_GENERATION)
+logger = get_module_logger(LogModule.CHARACTER_IMAGE_GENERATION)
 
 
 class CharacterImageGenerator:

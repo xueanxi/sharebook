@@ -9,9 +9,9 @@ import json
 import time
 from typing import List, Dict, Optional
 from sharebook.utils.comfyui_wrapper import ComfyUIWrapper
-from sharebook.utils.logging_manager import get_logger, LogModule
+from sharebook.utils.logging_manager import get_module_logger, LogModule
 
-logger = get_logger(LogModule.CHARACTER_IMAGE_GENERATION)
+logger = get_module_logger(LogModule.CHARACTER_IMAGE_GENERATION)
 
 
 class ComfyUIInterface:

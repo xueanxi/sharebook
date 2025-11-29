@@ -19,7 +19,7 @@ if root_path not in sys.path:
 from sharebook.utils.logging_manager import LogModule, get_module_logger
 from sharebook.utils.data_helper import data_helper
 
-logger = get_logger(LogModule.STORYBOARD_TO_PROMPT)
+logger = get_module_logger(LogModule.STORYBOARD_TO_PROMPT)
 
 
 class CharacterDataManager:

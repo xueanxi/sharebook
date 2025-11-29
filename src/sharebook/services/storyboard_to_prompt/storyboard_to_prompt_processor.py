@@ -25,7 +25,7 @@ from .character_data_manager import CharacterDataManager
 from .reference_image_manager import ReferenceImageManager
 
 from sharebook.utils.logging_manager import LogModule,get_module_logger
-logger = get_logger(LogModule.STORYBOARD_TO_PROMPT)
+logger = get_module_logger(LogModule.STORYBOARD_TO_PROMPT)
 
 class StoryboardToPromptProcessor:
     """故事板到提示词转换处理器"""

@@ -16,7 +16,7 @@ from sharebook.utils.logging_manager import get_module_logger, LogModule
 from .storyboard_to_prompt_processor import StoryboardToPromptProcessor
 
 # 设置日志
-logger = get_logger(LogModule.STORYBOARD_TO_PROMPT)
+logger = get_module_logger(LogModule.STORYBOARD_TO_PROMPT)
 
 
 def main():

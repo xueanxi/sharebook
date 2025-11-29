@@ -22,7 +22,7 @@ except ImportError:
             return True
     
     import logging
-    def get_logger(module):
+    def get_module_logger(module):
         return logging.getLogger(module.value)
     
     class LogModule:
@@ -52,7 +52,7 @@ class CSVUtils:
         """
         self.csv_path = csv_path
         self.change_logger = ChangeLogger()
-        self.logger = get_logger(LogModule.EXTRACTION_CHARACTER)
+        self.logger = get_module_logger(LogModule.EXTRACTION_CHARACTER)
         self._ensure_csv_exists()
     
     def _ensure_csv_exists(self):

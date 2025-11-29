@@ -43,7 +43,7 @@ class ChangeLogger:
             log_dir = data_helper.get_characters_history_dir()
         self.log_dir = Path(log_dir)
         self.log_dir.mkdir(parents=True, exist_ok=True)
-        self.logger = get_logger(LogModule.EXTRACTION_CHARACTER)
+        self.logger = get_module_logger(LogModule.EXTRACTION_CHARACTER)
     
     def log_character_merge(self, 
                           merge_operation: Dict[str, Any], 

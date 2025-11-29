@@ -14,10 +14,10 @@ project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../..
 sys.path.insert(0, project_root)
 
 from sharebook.services.character_image_generation.character_image_generator import CharacterImageGenerator
-from sharebook.utils.logging_manager import get_logger, LogModule
+from sharebook.utils.logging_manager import get_module_logger, LogModule
 from sharebook.utils.data_helper import data_helper
 
-logger = get_logger(LogModule.CHARACTER_IMAGE_GENERATION)
+logger = get_module_logger(LogModule.CHARACTER_IMAGE_GENERATION)
 
 
 def parse_arguments():

@@ -16,7 +16,7 @@ logger = get_module_logger(LogModule.NOVEL_TO_COMIC)
 class CharacterManager:
     """角色数据管理器"""
     
-    def __init__(self, character_csv_path: str = data_helper.get_characters_csv_path()):
+    def __init__(self, character_csv_path: str = str(data_helper.get_characters_path())):
         self.character_csv_path = character_csv_path
         self.file_handler = FileHandler()
         self.logger = logger

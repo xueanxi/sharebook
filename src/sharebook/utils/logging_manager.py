@@ -226,7 +226,7 @@ class LogManager:
         file_handler.setFormatter(self._create_formatter(module_config))
         return file_handler
     
-    def get_logger(self, name: str) -> logging.Logger:
+    def get_module_logger(self, name: str) -> logging.Logger:
         """获取指定名称的日志记录器
         
         Args:
@@ -345,7 +345,7 @@ class LogManager:
 log_manager = LogManager()
 
 
-def get_logger(name) -> logging.Logger:
+def get_module_logger(name) -> logging.Logger:
     """获取日志记录器的便捷函数
     
     Args:
@@ -362,7 +362,7 @@ def get_logger(name) -> logging.Logger:
         # 如果是字符串，直接使用
         logger_name = str(name)
     
-    return log_manager.get_logger(logger_name)
+    return log_manager.get_module_logger(logger_name)
 
 
 def get_module_logger(module: LogModule) -> logging.Logger:
@@ -376,7 +376,7 @@ def get_module_logger(module: LogModule) -> logging.Logger:
     """
     # 使用模块值作为日志记录器名称
     name = module.value
-    return get_logger(name)
+    return log_manager.get_module_logger(name)
 
 
 # 装饰器函数，用于记录函数执行时间

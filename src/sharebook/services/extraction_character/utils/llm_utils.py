@@ -37,7 +37,7 @@ class LLMUtils:
         self.llm = self._initialize_llm()
         self.novel_type = self._load_novel_type(extraction_config_path)
         self.change_logger = ChangeLogger()
-        self.logger = get_logger(LogModule.EXTRACTION_CHARACTER)
+        self.logger = get_module_logger(LogModule.EXTRACTION_CHARACTER)
     
     
     

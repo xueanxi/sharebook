@@ -11,7 +11,7 @@ from nodes.progress_checker import ProgressChecker
 from utils.backup_utils import BackupUtils
 from sharebook.utils.logging_manager import LogModule, get_module_logger
 
-logger = get_logger(LogModule.EXTRACTION_CHARACTER)
+logger = get_module_logger(LogModule.EXTRACTION_CHARACTER)
 
 class CharacterExtractionOrchestrator:
     """角色提取工作流编排器"""
