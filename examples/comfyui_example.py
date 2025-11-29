@@ -2,7 +2,7 @@
 ComfyUI工具类使用示例
 """
 
-from src.utils.comfyui_wrapper import ComfyUIWrapper
+from sharebook.utils.comfyui_wrapper import ComfyUIWrapper
 import os
 
 def example_usage():

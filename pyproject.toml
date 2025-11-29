@@ -1,0 +1,128 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sharebook"
+version = "0.1.0"
+description = "小说信息提取和处理系统"
+authors = [
+    {name = "simon", email = "simon@example.com"}
+]
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.8"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+    "langchain",
+    "langchain-openai",
+    "langchain-community",
+    "openai",
+    "pydantic",
+    "python-dotenv",
+    "pyyaml",
+    "playwright",
+    "requests",
+    "pandas",
+    "numpy",
+    "scikit-learn",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-cov",
+    "black",
+    "isort",
+    "mypy",
+    "flake8",
+]
+
+[project.urls]
+Homepage = "https://github.com/xueanxi/sharebook"
+Repository = "https://github.com/xueanxi/sharebook.git"
+Issues = "https://github.com/xueanxi/sharebook/issues"
+
+[project.scripts]
+# 多入口点配置
+extraction = "sharebook.services.extraction.main:main"
+character-extract = "sharebook.services.extraction_character.main:main"
+image-generate = "sharebook.services.character_image_generation.main:main"
+comic-generate = "sharebook.services.comic_image_generation.main:main"
+novel-to-comic = "sharebook.services.novel_to_comic.main:main"
+storyboard-prompt = "sharebook.services.storyboard_to_prompt.main:main"
+crawling = "sharebook.services.crawling.main:main"
+
+[tool.setuptools]
+packages = {find = {where = ["src"]}}
+package-dir = {"" = "src"}
+
+[tool.setuptools.package-data]
+sharebook = ["config/*.json", "config/*.yaml", "*.yaml"]
+
+# Black配置
+[tool.black]
+target-version = ['py38']
+line-length = 88
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+# isort配置
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+line_length = 88
+known_first_party = ["sharebook"]
+
+# MyPy配置
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+ignore_missing_imports = true
+
+# Pytest配置
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--verbose --color=yes"
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+
+# Flake8配置
+[tool.flake8]
+max-line-length = 88
+extend-ignore = ["E203", "W503"]
+exclude = [
+    ".git",
+    "__pycache__",
+    "build",
+    "dist",
+    ".eggs",
+    "*.egg-info",
+    ".venv",
+    ".tox",
+]

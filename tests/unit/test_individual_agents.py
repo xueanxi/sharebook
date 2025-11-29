@@ -13,11 +13,11 @@ from unittest.mock import Mock, patch
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from src.core.agents.info_extract.text_preprocessor import TextPreprocessor
-from src.core.agents.info_extract.character_extractor import CharacterExtractor
-from src.core.agents.info_extract.plot_analyzer import PlotAnalyzer
-from src.core.agents.info_extract.satisfaction_identifier import SatisfactionPointIdentifier
-from src.core.agents.info_extract.base import NovelExtractionState
+from sharebook.core.agents.info_extract.text_preprocessor import TextPreprocessor
+from sharebook.core.agents.info_extract.character_extractor import CharacterExtractor
+from sharebook.core.agents.info_extract.plot_analyzer import PlotAnalyzer
+from sharebook.core.agents.info_extract.satisfaction_identifier import SatisfactionPointIdentifier
+from sharebook.core.agents.info_extract.base import NovelExtractionState
 
 from tests.test_utils import (
     get_test_novel_content, 

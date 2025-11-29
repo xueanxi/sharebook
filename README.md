@@ -1,35 +1,66 @@
-# 小说信息提取
+# ShareBook - 小说信息提取和处理系统
 
-## 基础信息提取
+基于 LangChain 框架和大型语言模型（LLM）的小说信息提取和处理系统，支持角色识别、图片生成和漫画故事板制作。
+
+## 安装和配置
+
+### 环境要求
+- Python 3.8+
+- conda 环境
+
+### 安装步骤
 ```bash
-python -m src.services.extraction.main data/raw --processes 2 --output data/output
+# 1. 克隆项目
+git clone https://github.com/xueanxi/sharebook.git
+cd sharebook
+
+# 2. 激活conda环境
+conda activate langchain
+
+# 3. 开发安装
+pip install -e .
+
+# 4. 配置LLM服务
+# 编辑 src/sharebook/config/llm_config.py 设置API_BASE、MODEL_NAME和API_KEY
 ```
 
-## 角色提取系统
+## 使用方法
+
+### 基础信息提取
 ```bash
-# 查看角色提取进度
-python src/services/extraction_character/main.py --progress
+# 方式1：使用命令行工具（推荐）
+extraction data/raw --processes 2 --output data/output
 
-# 运行完整角色提取
-python src/services/extraction_character/main.py
-
-# 重置进度并重新开始
-python src/services/extraction_character/main.py --reset
-
-# 自定义路径
-python src/services/extraction_character/main.py --novel-path path/to/novels --csv-path path/to/output.csv
+# 方式2：直接运行模块
+python -m sharebook.services.extraction.main data/raw --processes 2 --output data/output
 ```
 
-## 小说转漫画故事板生成
+### 角色提取系统
 ```bash
-# 自动模式：批量处理data/cleaned_novel目录中的所有章节（推荐）
-python -m src.services.novel_to_comic.main --auto
+# 方式1：使用命令行工具（推荐）
+character-extract --progress
+character-extract
+character-extract --reset
+character-extract --novel-path path/to/novels --csv-path path/to/output.csv
 
-# 处理单个章节
-python -m src.services.novel_to_comic.main -f "data/cleaned_novel/第一章 遇强则强.txt" -t "章节标题" -n "玄幻"
+# 方式2：直接运行模块
+python -m sharebook.services.extraction_character.main --progress
+python -m sharebook.services.extraction_character.main
+python -m sharebook.services.extraction_character.main --reset
+python -m sharebook.services.extraction_character.main --novel-path path/to/novels --csv-path path/to/output.csv
+```
 
-# 批量处理指定目录
-python -m src.services.novel_to_comic.main -d "data/cleaned_novel" -n "玄幻"
+### 小说转漫画故事板生成
+```bash
+# 方式1：使用命令行工具（推荐）
+novel-to-comic --auto
+novel-to-comic -f "data/cleaned_novel/第一章 遇强则强.txt" -t "章节标题" -n "玄幻"
+novel-to-comic -d "data/cleaned_novel" -n "玄幻"
+
+# 方式2：直接运行模块
+python -m sharebook.services.novel_to_comic.main --auto
+python -m sharebook.services.novel_to_comic.main -f "data/cleaned_novel/第一章 遇强则强.txt" -t "章节标题" -n "玄幻"
+python -m sharebook.services.novel_to_comic.main -d "data/cleaned_novel" -n "玄幻"
 
 # 参数说明
 # --auto: 自动模式，处理data/cleaned_novel目录中的所有章节
@@ -50,22 +81,21 @@ python -m src.services.novel_to_comic.main -d "data/cleaned_novel" -n "玄幻"
 - 格式：JSON文件，包含章节信息、段落分割、场景分析和视觉叙述
 - 文件命名：`{章节标题}_storyboards.json`
 
-## 角色图片生成
+### 角色图片生成
 ```bash
-# 列出所有角色
-python src/services/character_image_generation/main.py --list
+# 方式1：使用命令行工具（推荐）
+image-generate --list
+image-generate --name 叶师弟
+image-generate --names "叶师弟,羽化门,陈老狗"
+image-generate --all
+image-generate --test
 
-# 生成单个角色图片
-python src/services/character_image_generation/main.py --name 叶师弟
-
-# 批量生成多个角色图片
-python src/services/character_image_generation/main.py --names "叶师弟,羽化门,陈老狗"
-
-# 生成所有角色图片
-python src/services/character_image_generation/main.py --all
-
-# 测试ComfyUI连接
-python src/services/character_image_generation/main.py --test
+# 方式2：直接运行模块
+python -m sharebook.services.character_image_generation.main --list
+python -m sharebook.services.character_image_generation.main --name 叶师弟
+python -m sharebook.services.character_image_generation.main --names "叶师弟,羽化门,陈老狗"
+python -m sharebook.services.character_image_generation.main --all
+python -m sharebook.services.character_image_generation.main --test
 
 # 参数说明
 # --list: 列出所有可用角色
@@ -92,22 +122,21 @@ python src/services/character_image_generation/main.py --test
 - 格式：PNG图片文件
 - 文件命名：`image_001.png`, `image_002.png`等
 
-## 故事板到提示词转换
+### 故事板到提示词转换
 ```bash
-# 处理所有章节
-python -m src.services.storyboard_to_prompt.main --all
+# 方式1：使用命令行工具（推荐）
+storyboard-prompt --all
+storyboard-prompt --chapter "第一章 遇强则强_storyboards.json"
+storyboard-prompt --list
+storyboard-prompt --clean-backups --keep 5
+storyboard-prompt --export-report
 
-# 处理单个章节
-python -m src.services.storyboard_to_prompt.main --chapter "第一章 遇强则强_storyboards.json"
-
-# 列出所有可用章节
-python -m src.services.storyboard_to_prompt.main --list
-
-# 清理旧备份文件
-python -m src.services.storyboard_to_prompt.main --clean-backups --keep 5
-
-# 导出处理报告
-python -m src.services.storyboard_to_prompt.main --export-report
+# 方式2：直接运行模块
+python -m sharebook.services.storyboard_to_prompt.main --all
+python -m sharebook.services.storyboard_to_prompt.main --chapter "第一章 遇强则强_storyboards.json"
+python -m sharebook.services.storyboard_to_prompt.main --list
+python -m sharebook.services.storyboard_to_prompt.main --clean-backups --keep 5
+python -m sharebook.services.storyboard_to_prompt.main --export-report
 
 # 参数说明
 # --all: 处理所有章节
@@ -137,25 +166,56 @@ python -m src.services.storyboard_to_prompt.main --export-report
 - 文件命名：`{章节标题}_prompts.json`
 - 备份：自动创建备份文件，文件名包含时间戳
 
-## 漫画图片生成
+### 漫画图片生成
 ```bash
-# 测试ComfyUI连接
-python -m src.services.comic_image_generation.main --test
+# 方式1：使用命令行工具（推荐）
+comic-generate --test
+comic-generate --single "一个英俊的年轻男子，黑发，穿着现代服装，站在城市街道上，动漫风格" --ref-image "data/characters/image/搬山宗宗主/image_001.png"
+comic-generate --multi "男女主角背靠背站立，男性持盾，女性握剑，气氛严肃，背景为海洋" --ref-image-1 "data/characters/image/搬山宗宗主/image_001.png" --ref-image-2 "data/characters/image/搬山宗宗主/image_001.png"
+comic-generate -f "data/storyboards_prompt/第一章 遇强则强_prompts.json"
+comic-generate -d "data/storyboards_prompt/"
+comic-generate --auto
 
-# 生成单角色图片
-python -m src.services.comic_image_generation.main --single "一个英俊的年轻男子，黑发，穿着现代服装，站在城市街道上，动漫风格" --ref-image "data/characters/image/搬山宗宗主/image_001.png"
+# 方式2：直接运行模块
+python -m sharebook.services.comic_image_generation.main --test
+python -m sharebook.services.comic_image_generation.main --single "一个英俊的年轻男子，黑发，穿着现代服装，站在城市街道上，动漫风格" --ref-image "data/characters/image/搬山宗宗主/image_001.png"
+python -m sharebook.services.comic_image_generation.main --multi "男女主角背靠背站立，男性持盾，女性握剑，气氛严肃，背景为海洋" --ref-image-1 "data/characters/image/搬山宗宗主/image_001.png" --ref-image-2 "data/characters/image/搬山宗宗主/image_001.png"
+python -m sharebook.services.comic_image_generation.main -f "data/storyboards_prompt/第一章 遇强则强_prompts.json"
+python -m sharebook.services.comic_image_generation.main -d "data/storyboards_prompt/"
+python -m sharebook.services.comic_image_generation.main --auto
+```
 
-# 生成多角色图片
-python -m src.services.comic_image_generation.main --multi "男女主角背靠背站立，男性持盾，女性握剑，气氛严肃，背景为海洋" --ref-image-1 "data/characters/image/搬山宗宗主/image_001.png" --ref-image-2 "data/characters/image/搬山宗宗主/image_001.png"
+### 网络爬虫
+```bash
+# 方式1：使用命令行工具（推荐）
+crawling https://example.com/novel -o data/raw
 
-# 处理单个章节
-python -m src.services.comic_image_generation.main -f "data/storyboards_prompt/第一章 遇强则强_prompts.json"
+# 方式2：直接运行模块
+python -m sharebook.services.crawling.main https://example.com/novel -o data/raw
+```
 
-# 处理目录中的所有章节
-python -m src.services.comic_image_generation.main -d "data/storyboards_prompt/"
+## 项目结构
 
-# 自动模式（处理配置文件中的默认目录）
-python -m src.services.comic_image_generation.main --auto
+```
+sharebook/
+├── src/sharebook/           # 主包目录
+│   ├── config/              # 配置管理
+│   ├── core/                # 核心业务逻辑
+│   │   └── agents/          # AI代理实现
+│   ├── services/            # 业务服务模块
+│   │   ├── extraction/      # 信息提取服务
+│   │   ├── extraction_character/  # 角色提取服务
+│   │   ├── character_image_generation/  # 角色图片生成
+│   │   ├── comic_image_generation/     # 漫画图片生成
+│   │   ├── novel_to_comic/             # 小说转漫画
+│   │   ├── storyboard_to_prompt/       # 故事板到提示词
+│   │   └── crawling/      # 网络爬虫服务
+│   └── utils/               # 工具函数
+├── data/                    # 数据目录
+├── docs/                    # 文档
+├── tests/                   # 测试文件
+└── pyproject.toml          # 项目配置
+```
 
 # 参数说明
 # --test: 测试ComfyUI连接状态

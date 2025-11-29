@@ -12,7 +12,7 @@ import time
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ""))
 sys.path.insert(0, project_root)
 
-from src.services.character_image_generation.character_image_generator import CharacterImageGenerator
+from sharebook.services.character_image_generation.character_image_generator import CharacterImageGenerator
 
 # 设置日志级别
 logging.basicConfig(level=logging.INFO)

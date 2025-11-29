@@ -10,7 +10,7 @@ import time
 # 添加项目根目录到Python路径
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from src.utils.logging_manager import (
+from sharebook.utils.logging_manager import (
     get_logger,
     get_agent_logger,
     get_api_logger,
@@ -30,7 +30,7 @@ general_logger = get_logger("example_module")
 general_logger.info("这是一条通用日志信息")
 
 # 示例2: 使用模块日志
-agent_logger = get_module_logger(LogModule.MAIN)
+agent_logger = get_logger(LogModule.MAIN)
 agent_logger.info("Agent开始处理文本")
 
 # 示例3: 使用API日志
