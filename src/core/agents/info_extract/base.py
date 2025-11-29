@@ -15,7 +15,7 @@ from langgraph.graph import StateGraph, START, END
 from langgraph.types import Send
 import operator
 
-from config.llm_config import LLMConfig
+from src.config.llm_config import LLMConfig
 from src.utils.logging_manager import get_module_logger, LogModule, log_agent_process
 
 # 初始化日志记录器

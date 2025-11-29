@@ -9,7 +9,7 @@ import json
 import time
 from typing import List, Dict, Optional
 from src.utils.comfyui_wrapper import ComfyUIWrapper
-from config.logging_config import get_module_logger, LogModule
+from src.config.logging_config import get_module_logger, LogModule
 
 logger = get_module_logger(LogModule.CHARACTER_IMAGE_GENERATION)
 

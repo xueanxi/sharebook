@@ -19,7 +19,7 @@ from src.utils.logging_manager import LogModule, get_module_logger
 
 logger = get_module_logger(LogModule.STORYBOARD_TO_PROMPT)
 
-from config.llm_config import LLMConfig
+from src.config.llm_config import LLMConfig
 from openai import OpenAI
 
 

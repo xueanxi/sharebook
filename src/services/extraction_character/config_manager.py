@@ -85,7 +85,7 @@ class ConfigManager:
                     'max_csv_agents': 6
                 },
                 'llm': {
-                    'config_path': 'config/llm_config.py',
+                    'config_path': 'src/config/llm_config.py',
                     'temperature': 0.4,
                     'max_tokens': 2000,
                     'timeout': 30

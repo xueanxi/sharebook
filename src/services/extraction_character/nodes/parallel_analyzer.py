@@ -11,7 +11,7 @@ from utils.llm_utils import LLMUtils
 class ParallelCharacterAnalyzer:
     """并行角色分析节点"""
     
-    def __init__(self, llm_config_path: str = "config/llm_config.py", extraction_config_path: str = "src/services/extraction_character/config.yaml", max_workers: int = 6):
+    def __init__(self, llm_config_path: str = "src/config/llm_config.py", extraction_config_path: str = "src/services/extraction_character/config.yaml", max_workers: int = 6):
         """
         初始化并行角色分析节点
         

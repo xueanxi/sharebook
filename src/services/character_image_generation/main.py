@@ -14,7 +14,7 @@ project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../..
 sys.path.insert(0, project_root)
 
 from src.services.character_image_generation.character_image_generator import CharacterImageGenerator
-from config.logging_config import get_module_logger, LogModule
+from src.config.logging_config import get_module_logger, LogModule
 
 logger = get_module_logger(LogModule.CHARACTER_IMAGE_GENERATION)
 

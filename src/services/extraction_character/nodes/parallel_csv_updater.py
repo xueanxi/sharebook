@@ -13,7 +13,7 @@ from utils.backup_utils import BackupUtils
 class ParallelCSVUpdater:
     """并行CSV更新节点"""
     
-    def __init__(self, csv_path: str, llm_config_path: str = "config/llm_config.py", extraction_config_path: str = "src/services/extraction_character/config.yaml", max_workers: int = 6):
+    def __init__(self, csv_path: str, llm_config_path: str = "src/config/llm_config.py", extraction_config_path: str = "src/services/extraction_character/config.yaml", max_workers: int = 6):
         """
         
         初始化并行CSV更新节点

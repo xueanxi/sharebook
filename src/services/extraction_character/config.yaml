@@ -3,7 +3,7 @@ extraction:
     log_errors: true
     retry_count: 3
   llm:
-    config_path: config/llm_config.py
+    config_path: src/config/llm_config.py
     max_tokens: 2000
     temperature: 0.4
     timeout: 30

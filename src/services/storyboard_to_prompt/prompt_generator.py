@@ -16,7 +16,7 @@ print(f"prompt_generator#项目根目录: {root_path}")
 if root_path not in sys.path:
     sys.path.insert(0, root_path)
 
-from config.llm_config import LLMConfig
+from src.config.llm_config import LLMConfig
 from .config.prompts import (
     SINGLE_SCENE_TO_PROMPT_CONVERTER,
     SINGLE_CHARACTER_PROMPT_TEMPLATE,

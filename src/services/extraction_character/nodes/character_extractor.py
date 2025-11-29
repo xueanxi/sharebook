@@ -10,7 +10,7 @@ from utils.llm_utils import LLMUtils
 class CharacterExtractor:
     """角色提取节点"""
     
-    def __init__(self, llm_config_path: str = "config/llm_config.py", extraction_config_path: str = "src/services/extraction_character/config.yaml"):
+    def __init__(self, llm_config_path: str = "src/config/llm_config.py", extraction_config_path: str = "src/services/extraction_character/config.yaml"):
         """
         初始化角色提取节点
         

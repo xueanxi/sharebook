@@ -20,7 +20,7 @@ from src.services.novel_to_comic.models.data_models import (
 from src.services.novel_to_comic.utils.character_manager import CharacterManager
 from src.utils import common_config
 from src.utils.logging_manager import get_module_logger, LogModule
-from config.llm_config import LLMConfig
+from src.config.llm_config import LLMConfig
 
 logger = get_module_logger(LogModule.NOVEL_TO_COMIC)
 is_show_llm_log = common_config.get_common_config().get_show_llm_log()

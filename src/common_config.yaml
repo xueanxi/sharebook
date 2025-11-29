@@ -1,5 +1,5 @@
 llm:
-  config_path: D:/work/code/python/sharebook/config/llm_config.py
+  config_path: D:/work/code/python/sharebook/src/config/llm_config.py
   max_tokens: 3000
   temperature: 0.7
   timeout: 45

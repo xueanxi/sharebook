@@ -74,7 +74,7 @@ class LogManager:
         }
         
         # 加载自定义配置（如果存在）
-        config_file = self.project_root / "config" / "logging_config.json"
+        config_file = self.project_root / "src" / "config" / "logging_config.json"
         if config_file.exists():
             try:
                 with open(config_file, 'r', encoding='utf-8') as f:

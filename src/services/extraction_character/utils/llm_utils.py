@@ -25,7 +25,7 @@ from src.services.extraction_character.prompt.prompts import (
 class LLMUtils:
     """LLM调用工具类"""
     
-    def __init__(self, llm_config_path: str = "config/llm_config.py", extraction_config_path: str = "src/services/extraction_character/config.yaml"):
+    def __init__(self, llm_config_path: str = "src/config/llm_config.py", extraction_config_path: str = "src/services/extraction_character/config.yaml"):
         """
         初始化LLM工具
         

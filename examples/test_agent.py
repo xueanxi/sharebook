@@ -7,7 +7,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(
 
 from langchain_openai import ChatOpenAI
 from typing import List, Dict, Any, TypedDict
-from config.llm_config import LLMConfig
+from src.config.llm_config import LLMConfig
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
 
