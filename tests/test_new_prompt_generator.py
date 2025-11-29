@@ -17,7 +17,7 @@ if root_path not in sys.path:
 from sharebook.services.storyboard_to_prompt.prompt_generator import PromptGenerator
 from sharebook.utils.logging_manager import LogModule, get_module_logger
 
-logger = get_logger(LogModule.STORYBOARD_TO_PROMPT)
+logger = get_module_logger(LogModule.STORYBOARD_TO_PROMPT)
 
 from sharebook.config.llm_config import LLMConfig
 from openai import OpenAI

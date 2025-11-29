@@ -13,7 +13,7 @@ from typing import List, Dict, Optional, Union, Any
 from sharebook.utils.comfyui_wrapper import ComfyUIWrapper
 from sharebook.utils.text_processing.chapter_sorter import ChapterSorter
 from sharebook.utils.text_processing.chapter_info_hander import extract_chapter_info
-from sharebook.utils.logging_manager import get_logger, LogModule
+from sharebook.utils.logging_manager import get_module_logger, LogModule
 from sharebook.utils.data_helper import data_helper
 
 logger = get_module_logger(LogModule.COMIC_IMAGE_GENERATION)
@@ -32,7 +32,7 @@ class ComicImageGeneration:
         self.config = self._load_config(config_path)
         self.single_character_workflow = self.config.get("comic_image_generation", {}).get("paths", {}).get("single_character_workflow", "comfyui/novel_single_charator_refimage.json")
         self.multi_character_workflow = self.config.get("comic_image_generation", {}).get("paths", {}).get("multi_character_workflow", "comfyui/novel_multi_charator_refiamge.json")
-        self.storyboards_prompt_dir = self.config.get("comic_image_generation", {}).get("paths", {}).get("storyboards_prompt_dir", data_helper.get_storyboards_prompt_dir())
+        self.storyboards_prompt_dir = self.config.get("comic_image_generation", {}).get("paths", {}).get("storyboards_prompt_dir", str(data_helper.get_storyboards_prompt_path("")))
         self.comfyui_input_dir = self.config.get("comic_image_generation", {}).get("paths", {}).get("comfyui_input_dir", "ComfyUI/input")
         self.output_root_dir = self.config.get("comic_image_generation", {}).get("paths", {}).get("output_root_dir", "custom_output/")
         self.wrapper = None

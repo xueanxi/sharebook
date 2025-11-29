@@ -17,7 +17,7 @@ from sharebook.services.novel_to_comic.utils.character_manager import CharacterM
 from sharebook.services.novel_to_comic.config.processing_config import MAX_SCENE_SPLITTING_CONCURRENT
 from sharebook.utils.logging_manager import get_module_logger, LogModule
 
-logger = get_logger(LogModule.NOVEL_TO_COMIC)
+logger = get_module_logger(LogModule.NOVEL_TO_COMIC)
 
 
 class FixedParallelVisualState(TypedDict):

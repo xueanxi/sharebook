@@ -9,17 +9,17 @@ from typing import List, Dict, Optional
 from .character_data_reader import CharacterDataReader
 from .comfyui_interface import ComfyUIInterface
 from .file_manager import FileManager
-from sharebook.utils.logging_manager import get_logger, LogModule
+from sharebook.utils.logging_manager import get_module_logger, LogModule
 from sharebook.utils.data_helper import data_helper
 
-logger = get_logger(LogModule.CHARACTER_IMAGE_GENERATION)
+logger = get_module_logger(LogModule.CHARACTER_IMAGE_GENERATION)
 
 
 class CharacterImageGenerator:
     """角色图片生成器"""
     
     def __init__(self, 
-                 csv_file_path: str = data_helper.get_characters_csv_path(),
+                 csv_file_path: str = str(data_helper.get_characters_path()),
                  output_base_dir: str = data_helper.get_character_image_dir(),
                  workflow_template: str = "comfyui/novel_t2I_flux.json"):
         """

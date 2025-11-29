@@ -11,7 +11,7 @@ from sharebook.services.novel_to_comic.utils.text_processor import TextProcessor
 from sharebook.services.novel_to_comic.utils.character_manager import CharacterManager
 from sharebook.utils.logging_manager import get_module_logger, LogModule
 
-logger = get_logger(LogModule.NOVEL_TO_COMIC)
+logger = get_module_logger(LogModule.NOVEL_TO_COMIC)
 
 
 class IntelligentSegmenter:

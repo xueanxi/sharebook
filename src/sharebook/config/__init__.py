@@ -5,11 +5,11 @@
 """
 
 from .llm_config import LLMConfig
-from ..utils.logging_manager import get_logger
+from ..utils.logging_manager import get_module_logger
 from .embeddings_config import get_embeddings_config
 
 __all__ = [
     "LLMConfig",
-    "get_logger", 
+    "get_module_logger", 
     "get_embeddings_config",
 ]

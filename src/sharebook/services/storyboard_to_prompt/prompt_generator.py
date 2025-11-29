@@ -28,7 +28,7 @@ from sharebook.utils.common_config import get_common_config
 
 
 novel_type = get_common_config().get_novel_type()
-logger = get_logger(LogModule.STORYBOARD_TO_PROMPT)
+logger = get_module_logger(LogModule.STORYBOARD_TO_PROMPT)
 
 # 提示词生成器配置
 PROMPT_GENERATOR_CONFIG = {

@@ -20,7 +20,7 @@ from sharebook.utils.logging_manager import get_module_logger, LogModule
 from sharebook.utils import common_config
 from sharebook.config.llm_config import LLMConfig
 
-logger = get_logger(LogModule.NOVEL_TO_COMIC)
+logger = get_module_logger(LogModule.NOVEL_TO_COMIC)
 is_show_llm_log = common_config.get_common_config().get_show_llm_log()
 
 class SceneSplitterAgent:
@@ -29,7 +29,7 @@ class SceneSplitterAgent:
     def __init__(self, character_manager: CharacterManager):
         self.character_manager = character_manager
         self.logger = logger
-        self.file_logger = get_logger(LogModule.NOVEL_TO_COMIC)
+        self.file_logger = get_module_logger(LogModule.NOVEL_TO_COMIC)
         
         # 初始化LLM
         self.llm_kwargs = LLMConfig.get_openai_kwargs()
